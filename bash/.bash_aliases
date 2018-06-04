@@ -13,3 +13,8 @@ alias gc='git commit'
 # In case I fall into old habits
 alias vim='nvim'
 
+# browser-sync
+alias srv="browser-sync start --server --files '**/*.css **/*.html **/*.js'"
+
+# thefuck
+eval $(thefuck --alias)
