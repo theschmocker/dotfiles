@@ -33,6 +33,10 @@ filetype plugin indent on
 " non-Vundle config
 set t_Co=256
 syntax on
+
+let g:nord_italic = 1
+let g:nord_italic_comments = 1
+
 colorscheme nord
 
 " JSX in .js files
