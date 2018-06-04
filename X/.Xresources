@@ -15,7 +15,7 @@
 
 ! urxvt stuff
 URxvt.scrollBar: false
-URxvt.font: xft:Fira Code:size=13
+URxvt.font: xft:Dank Mono:size=15
 URxvt.cursorBlink: 1
 URxvt.internalBorder: 15
 
