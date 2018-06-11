@@ -3,3 +3,9 @@
 function mk() {
     mkdir "$@" && cd "$@"
 }
+
+function scratch() {
+    local filename="$(date +%m_%d_%y).txt"
+    local scratchdir="/home/schmo/Documents/scratchpad/"
+    nvim "${scratchdir}${filename}"
+}
