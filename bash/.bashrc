@@ -128,6 +128,8 @@ fi
 export PATH="$PATH:$HOME/.rvm/bin"
 export PATH=$HOME/bin:$PATH
 export PATH=$HOME/.local/bin/:$PATH
+export PATH=$HOME/.yarn/bin/:$PATH
+export PATH=$HOME/.config/composer/vendor/bin:$PATH
 
 # Import colorscheme from 'wal'
 # (wal -r -t &)

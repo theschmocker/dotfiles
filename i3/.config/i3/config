@@ -19,7 +19,7 @@ font pango: DejaVu Sans Book 12
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec urxvt
+bindsym $mod+Return exec konsole
 
 # start firefox
 bindsym $mod+b exec firefox

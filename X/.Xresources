@@ -15,7 +15,7 @@
 
 ! urxvt stuff
 URxvt.scrollBar: false
-URxvt.font: xft:Dank Mono:size=15
+URxvt.font: xft:Dank Mono:size=15,xft:Noto Emoji:size=9
 URxvt.cursorBlink: 1
 URxvt.internalBorder: 15
 

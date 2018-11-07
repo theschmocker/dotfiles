@@ -11,24 +11,34 @@ Plugin 'Townk/vim-autoclose'
 Plugin 'mxw/vim-jsx'
 Plugin 'dylanaraps/wal'
 Plugin 'tpope/vim-surround'
-Plugin 'junegunn/goyo.vim'
-Plugin 'junegunn/seoul256.vim'
-Plugin 'junegunn/limelight.vim'
 Plugin 'jparise/vim-graphql'
-Plugin 'arcticicestudio/nord-vim'
 Plugin 'hail2u/vim-css3-syntax'
 Plugin 'styled-components/vim-styled-components'
 Plugin 'mattn/emmet-vim'
+Plugin 'prettier/vim-prettier', { 'do': 'yarn install' }
+Plugin 'haishanh/night-owl.vim'
+"Plugin 'flazz/vim-colorschemes'
+Plugin 'arcticicestudio/nord-vim'
+Plugin 'posva/vim-vue'
+Plugin 'StanAngeloff/php.vim'
+Plugin 'nelsyeung/twig.vim'
+Plugin 'jwalton512/vim-blade'
+
+let g:vue_disable_pre_processors = 1
 
 if has('nvim')
     Plugin 'Shougo/deoplete.nvim'
     Plugin 'carlitux/deoplete-ternjs'
+    Plugin 'othree/yajs.vim'
+
     let g:deoplete#enable_at_startup = 1
+    let g:deoplete#sources#ternjs#tern_bin = '/home/schmo/.config/yarn/global/node_modules/tern/bin/tern'
 endif
 
 
 call vundle#end()
 filetype plugin indent on
+
 
 " non-Vundle config
 set t_Co=256
@@ -45,8 +55,8 @@ let g:jsx_ext_required = 0
 set number
 set relativenumber
 set hidden
-set tabstop=4
-set shiftwidth=4
+set tabstop=2
+set shiftwidth=2
 set expandtab
 set ruler
 set linebreak
