@@ -25,8 +25,8 @@ bindsym $mod+Return exec konsole
 bindsym $mod+b exec firefox
 # start pavucontrol
 bindsym $mod+p exec pavucontrol
-# start anki
-bindsym $mod+a exec anki
+# start emacs
+bindsym $mod+a exec emacs
 
 
 # kill focused window
