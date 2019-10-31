@@ -15,21 +15,25 @@ Plugin 'jparise/vim-graphql'
 Plugin 'hail2u/vim-css3-syntax'
 Plugin 'styled-components/vim-styled-components'
 Plugin 'mattn/emmet-vim'
-Plugin 'prettier/vim-prettier', { 'do': 'yarn install' }
 Plugin 'haishanh/night-owl.vim'
+Plugin 'kien/ctrlp.vim'
+
 "Plugin 'flazz/vim-colorschemes'
 Plugin 'arcticicestudio/nord-vim'
 Plugin 'posva/vim-vue'
 Plugin 'StanAngeloff/php.vim'
 Plugin 'nelsyeung/twig.vim'
 Plugin 'jwalton512/vim-blade'
+Plugin 'neoclide/coc.nvim', {'branch': 'release'}
+Plugin 'burner/vim-svelte'
+Plugin 'fatih/vim-go'
 
 let g:vue_disable_pre_processors = 1
 
 if has('nvim')
-    Plugin 'Shougo/deoplete.nvim'
-    Plugin 'carlitux/deoplete-ternjs'
-    Plugin 'othree/yajs.vim'
+    "Plugin 'Shougo/deoplete.nvim'
+    "Plugin 'carlitux/deoplete-ternjs'
+    "Plugin 'othree/yajs.vim'
 
     let g:deoplete#enable_at_startup = 1
     let g:deoplete#sources#ternjs#tern_bin = '/home/schmo/.config/yarn/global/node_modules/tern/bin/tern'
@@ -55,8 +59,8 @@ let g:jsx_ext_required = 0
 set number
 set relativenumber
 set hidden
-set tabstop=2
-set shiftwidth=2
+set tabstop=4
+set shiftwidth=4
 set expandtab
 set ruler
 set linebreak
@@ -85,7 +89,6 @@ let mapleader = " "
         nnoremap <leader>k gk
     " Insert mode
     inoremap jk <esc>
-    inoremap <ESC> <Nop>
     inoremap <c-u> <esc>viwU<esc>ea
     " Command mode
     cnoremap w!! w !sudo tee > /dev/null %
@@ -107,3 +110,5 @@ endfunction
 autocmd! User GoyoEnter nested call <SID>goyo_enter()
 autocmd! User GoyoLeave nested call <SID>goyo_leave()
 
+" CtrlP
+let g:ctrlp_map = '<leader>p'
