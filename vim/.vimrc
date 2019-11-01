@@ -27,6 +27,14 @@ Plugin 'jwalton512/vim-blade'
 Plugin 'neoclide/coc.nvim', {'branch': 'release'}
 Plugin 'burner/vim-svelte'
 Plugin 'fatih/vim-go'
+" Plugin 'phpactor/phpactor', {'for': 'php', 'do': 'composer install'}
+" Plugin 'ncm2/ncm2'
+" Plugin 'roxma/nvim-yarp'
+" Plugin 'phpactor/ncm2-phpactor'
+" Plugin 'ncm2/ncm2-ultisnips'
+" Plugin 'SirVer/ultisnips'
+Plugin 'liuchengxu/vim-which-key'
+Plugin 'scrooloose/nerdtree'
 
 let g:vue_disable_pre_processors = 1
 
@@ -59,8 +67,8 @@ let g:jsx_ext_required = 0
 set number
 set relativenumber
 set hidden
-set tabstop=4
-set shiftwidth=4
+set tabstop=2
+set shiftwidth=2
 set expandtab
 set ruler
 set linebreak
@@ -69,8 +77,10 @@ set wildmode=list:longest,full
 "set showbreak=> " visually indicate a soft wrap"
 
 " Set leader key
-nnoremap <SPACE> <Nop>
-let mapleader = " "
+let g:mapleader = "\<Space>"
+let g:maplocalleader = ','
+nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
+nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
 
 " Custom mappings
     " Normal mode
@@ -112,3 +122,7 @@ autocmd! User GoyoLeave nested call <SID>goyo_leave()
 
 " CtrlP
 let g:ctrlp_map = '<leader>p'
+
+" NerdTree
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()
