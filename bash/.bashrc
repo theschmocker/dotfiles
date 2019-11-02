@@ -129,11 +129,27 @@ export PATH="$PATH:$HOME/.rvm/bin"
 export PATH=$HOME/bin:$PATH
 export PATH=$HOME/.local/bin/:$PATH
 export PATH=$HOME/.yarn/bin/:$PATH
+export PATH=$HOME/.npm-global/bin/:$PATH
 export PATH=$HOME/.config/composer/vendor/bin:$PATH
-export PATH=$HOME/.gem/ruby/2.5.0/bin:$PATH
+export PATH=$HOME/.gem/ruby/2.6.0/bin:$PATH
 
+# Android SDK stuff for react native
+export ANDROID_HOME=$HOME/Android/Sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:${GOPATH//://bin:}/bin
+
+export GOPATH=$HOME/go
 # Import colorscheme from 'wal'
 # (wal -r -t &)
 
 # Vi mode ftw
 set -o vi
+
+###-tns-completion-start-###
+if [ -f /home/schmo/.tnsrc ]; then 
+    source /home/schmo/.tnsrc 
+fi
+###-tns-completion-end-###

@@ -19,6 +19,7 @@ secondary = ${xrdb:color6:#222}
 alert = #bd2c40
 
 [bar/example]
+monitor = ${env:MONITOR:eDP-1}
 ;monitor = ${env:MONITOR:HDMI-1}
 width = 100%
 height = 30
@@ -48,7 +49,7 @@ font-2 = WunconSiji:pixelsize=12;1
 
 modules-left = i3
 modules-center = 
-modules-right = mpd filesystem volume memory cpu wlan battery date powermenu
+modules-right = filesystem volume memory cpu wlan battery date powermenu
 
 tray-position = right
 tray-padding = 2
@@ -151,19 +152,6 @@ label-visible-padding = ${self.label-focused-padding}
 label-urgent = %name%
 label-urgent-background = ${module/bspwm.label-urgent-background}
 label-urgent-padding = ${module/bspwm.label-urgent-padding}
-
-[module/mpd]
-type = internal/mpd
-format-online = <label-song>  <icon-prev> <icon-stop> <toggle> <icon-next>
-
-icon-prev = 
-icon-stop = 
-icon-play = 
-icon-pause = 
-icon-next = 
-
-label-song-maxlen = 100
-label-song-ellipsis = true
 
 [module/xbacklight]
 type = internal/xbacklight
