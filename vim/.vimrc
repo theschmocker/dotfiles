@@ -1,54 +1,50 @@
 " required for Vundle
 set nocompatible
 filetype off
-" Vundle setup
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" plugins go here
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'pangloss/vim-javascript'
-Plugin 'Townk/vim-autoclose'
-Plugin 'mxw/vim-jsx'
-Plugin 'dylanaraps/wal'
-Plugin 'tpope/vim-surround'
-Plugin 'jparise/vim-graphql'
-Plugin 'hail2u/vim-css3-syntax'
-Plugin 'styled-components/vim-styled-components'
-Plugin 'mattn/emmet-vim'
-Plugin 'haishanh/night-owl.vim'
-Plugin 'kien/ctrlp.vim'
 
-"Plugin 'flazz/vim-colorschemes'
-Plugin 'arcticicestudio/nord-vim'
-Plugin 'posva/vim-vue'
-Plugin 'StanAngeloff/php.vim'
-Plugin 'nelsyeung/twig.vim'
-Plugin 'jwalton512/vim-blade'
-Plugin 'neoclide/coc.nvim', {'branch': 'release'}
-Plugin 'burner/vim-svelte'
-Plugin 'fatih/vim-go'
-" Plugin 'phpactor/phpactor', {'for': 'php', 'do': 'composer install'}
-" Plugin 'ncm2/ncm2'
-" Plugin 'roxma/nvim-yarp'
-" Plugin 'phpactor/ncm2-phpactor'
-" Plugin 'ncm2/ncm2-ultisnips'
-" Plugin 'SirVer/ultisnips'
-Plugin 'liuchengxu/vim-which-key'
-Plugin 'scrooloose/nerdtree'
-
-let g:vue_disable_pre_processors = 1
-
-if has('nvim')
-    "Plugin 'Shougo/deoplete.nvim'
-    "Plugin 'carlitux/deoplete-ternjs'
-    "Plugin 'othree/yajs.vim'
-
-    let g:deoplete#enable_at_startup = 1
-    let g:deoplete#sources#ternjs#tern_bin = '/home/schmo/.config/yarn/global/node_modules/tern/bin/tern'
+" Install vim-plug if it isn't already
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
+" vim-plug setup
+call plug#begin()
+" Colorschemes
+Plug 'flazz/vim-colorschemes'
+Plug 'haishanh/night-owl.vim'
+Plug 'arcticicestudio/nord-vim'
+Plug 'dylanaraps/wal'
 
-call vundle#end()
+" Syntax/Language
+Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
+Plug 'jparise/vim-graphql'
+Plug 'hail2u/vim-css3-syntax'
+Plug 'posva/vim-vue'
+Plug 'StanAngeloff/php.vim'
+Plug 'nelsyeung/twig.vim'
+Plug 'jwalton512/vim-blade'
+Plug 'burner/vim-svelte'
+Plug 'styled-components/vim-styled-components'
+Plug 'fatih/vim-go'
+
+" Completion
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'phpactor/phpactor', {'for': 'php', 'do': 'composer install'}
+
+" Utilities
+Plug 'Townk/vim-autoclose'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-fugitive'
+Plug 'mattn/emmet-vim'
+Plug 'liuchengxu/vim-which-key'
+Plug 'scrooloose/nerdtree'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+
+call plug#end()
 filetype plugin indent on
 
 
