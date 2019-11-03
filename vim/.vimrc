@@ -47,15 +47,20 @@ Plug 'junegunn/fzf.vim'
 call plug#end()
 filetype plugin indent on
 
+let g:vue_disable_pre_processors = 1
+
 
 " non-Vundle config
-set t_Co=256
+
+if (has("termguicolors"))
+  set termguicolors
+endif
+
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+
 syntax on
 
-let g:nord_italic = 1
-let g:nord_italic_comments = 1
-
-colorscheme nord
+colorscheme night-owl
 
 " JSX in .js files
 let g:jsx_ext_required = 0
@@ -70,55 +75,82 @@ set ruler
 set linebreak
 set wildmenu
 set wildmode=list:longest,full
+set timeoutlen=200
 "set showbreak=> " visually indicate a soft wrap"
 
 " Set leader key
 let g:mapleader = "\<Space>"
-let g:maplocalleader = ','
+"let g:maplocalleader = ','
+
+call which_key#register('<Space>', "g:which_key_map")
+
 nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
-nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
+"nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
 
 " Custom mappings
-    " Normal mode
-    nnoremap - ddp
-    nnoremap _ dd2kp
-    nnoremap <leader>d dd
-    nnoremap <leader>w <c-w><c-w>
-    nnoremap H ^
-    nnoremap L $
-        " Shebang
-        nnoremap <leader>sb i#!
-        nnoremap <leader>sbb i#!/bin/bash<cr><cr>
-        nnoremap <leader>sbp i#!/usr/bin/python3<cr><cr>
-        " Movements in wrapped lines
-        nnoremap <leader>j gj
-        nnoremap <leader>k gk
-    " Insert mode
-    inoremap jk <esc>
-    inoremap <c-u> <esc>viwU<esc>ea
-    " Command mode
-    cnoremap w!! w !sudo tee > /dev/null %
-" Quick .vimrc access
-nnoremap <leader>ev :split $MYVIMRC<cr>
-" Source .vimrc
-nnoremap <leader>sv :source $MYVIMRC<cr>
+" Normal mode
+nnoremap H ^
+nnoremap L $
+" Movements in wrapped lines
+nnoremap <leader>j gj
+nnoremap <leader>k gk
+" Insert mode
+inoremap jk <esc>
+" Command mode
+cnoremap w!! w !sudo tee > /dev/null %
 
-" Goyo settings
-function! s:goyo_enter()
-    Limelight
-    set number
-    set relativenumber
-endfunction
-
-function! s:goyo_leave()
-    Limelight!
-endfunction
-autocmd! User GoyoEnter nested call <SID>goyo_enter()
-autocmd! User GoyoLeave nested call <SID>goyo_leave()
-
-" CtrlP
-let g:ctrlp_map = '<leader>p'
+tnoremap jk <c-\><c-n>
+tnoremap <esc> <c-\><c-n>
+tnoremap <M-[> <Esc>
 
 " NerdTree
 autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
+" vim-which-key config
+let g:which_key_map={}
+let g:which_key_map['w'] = {
+      \ 'name' : '+windows' ,
+      \ 'w' : ['<C-W>w'     , 'other-window']          ,
+      \ 'd' : ['<C-W>c'     , 'delete-window']         ,
+      \ '-' : ['<C-W>s'     , 'split-window-below']    ,
+      \ '|' : ['<C-W>v'     , 'split-window-right']    ,
+      \ '2' : ['<C-W>v'     , 'layout-double-columns'] ,
+      \ 'h' : ['<C-W>h'     , 'window-left']           ,
+      \ 'j' : ['<C-W>j'     , 'window-below']          ,
+      \ 'l' : ['<C-W>l'     , 'window-right']          ,
+      \ 'k' : ['<C-W>k'     , 'window-up']             ,
+      \ 'H' : ['<C-W>5<'    , 'expand-window-left']    ,
+      \ 'J' : ['resize +5'  , 'expand-window-below']   ,
+      \ 'L' : ['<C-W>5>'    , 'expand-window-right']   ,
+      \ 'K' : ['resize -5'  , 'expand-window-up']      ,
+      \ '=' : ['<C-W>='     , 'balance-window']        ,
+      \ 's' : ['<C-W>s'     , 'split-window-below']    ,
+      \ 'v' : ['<C-W>v'     , 'split-window-below']    ,
+      \ '?' : ['Windows'    , 'fzf-window']            ,
+      \ }
+let g:which_key_map['n'] = {
+      \ 'name' : '+NERDTree',
+      \ 'o' : ['NERDTree', 'open nerdtree'],
+      \ 'f' : ['NERDTreeFocus', 'focus nerdtree'],
+      \ 'c' : ['NERDTreeClose', 'close nerdtree'],
+      \ }
+
+let g:which_key_map['v'] = {
+      \ 'name' : '+vimrc',
+      \ 'e' : [':split ~/.vimrc', 'edit .vimrc'],
+      \ 's' : [':source $MYVIMRC', 'source .vimrc/init.vim'],
+      \ 'n' : [':split $MYVIMRC', 'edit init.vim if neovim, otherwise .vimrc'],
+      \ }
+
+let g:which_key_map['f'] = {
+      \ 'name' : '+fzf',
+      \ 'f' : [':Files', 'fuzzy search files'],
+      \ 'b' : [':Buffers', 'fuzzy search buffers'],
+      \ 't' : [':Tags', 'fuzzy search tags'],
+      \ }
+
+" Emmet Config
+" let g:user_emmet_leader_key='<C-Z>'
+
