@@ -1,0 +1,18 @@
+{
+  "languageserver": {
+    "golang": {
+      "command": "gopls",
+      "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
+      "filetypes": ["go"]
+    }, 
+    "phpactor": {
+      "command": "/home/schmo/.vim/plugged/phpactor/bin/phpactor",
+      "args": ["language-server"],
+      "filetypes": ["php"],
+      "initializationOptions": {
+      },
+      "settings": {
+      }
+    }
+  }
+}
