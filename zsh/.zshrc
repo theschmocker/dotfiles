@@ -108,3 +108,7 @@ export PATH=$HOME/.yarn/bin/:$PATH
 export PATH=$HOME/.npm-global/bin/:$PATH
 export PATH=$HOME/.config/composer/vendor/bin:$PATH
 export PATH=$HOME/.gem/ruby/2.6.0/bin:$PATH
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'

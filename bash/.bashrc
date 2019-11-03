@@ -153,3 +153,5 @@ if [ -f /home/schmo/.tnsrc ]; then
     source /home/schmo/.tnsrc 
 fi
 ###-tns-completion-end-###
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
