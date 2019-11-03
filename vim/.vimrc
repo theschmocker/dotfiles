@@ -26,7 +26,7 @@ Plug 'posva/vim-vue'
 Plug 'StanAngeloff/php.vim'
 Plug 'nelsyeung/twig.vim'
 Plug 'jwalton512/vim-blade'
-Plug 'burner/vim-svelte'
+Plug 'evanleck/vim-svelte'
 Plug 'styled-components/vim-styled-components'
 Plug 'fatih/vim-go'
 
