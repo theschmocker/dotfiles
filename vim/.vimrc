@@ -23,16 +23,16 @@ Plug 'mxw/vim-jsx'
 Plug 'jparise/vim-graphql'
 Plug 'hail2u/vim-css3-syntax'
 Plug 'posva/vim-vue'
-Plug 'StanAngeloff/php.vim'
 Plug 'nelsyeung/twig.vim'
 Plug 'jwalton512/vim-blade'
 Plug 'evanleck/vim-svelte'
 Plug 'styled-components/vim-styled-components'
 Plug 'fatih/vim-go'
+" php
+Plug 'StanAngeloff/php.vim'
 
 " Completion
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'phpactor/phpactor', {'for': 'php', 'do': 'composer install'}
 
 " Utilities
 Plug 'Townk/vim-autoclose'
@@ -44,12 +44,19 @@ Plug 'liuchengxu/vim-which-key'
 Plug 'scrooloose/nerdtree'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'dense-analysis/ale'
 
 call plug#end()
 filetype plugin indent on
 
-let g:vue_disable_pre_processors = 1
+let g:ale_fixers = {
+      \'php': ['phpcbf']
+      \}
 
+let g:ale_php_phpcbf_standard='WordPress-Core'
+let g:ale_php_phpcs_standard='WordPress-Core'
+
+let g:vue_disable_pre_processors = 1
 
 " non-Vundle config
 
@@ -78,6 +85,7 @@ set linebreak
 set wildmenu
 set wildmode=list:longest,full
 set timeoutlen=200
+set nofixeol
 "set showbreak=> " visually indicate a soft wrap"
 
 " Set leader key
