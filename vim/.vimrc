@@ -38,6 +38,7 @@ Plug 'phpactor/phpactor', {'for': 'php', 'do': 'composer install'}
 Plug 'Townk/vim-autoclose'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-commentary'
 Plug 'mattn/emmet-vim'
 Plug 'liuchengxu/vim-which-key'
 Plug 'scrooloose/nerdtree'
@@ -60,7 +61,7 @@ let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 
 syntax on
 
-colorscheme night-owl
+colorscheme gruvbox
 
 " JSX in .js files
 let g:jsx_ext_required = 0
@@ -71,6 +72,7 @@ set hidden
 set tabstop=2
 set shiftwidth=2
 set expandtab
+set nowrap
 set ruler
 set linebreak
 set wildmenu
@@ -122,13 +124,12 @@ let g:which_key_map['w'] = {
       \ 'l' : ['<C-W>l'     , 'window-right']          ,
       \ 'k' : ['<C-W>k'     , 'window-up']             ,
       \ 'H' : ['<C-W>5<'    , 'expand-window-left']    ,
-      \ 'J' : ['resize +5'  , 'expand-window-below']   ,
+      \ 'J' : [':resize +5'  , 'expand-window-below']   ,
       \ 'L' : ['<C-W>5>'    , 'expand-window-right']   ,
-      \ 'K' : ['resize -5'  , 'expand-window-up']      ,
+      \ 'K' : [':resize -5'  , 'expand-window-up']      ,
       \ '=' : ['<C-W>='     , 'balance-window']        ,
       \ 's' : ['<C-W>s'     , 'split-window-below']    ,
       \ 'v' : ['<C-W>v'     , 'split-window-below']    ,
-      \ '?' : ['Windows'    , 'fzf-window']            ,
       \ }
 let g:which_key_map['n'] = {
       \ 'name' : '+NERDTree',
@@ -139,9 +140,9 @@ let g:which_key_map['n'] = {
 
 let g:which_key_map['v'] = {
       \ 'name' : '+vimrc',
-      \ 'e' : [':split ~/.vimrc', 'edit .vimrc'],
+      \ 'e' : [':tabe ~/.vimrc', 'edit .vimrc'],
       \ 's' : [':source $MYVIMRC', 'source .vimrc/init.vim'],
-      \ 'n' : [':split $MYVIMRC', 'edit init.vim if neovim, otherwise .vimrc'],
+      \ 'n' : [':tabe $MYVIMRC', 'edit init.vim if neovim, otherwise .vimrc'],
       \ }
 
 let g:which_key_map['f'] = {
@@ -149,7 +150,22 @@ let g:which_key_map['f'] = {
       \ 'f' : [':Files', 'fuzzy search files'],
       \ 'b' : [':Buffers', 'fuzzy search buffers'],
       \ 't' : [':Tags', 'fuzzy search tags'],
+      \ 'w' : [':Windows', 'fuzzy search windows'],
       \ }
+
+let g:which_key_map['g'] = {
+      \ 'name' : '+git',
+      \ 's' : [':Gstatus', 'git status'],
+      \ 'd' : [':Gdiffsplit', 'git diff current file'],
+      \ 'c' : [':Gcommit', 'git commit'],
+      \ }
+
+let g:which_key_map['t'] = {
+      \ 'name' : '+tabs',
+      \ 'n' : [':tabn', 'next tab'],
+      \ 'p' : [':tabp', 'previous tab'],
+      \ 'c' : [':tabclose', 'close tab'],
+      \}
 
 " Emmet Config
 " let g:user_emmet_leader_key='<C-Z>'
