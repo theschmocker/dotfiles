@@ -101,6 +101,8 @@ source ~/.bash_aliases
 
 bindkey -v
 
+export GOPATH=$HOME/go
+
 export PATH="$PATH:$HOME/.rvm/bin"
 export PATH=$HOME/bin:$PATH
 export PATH=$HOME/.local/bin/:$PATH
@@ -108,6 +110,7 @@ export PATH=$HOME/.yarn/bin/:$PATH
 export PATH=$HOME/.npm-global/bin/:$PATH
 export PATH=$HOME/.config/composer/vendor/bin:$PATH
 export PATH=$HOME/.gem/ruby/2.6.0/bin:$PATH
+export PATH=$PATH:${GOPATH//://bin:}/bin
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
