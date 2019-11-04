@@ -93,6 +93,7 @@ nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
 " Normal mode
 nnoremap H ^
 nnoremap L $
+nnoremap gh :call CocAction('doHover')<CR>
 " Movements in wrapped lines
 nnoremap <leader>j gj
 nnoremap <leader>k gk
