@@ -101,6 +101,7 @@ nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
 " Normal mode
 nnoremap H ^
 nnoremap L $
+nnoremap Y y$
 nnoremap gh :call CocAction('doHover')<CR>
 " Movements in wrapped lines
 nnoremap <leader>j gj
@@ -113,11 +114,6 @@ cnoremap w!! w !sudo tee > /dev/null %
 tnoremap jk <c-\><c-n>
 tnoremap <esc> <c-\><c-n>
 tnoremap <M-[> <Esc>
-
-" NerdTree
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
 " vim-which-key config
 let g:which_key_map={}
@@ -157,6 +153,7 @@ let g:which_key_map['v'] = {
 let g:which_key_map['f'] = {
       \ 'name' : '+fzf',
       \ 'f' : [':Files', 'fuzzy search files'],
+      \ 'g' : [':GFiles', 'fuzzy search files known to git'],
       \ 'b' : [':Buffers', 'fuzzy search buffers'],
       \ 't' : [':Tags', 'fuzzy search tags'],
       \ 'w' : [':Windows', 'fuzzy search windows'],
@@ -174,6 +171,16 @@ let g:which_key_map['t'] = {
       \ 'n' : [':tabn', 'next tab'],
       \ 'p' : [':tabp', 'previous tab'],
       \ 'c' : [':tabclose', 'close tab'],
+      \}
+
+let g:which_key_map['c'] = {
+      \ 'name' : '+code-actions',
+      \ 'f' : ['<Plug>(coc-references)', 'find references'],
+      \ 'r' : ['<Plug>(coc-rename)', 'rename current symbol'],
+      \ 'R' : ['<Plug>(coc-refactor)', 'refactor current symbol'],
+      \ 'd' : ['<Plug>(coc-definition)', 'jump to definition'],
+      \ 'D' : ['<Plug>(coc-declaration)', 'jump to declaration'],
+      \ 'l' : [':ALEFix', 'fix file with the (l)inter']
       \}
 
 " Emmet Config
