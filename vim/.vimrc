@@ -45,6 +45,7 @@ Plug 'scrooloose/nerdtree'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'dense-analysis/ale'
+Plug 'justinmk/vim-sneak'
 
 call plug#end()
 filetype plugin indent on
@@ -106,17 +107,20 @@ nnoremap gh :call CocAction('doHover')<CR>
 " Movements in wrapped lines
 nnoremap <leader>j gj
 nnoremap <leader>k gk
+nnoremap <leader><Space> :
 " Insert mode
 inoremap jk <esc>
 " Command mode
 cnoremap w!! w !sudo tee > /dev/null %
 
 tnoremap jk <c-\><c-n>
-tnoremap <esc> <c-\><c-n>
 tnoremap <M-[> <Esc>
 
 " vim-which-key config
+let g:which_key_use_floating_win = 1
+
 let g:which_key_map={}
+
 let g:which_key_map['w'] = {
       \ 'name' : '+windows' ,
       \ 'w' : ['<C-W>w'     , 'other-window']          ,
