@@ -19,7 +19,7 @@ Plug 'dylanaraps/wal'
 
 " Syntax/Language
 Plug 'pangloss/vim-javascript'
-Plug 'mxw/vim-jsx'
+Plug 'MaxMEllon/vim-jsx-pretty'
 Plug 'jparise/vim-graphql'
 Plug 'hail2u/vim-css3-syntax'
 Plug 'posva/vim-vue'
