@@ -19,6 +19,8 @@ Plug 'dylanaraps/wal'
 
 " Syntax/Language
 Plug 'pangloss/vim-javascript'
+"Plug 'HerringtonDarkholme/yats.vim'
+Plug 'leafgarland/typescript-vim'
 Plug 'MaxMEllon/vim-jsx-pretty'
 Plug 'jparise/vim-graphql'
 Plug 'hail2u/vim-css3-syntax'
@@ -175,6 +177,7 @@ let g:which_key_map['t'] = {
       \ 'n' : [':tabn', 'next tab'],
       \ 'p' : [':tabp', 'previous tab'],
       \ 'c' : [':tabclose', 'close tab'],
+      \ 't' : [':tabe | term', 'open a terminal in a new tab'],
       \}
 
 let g:which_key_map['c'] = {
