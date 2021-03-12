@@ -71,7 +71,11 @@ ZSH_THEME="af-magic"
 plugins=(
   git
   wp-cli
+  nvm
+  golang
 )
+
+export NVM_LAZY=1
 
 source $ZSH/oh-my-zsh.sh
 
@@ -118,3 +122,5 @@ export PATH=$PATH:${GOPATH//://bin:}/bin
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'
+
+export DOTNET_CLI_TELEMETRY_OPTOUT=1

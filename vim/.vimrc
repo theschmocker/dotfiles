@@ -16,6 +16,7 @@ Plug 'flazz/vim-colorschemes'
 Plug 'haishanh/night-owl.vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'dylanaraps/wal'
+Plug 'nightsense/cosmic_latte'
 
 " Syntax/Language
 Plug 'pangloss/vim-javascript'
@@ -30,6 +31,8 @@ Plug 'jwalton512/vim-blade'
 Plug 'evanleck/vim-svelte'
 Plug 'styled-components/vim-styled-components'
 Plug 'fatih/vim-go'
+Plug 'elixir-editors/vim-elixir'
+Plug 'elixir-lsp/coc-elixir', {'do': 'yarn install && yarn prepack'}
 " php
 Plug 'StanAngeloff/php.vim'
 
@@ -71,7 +74,7 @@ let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 
 syntax on
 
-colorscheme gruvbox
+colorscheme cosmic_latte
 
 " JSX in .js files
 let g:jsx_ext_required = 0
@@ -93,12 +96,12 @@ set nofixeol
 
 " Set leader key
 let g:mapleader = "\<Space>"
-"let g:maplocalleader = ','
+let g:maplocalleader = ','
 
 call which_key#register('<Space>', "g:which_key_map")
 
 nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
-"nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
+nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
 
 " Custom mappings
 " Normal mode
@@ -180,6 +183,13 @@ let g:which_key_map['t'] = {
       \ 't' : [':tabe | term', 'open a terminal in a new tab'],
       \}
 
+let g:which_key_map['b'] = {
+      \ 'name' : '+buffers',
+      \ 'd' : [':bd', 'delete buffer'],
+      \ 'n' : [':bn', 'next buffer'],
+      \ 'p' : [':bp', 'previous buffer'],
+      \}
+
 let g:which_key_map['c'] = {
       \ 'name' : '+code-actions',
       \ 'f' : ['<Plug>(coc-references)', 'find references'],
@@ -193,3 +203,13 @@ let g:which_key_map['c'] = {
 " Emmet Config
 " let g:user_emmet_leader_key='<C-Z>'
 
+autocmd BufWritePre *.go :silent call CocAction('runCommand', 'editor.action.organizeImport')
+
+augroup myGolang
+  au!
+  autocmd FileType go
+    \  nmap <buffer> <LocalLeader>r   <Plug>(go-run)
+    \| nmap <buffer> <LocalLeader>b   <Plug>(go-build)
+    \| nmap <buffer> <LocalLeader>t   <Plug>(go-test)
+    \| nmap <buffer> <LocalLeader>c   <Plug>(go-coverage)
+augroup END
