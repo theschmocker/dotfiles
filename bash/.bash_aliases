@@ -18,6 +18,14 @@ alias gp='git push'
 alias ga='git add'
 alias gc='git commit'
 
+# some ls aliases
+alias ll='ls -alF'
+alias lsa='ls -A'
+alias l='ls -CF'
+
+# blain mobile app
+alias blainem='emulator -writable-system -avd blainmobileapp'
+
 # In case I fall into old habits
 #alias vim='nvim'
 
@@ -25,4 +33,4 @@ alias gc='git commit'
 alias srv="browser-sync start --server --files '**/*.css **/*.html **/*.js'"
 
 # thefuck
-eval $(thefuck --alias)
+# eval $(thefuck --alias)

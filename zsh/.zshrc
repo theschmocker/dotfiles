@@ -69,9 +69,12 @@ ZSH_THEME="af-magic"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
+  nvm
   git
   wp-cli
 )
+
+export NVM_LAZY=1
 
 source $ZSH/oh-my-zsh.sh
 
@@ -104,17 +107,32 @@ source ~/.bash_aliases
 
 bindkey -v
 
+export ANDROID_HOME=$HOME/Library/Android/sdk
 export GOPATH=$HOME/go
+export DENO_INSTALL="/Users/jacob/.deno"
 
 export PATH="$PATH:$HOME/.rvm/bin"
 export PATH=$HOME/bin:$PATH
 export PATH=$HOME/.local/bin/:$PATH
 export PATH=$HOME/.yarn/bin/:$PATH
 export PATH=$HOME/.npm-global/bin/:$PATH
-export PATH=$HOME/.config/composer/vendor/bin:$PATH
+export PATH=$HOME/.composer/vendor/bin:$PATH
 export PATH=$HOME/.gem/ruby/2.6.0/bin:$PATH
+export PATH=$HOME/.emacs.d/bin:$PATH
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
 export PATH=$PATH:${GOPATH//://bin:}/bin
+export PATH="$DENO_INSTALL/bin:$PATH"
+export NVM_DIR="$HOME/.nvm"
+# [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+# [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'
+
+code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;}
+[ -f "/Users/jacob/.ghcup/env" ] && source "/Users/jacob/.ghcup/env" # ghcup-env

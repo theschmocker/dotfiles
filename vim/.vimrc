@@ -16,12 +16,14 @@ Plug 'flazz/vim-colorschemes'
 Plug 'haishanh/night-owl.vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'dylanaraps/wal'
+Plug 'nightsense/cosmic_latte'
 
 " Syntax/Language
 Plug 'pangloss/vim-javascript'
 "Plug 'HerringtonDarkholme/yats.vim'
 Plug 'leafgarland/typescript-vim'
 Plug 'MaxMEllon/vim-jsx-pretty'
+Plug 'ianks/vim-tsx'
 Plug 'jparise/vim-graphql'
 Plug 'hail2u/vim-css3-syntax'
 Plug 'posva/vim-vue'
@@ -52,6 +54,8 @@ Plug 'justinmk/vim-sneak'
 call plug#end()
 filetype plugin indent on
 
+let g:vim_jsx_pretty_disable_tsx = 1
+
 let g:ale_fixers = {
       \'php': ['phpcbf']
       \}
@@ -71,7 +75,7 @@ let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 
 syntax on
 
-colorscheme gruvbox
+colorscheme cosmic_latte
 
 " JSX in .js files
 let g:jsx_ext_required = 0
@@ -89,6 +93,7 @@ set wildmenu
 set wildmode=list:longest,full
 set timeoutlen=200
 set nofixeol
+set scrolloff=6
 "set showbreak=> " visually indicate a soft wrap"
 
 " Set leader key
