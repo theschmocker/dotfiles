@@ -72,6 +72,8 @@ plugins=(
   nvm
   git
   wp-cli
+  nvm
+  golang
 )
 
 export NVM_LAZY=1
@@ -135,4 +137,7 @@ export NVM_DIR="$HOME/.nvm"
 export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'
 
 code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;}
+
 [ -f "/Users/jacob/.ghcup/env" ] && source "/Users/jacob/.ghcup/env" # ghcup-env
+
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
