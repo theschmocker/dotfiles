@@ -196,6 +196,7 @@ let g:which_key_map['b'] = {
 
 let g:which_key_map['c'] = {
       \ 'name' : '+code-actions',
+      \ 'a' : [':CocAction', 'lsp code actions'],
       \ 'f' : ['<Plug>(coc-references)', 'find references'],
       \ 'r' : ['<Plug>(coc-rename)', 'rename current symbol'],
       \ 'R' : ['<Plug>(coc-refactor)', 'refactor current symbol'],
