@@ -76,8 +76,6 @@ plugins=(
   golang
 )
 
-export NVM_LAZY=1
-
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
