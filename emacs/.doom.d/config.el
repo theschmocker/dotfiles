@@ -59,6 +59,9 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
+;; Editor
+(setq scroll-margin 8)
+
 ;; Normal mode mappings
 (map! (:n "gh" 'lsp-glance-or-lookup))
 
@@ -80,22 +83,27 @@
       (lsp-ui-doc-glance)
     (+lookup/documentation identifier arg)))
 
-  ;; LSP UI
-  (use-package! lsp-mode
-    :init
-    (setq lsp-ui-doc-position 'top)
-    (setq lsp-ui-doc-max-width 200))
+;; LSP UI
+(use-package! lsp-mode
+  :init
+  (setq lsp-ui-doc-position 'top)
+  (setq lsp-ui-doc-max-width 200))
 
-  ;; Vue
-  (setq lsp-vetur-experimental-template-interpolation-service t)
+;; Vue
+(setq lsp-vetur-experimental-template-interpolation-service t)
 
-  ;; TS
-  (setenv "TSSERVER_LOG_FILE" "/tmp/tsserver.log") ;; prevents ts server from polluting project dir with log files
+;; TS
+(setenv "TSSERVER_LOG_FILE" "/tmp/tsserver.log") ;; prevents ts server from polluting project dir with log files
 
-  ;; Which key
-  (setq which-key-idle-delay 0.25)
-  (setq doom-leader-alt-key "M-RET")
+;; Which key
+(setq which-key-idle-delay 0.25)
+(setq doom-leader-alt-key "M-RET")
 
-  ;; Completion
-  ;; (add-to-list 'completion-styles 'flex) ;; fuzzy completion
-  ;; (setq completion-styles (remove 'flex completion-styles))
+;; Completion
+;; (add-to-list 'completion-styles 'flex) ;; fuzzy completion
+;; (setq completion-styles (remove 'flex completion-styles))
+
+
+;; Org
+;; (set-company-backend! 'org-mode
+;;   '(:separate company-capf company-yasnippet company-dabbrev))
