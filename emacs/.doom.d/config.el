@@ -107,3 +107,9 @@
 ;; Org
 ;; (set-company-backend! 'org-mode
 ;;   '(:separate company-capf company-yasnippet company-dabbrev))
+
+;; Web Mode
+(after! web-mode
+  (setq web-mode-part-padding 0)
+  (setq web-mode-script-padding 0)
+  (setq web-mode-style-padding 0))
