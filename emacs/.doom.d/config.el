@@ -83,11 +83,11 @@
       (lsp-ui-doc-glance)
     (+lookup/documentation identifier arg)))
 
-;; LSP UI
-(use-package! lsp-mode
-  :init
+;; LSP
+(after! lsp-mode
   (setq lsp-ui-doc-position 'top)
-  (setq lsp-ui-doc-max-width 200))
+  (setq lsp-ui-doc-max-width 200)
+  (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html")))
 
 ;; Vue
 (setq lsp-vetur-experimental-template-interpolation-service t)
