@@ -1,4 +1,3 @@
-eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -80,6 +79,10 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
+if [[ -f $HOME/.env.zsh ]]; then
+  source $HOME/.env.zsh
+fi
+
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -109,10 +112,35 @@ source ~/.bash_aliases
 
 bindkey -v
 
+# Android
+# TODO: move these into .env.zsh on work machine
 export ANDROID_HOME=$HOME/Library/Android/sdk
-export GOPATH=$HOME/go
-export DENO_INSTALL="/Users/jacob/.deno"
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
 
+# Go
+export GOPATH=$HOME/go
+export PATH=$PATH:${GOPATH//://bin:}/bin
+
+# Deno
+export DENO_INSTALL="$HOME/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
+
+# Emacs
+export PATH=$HOME/.emacs.d/bin:$PATH
+
+# NVM
+export NVM_DIR="$HOME/.nvm"
+
+# Haskell/ghcup
+export GHCUP_DIR="$HOME/.ghcup"
+[ -f "$GHCUP_DIR/env" ] && source "$GHCUP_DIR/env" # ghcup-env
+
+# Various path inclusions
+# TODO: review which of these are still needed across machines; maybe move into .env.zsh
 export PATH="$PATH:$HOME/.rvm/bin"
 export PATH=$HOME/bin:$PATH
 export PATH=$HOME/.local/bin/:$PATH
@@ -120,25 +148,11 @@ export PATH=$HOME/.yarn/bin/:$PATH
 export PATH=$HOME/.npm-global/bin/:$PATH
 export PATH=$HOME/.composer/vendor/bin:$PATH
 export PATH=$HOME/.gem/ruby/2.6.0/bin:$PATH
-export PATH=$HOME/.emacs.d/bin:$PATH
-export PATH=$PATH:$ANDROID_HOME/emulator
-export PATH=$PATH:$ANDROID_HOME/tools
-export PATH=$PATH:$ANDROID_HOME/tools/bin
-export PATH=$PATH:$ANDROID_HOME/platform-tools
-export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-export PATH=$PATH:${GOPATH//://bin:}/bin
-export PATH="$DENO_INSTALL/bin:$PATH"
-export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
-export NVM_DIR="$HOME/.nvm"
-# [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
-# [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
+# FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'
 
-code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;}
-
-[ -f "/Users/jacob/.ghcup/env" ] && source "/Users/jacob/.ghcup/env" # ghcup-env
-
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;}
