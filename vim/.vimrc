@@ -1,68 +1,11 @@
 " required for Vundle
 set nocompatible
 filetype off
+lua require('basic')
 
-" Install vim-plug if it isn't already
-if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-
-" vim-plug setup
-call plug#begin()
-" Colorschemes
-Plug 'flazz/vim-colorschemes'
-Plug 'haishanh/night-owl.vim'
-Plug 'arcticicestudio/nord-vim'
-Plug 'dylanaraps/wal'
-Plug 'nightsense/cosmic_latte'
-
-" Syntax/Language
-Plug 'pangloss/vim-javascript'
-"Plug 'HerringtonDarkholme/yats.vim'
-Plug 'leafgarland/typescript-vim'
-Plug 'MaxMEllon/vim-jsx-pretty'
-Plug 'ianks/vim-tsx'
-Plug 'jparise/vim-graphql'
-Plug 'hail2u/vim-css3-syntax'
-Plug 'posva/vim-vue'
-Plug 'nelsyeung/twig.vim'
-Plug 'jwalton512/vim-blade'
-Plug 'evanleck/vim-svelte'
-Plug 'fatih/vim-go'
-Plug 'elixir-editors/vim-elixir'
-Plug 'elixir-lsp/coc-elixir', {'do': 'yarn install && yarn prepack'}
-" php
-Plug 'StanAngeloff/php.vim'
-
-" Completion
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-" Utilities
-Plug 'Townk/vim-autoclose'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-commentary'
-Plug 'mattn/emmet-vim'
-Plug 'liuchengxu/vim-which-key'
-Plug 'scrooloose/nerdtree'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
-Plug 'dense-analysis/ale'
-Plug 'justinmk/vim-sneak'
-
-call plug#end()
 filetype plugin indent on
 
 let g:vim_jsx_pretty_disable_tsx = 1
-
-let g:ale_fixers = {
-      \'php': ['phpcbf']
-      \}
-
-let g:ale_php_phpcbf_standard='WordPress-Core'
-let g:ale_php_phpcs_standard='WordPress-Core'
 
 let g:vue_disable_pre_processors = 1
 
@@ -76,35 +19,34 @@ let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 
 syntax on
 
-colorscheme cosmic_latte
+colorscheme dracula
 
 " JSX in .js files
 let g:jsx_ext_required = 0
 
-set number
-set relativenumber
-set hidden
-set tabstop=2
-set shiftwidth=2
-set expandtab
-set nowrap
-set ruler
-set linebreak
-set wildmenu
-set wildmode=list:longest,full
-set timeoutlen=200
-set nofixeol
-set scrolloff=6
-"set showbreak=> " visually indicate a soft wrap"
+" set number
+" set relativenumber
+" set hidden
+" set tabstop=2
+" set shiftwidth=2
+" set expandtab
+" set nowrap
+" set ruler
+" set linebreak
+" set wildmenu
+" set wildmode=list:longest,full
+" set timeoutlen=200
+" set nofixeol
+" set scrolloff=6
 
 " Set leader key
 let g:mapleader = "\<Space>"
 let g:maplocalleader = ','
 
-call which_key#register('<Space>', "g:which_key_map")
+" call which_key#register('<Space>', "g:which_key_map")
 
-nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
-nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
+" nnoremap <silent> <leader>      :<c-u>WhichKey '<Space>'<CR>
+" nnoremap <silent> <localleader> :<c-u>WhichKey  ','<CR>
 
 " Custom mappings
 " Normal mode
@@ -115,11 +57,10 @@ nnoremap gh :call CocAction('doHover')<CR>
 " Movements in wrapped lines
 nnoremap <leader>j gj
 nnoremap <leader>k gk
-nnoremap <leader><Space> :
 " Insert mode
 inoremap jk <esc>
 " Command mode
-cnoremap w!! w !sudo tee > /dev/null %
+" cnoremap w!! w !sudo tee > /dev/null %
 
 tnoremap jk <c-\><c-n>
 tnoremap <M-[> <Esc>
@@ -164,11 +105,8 @@ let g:which_key_map['v'] = {
 
 let g:which_key_map['f'] = {
       \ 'name' : '+fzf',
-      \ 'f' : [':Files', 'fuzzy search files'],
-      \ 'g' : [':GFiles', 'fuzzy search files known to git'],
-      \ 'b' : [':Buffers', 'fuzzy search buffers'],
-      \ 't' : [':Tags', 'fuzzy search tags'],
-      \ 'w' : [':Windows', 'fuzzy search windows'],
+      \ 'f' : [':Telescope find_files', 'fuzzy search files'],
+      \ 'b' : [':Telescope buffers', 'fuzzy search buffers'],
       \ }
 
 let g:which_key_map['g'] = {
@@ -201,7 +139,6 @@ let g:which_key_map['c'] = {
       \ 'R' : ['<Plug>(coc-refactor)', 'refactor current symbol'],
       \ 'd' : ['<Plug>(coc-definition)', 'jump to definition'],
       \ 'D' : ['<Plug>(coc-declaration)', 'jump to declaration'],
-      \ 'l' : [':ALEFix', 'fix file with the (l)inter']
       \}
 
 " Emmet Config
