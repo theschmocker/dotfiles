@@ -142,7 +142,7 @@ let g:which_key_map['c'] = {
       \}
 
 " Emmet Config
-" let g:user_emmet_leader_key='<C-Z>'
+let g:user_emmet_leader_key='<C-H>'
 
 autocmd BufWritePre *.go :silent call CocAction('runCommand', 'editor.action.organizeImport')
 
