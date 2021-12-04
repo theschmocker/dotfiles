@@ -6,28 +6,41 @@ end
 
 vim.cmd [[packadd packer.nvim]]
 
-return require('packer').startup(function(use)
-  -- My plugins here
-  -- use 'foo1/bar1.nvim'
-  -- use 'foo2/bar2.nvim'
-  -- use {
-  --   'phaazon/hop.nvim',
-  --   branch = 'v1',
-  --   config = function()
-  --     require'hop'.setup()
-  --     print('hop should be initialized')
-  --   end
-  -- }
+-- Misc plugin-related global vars
+vim.g.EditorConfig_exclude_patterns = { 'fugitive://.*', 'scp://.*' }
+vim.g.user_emmet_leader_key = '<C-H>'
+vim.g.vim_jsx_pretty_disable_tsx = 1
+vim.g.vue_disable_pre_processors = 1
+vim.g.jsx_ext_required = 0
 
-  use 'ggandor/lightspeed.nvim'
+return require('packer').startup(function(use)
+  use {
+    'ggandor/lightspeed.nvim',
+    config = function()
+      require'lightspeed'.setup {
+        exit_after_idle_msecs = { labeled = 1500, unlabeled = 1000 },
+      }
+    end
+  }
 
   use {
     'nvim-telescope/telescope.nvim',
     requires = { {'nvim-lua/plenary.nvim'} },
+    config = function()
+      require'telescope'.setup {
+        pickers = {
+          find_files = {
+            hidden = true,
+            find_command = { 'rg', '--files', '--iglob', '!.git', '--hidden' },
+          }
+        }
+      }
+    end
   }
 
-  use 'flazz/vim-colorschemes'
-  use 'dracula/vim'
+  -- use 'flazz/vim-colorschemes'
+  -- use 'dracula/vim'
+  use 'Mofiqul/dracula.nvim'
   use 'haishanh/night-owl.vim'
   use 'arcticicestudio/nord-vim'
 
@@ -43,8 +56,6 @@ return require('packer').startup(function(use)
   use 'jwalton512/vim-blade'
   use 'evanleck/vim-svelte'
   use 'fatih/vim-go'
-
-  -- php
   use 'StanAngeloff/php.vim'
 
   -- Completion
@@ -59,21 +70,53 @@ return require('packer').startup(function(use)
   use 'tpope/vim-fugitive'
   use 'tpope/vim-commentary'
   use 'mattn/emmet-vim'
-  -- use 'liuchengxu/vim-which-key'
-  use 'scrooloose/nerdtree'
-  -- use 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-  -- use 'junegunn/fzf.vim'
-  --
+
   use {
     "folke/which-key.nvim",
     config = function()
-      require("which-key").setup {
-        -- your configuration comes here
-        --       -- or leave it empty to use the default settings
-        --             -- refer to the configuration section below
+      require("which-key").setup()
+      require('which-key-config')
+    end
+  }
+
+  use 'editorconfig/editorconfig-vim'
+
+  use {
+    'nvim-lualine/lualine.nvim',
+    -- requires = { 'kyazdani42/nvim-web-devicons', opt = true }
+    config = function()
+      require'lualine'.setup {
+        options = {
+          icons_enabled = false,
+          theme = 'rose-pine'
+        }
       }
     end
   }
+
+  use {
+    'nvim-treesitter/nvim-treesitter',
+    run = ':TSUpdate',
+    config = function() 
+      require'nvim-treesitter.configs'.setup {
+        ensure_installed = "maintained",
+        highlight = {
+          enable = true,
+        }
+      }
+    end
+  }
+
+  use {
+    'rose-pine/neovim',
+    as = 'rose-pine',
+    tag = 'v0.1.0', -- Optional tag release
+    config = function()
+      -- vim.cmd('colorscheme rose-pine')
+    end
+  }
+
+  use 'shaunsingh/moonlight.nvim'
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
@@ -82,4 +125,3 @@ return require('packer').startup(function(use)
   end
 
 end)
-
