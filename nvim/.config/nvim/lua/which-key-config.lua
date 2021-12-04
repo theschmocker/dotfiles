@@ -1,33 +1,5 @@
 local wk = require'which-key'
 
-wk.setup()
-
--- wk.register({
---   [','] = {
---     name = "+hop",
---     w = { "<cmd>HopWord<cr>", "Hop word" },
---     f = { "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, inclusive_jump = false })<cr>", "forward 1 character (inclusive)" },
---     F = { "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, inclusive_jump = false })<cr>", "forward 1 character (inclusive)" },
---     t = { "<cmd>HopChar1AC<cr>", "forward 1 character" },
---     T = { "<cmd>HopChar1BC<cr>", "backward 1 character" },
---     j = { "<cmd>HopLineAC<cr>", "down lines" },
---     k = { "<cmd>HopLineBC<cr>", "up lines" },
---   },
--- })
-
--- wk.register({
---   [','] = {
---     name = "+hop",
---     w = { "<cmd>HopWord<cr>", "Hop word" },
---     f = { "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, inclusive_jump = true })<cr>", "forward 1 character (inclusive)" },
---     F = { "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, inclusive_jump = true })<cr>", "forward 1 character (inclusive)" },
---     t = { "<cmd>HopChar1AC<cr>", "forward 1 character" },
---     T = { "<cmd>HopChar1BC<cr>", "backward 1 character" },
---     j = { "<cmd>HopLineAC<cr>", "down lines" },
---     k = { "<cmd>HopLineBC<cr>", "up lines" },
---   },
--- }, { mode = "o" })
-
 wk.register({
   ['<leader>'] = { "<cmd>Telescope find_files<cr>", "Find File" },
   w = {
@@ -54,7 +26,10 @@ wk.register({
     r = { "<cmd>Telescope oldfiles<cr>", "Open Recent File" },
     g = { "<cmd>Telescope live_grep<cr>", "Grep" },
     n = { "<cmd>enew<cr>", "New File" },
-    p = { "<cmd>lua require'telescope.builtin'.find_files({ cwd = '~/dotfiles' })<cr>", 'Config files' }
+    p = { "<cmd>lua require'telescope.builtin'.find_files({ cwd = '~/dotfiles' })<cr>", 'Config files' },
+    c = { "<cmd>Telescope commands<cr>", "Commands" },
+    b = { "<cmd>Telescope buffers<cr>", "Buffers" },
+    [':'] = { "<cmd>Telescope command_history<cr>", "Command history" },
   },
 
   t = {
@@ -80,6 +55,7 @@ wk.register({
     R = { '<Plug>(coc-refactor)', 'refactor current symbol' },
     d = { '<Plug>(coc-definition)', 'jump to definition' },
     D = { '<Plug>(coc-declaration)', 'jump to declaration' },
+    i = { '<Plug>(coc-implementation)', 'jump to implmentation' },
   },
 }, { prefix = "<leader>", mode = "n" })
 
