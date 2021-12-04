@@ -16,6 +16,7 @@ vim.g.jsx_ext_required = 0
 return require('packer').startup(function(use)
   use {
     'ggandor/lightspeed.nvim',
+    commit = '02c3138195c1608fa07b5fec73c3a0d3c0f9bc3e';
     config = function()
       require'lightspeed'.setup {
         exit_after_idle_msecs = { labeled = 1500, unlabeled = 1000 },

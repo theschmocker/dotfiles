@@ -11,10 +11,12 @@ vim.opt.wildmenu = true
 vim.opt.wildmode = { 'longest', 'full' }
 vim.opt.timeoutlen = 200
 vim.opt.fixeol = false;
-vim.opt.scrolloff = 6
+vim.opt.scrolloff = 8
+vim.opt.sidescrolloff = 16
 vim.opt.hlsearch = false;
 vim.opt.cursorline = true;
 vim.opt.termguicolors = true
+vim.opt.mouse = 'nv'
 
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ','
