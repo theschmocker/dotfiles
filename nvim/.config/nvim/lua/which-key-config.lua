@@ -38,6 +38,7 @@ wk.register({
     p = { '<cmd>tabp<cr>', 'previous tab' },
     c = { '<cmd>tabclose<cr>', 'close tab' },
     t = { '<cmd>tabe | term<cr>', 'open a terminal in a new tab' },
+    o = { '<cmd>tabe<cr>', 'open new tab' }
   },
 
   b = {
