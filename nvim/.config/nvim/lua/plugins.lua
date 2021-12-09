@@ -1,6 +1,7 @@
 local fn = vim.fn
 local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
 if fn.empty(fn.glob(install_path)) > 0 then
+---@diagnostic disable-next-line: lowercase-global
   packer_bootstrap = fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
 end
 
@@ -16,7 +17,7 @@ vim.g.jsx_ext_required = 0
 return require('packer').startup(function(use)
   use {
     'ggandor/lightspeed.nvim',
-    commit = '02c3138195c1608fa07b5fec73c3a0d3c0f9bc3e';
+    commit = '22eb8615f13e627f4b0440ebcd4381cab3df293e';
     config = function()
       require'lightspeed'.setup {
         exit_after_idle_msecs = { labeled = 1500, unlabeled = 1000 },
@@ -27,6 +28,7 @@ return require('packer').startup(function(use)
   use {
     'nvim-telescope/telescope.nvim',
     requires = { {'nvim-lua/plenary.nvim'} },
+    commit = '914da77bb7528e72be602c0de7dbb0952839f06f',
     config = function()
       require'telescope'.setup {
         pickers = {
@@ -83,12 +85,16 @@ return require('packer').startup(function(use)
   use 'editorconfig/editorconfig-vim'
 
   use {
+   'kyazdani42/nvim-web-devicons',
+    commit = '344331467509802e1af200f08ec3da278be5cbba';
+  }
+
+  use {
     'nvim-lualine/lualine.nvim',
-    -- requires = { 'kyazdani42/nvim-web-devicons', opt = true }
     config = function()
       require'lualine'.setup {
         options = {
-          icons_enabled = false,
+          icons_enabled = true,
           theme = 'rose-pine'
         }
       }
@@ -98,7 +104,7 @@ return require('packer').startup(function(use)
   use {
     'nvim-treesitter/nvim-treesitter',
     run = ':TSUpdate',
-    config = function() 
+    config = function()
       require'nvim-treesitter.configs'.setup {
         ensure_installed = "maintained",
         highlight = {
@@ -112,12 +118,7 @@ return require('packer').startup(function(use)
     'rose-pine/neovim',
     as = 'rose-pine',
     tag = 'v0.1.0', -- Optional tag release
-    config = function()
-      -- vim.cmd('colorscheme rose-pine')
-    end
   }
-
-  use 'shaunsingh/moonlight.nvim'
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
