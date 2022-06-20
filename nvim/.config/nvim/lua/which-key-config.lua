@@ -50,7 +50,7 @@ wk.register({
 
   c = {
     name = '+code-actions',
-    a = { ':CocAction<cr>', 'lsp code actions' },
+    a = { '<Plug>(coc-codeaction-cursor)', 'lsp code actions' },
     f = { '<Plug>(coc-references)', 'find references' },
     r = { '<Plug>(coc-rename)', 'rename current symbol' },
     R = { '<Plug>(coc-refactor)', 'refactor current symbol' },

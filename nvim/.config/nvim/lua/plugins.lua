@@ -10,7 +10,7 @@ vim.cmd [[packadd packer.nvim]]
 -- Misc plugin-related global vars
 vim.g.EditorConfig_exclude_patterns = { 'fugitive://.*', 'scp://.*' }
 vim.g.user_emmet_leader_key = '<C-H>'
-vim.g.vim_jsx_pretty_disable_tsx = 1
+-- vim.g.vim_jsx_pretty_disable_tsx = 1
 vim.g.vue_disable_pre_processors = 1
 vim.g.jsx_ext_required = 0
 
@@ -48,10 +48,10 @@ return require('packer').startup(function(use)
   use 'arcticicestudio/nord-vim'
 
   -- Syntax/Language
-  use 'pangloss/vim-javascript'
-  use 'leafgarland/typescript-vim'
-  use 'MaxMEllon/vim-jsx-pretty'
-  use 'ianks/vim-tsx'
+  -- use 'pangloss/vim-javascript'
+  -- use 'leafgarland/typescript-vim'
+  -- use 'MaxMEllon/vim-jsx-pretty'
+  -- use 'ianks/vim-tsx'
   use 'jparise/vim-graphql'
   use 'hail2u/vim-css3-syntax'
   use 'posva/vim-vue'
@@ -60,6 +60,7 @@ return require('packer').startup(function(use)
   use 'evanleck/vim-svelte'
   use 'fatih/vim-go'
   use 'StanAngeloff/php.vim'
+  use 'rust-lang/rust.vim'
 
   -- Completion
   use {
@@ -106,7 +107,6 @@ return require('packer').startup(function(use)
     run = ':TSUpdate',
     config = function()
       require'nvim-treesitter.configs'.setup {
-        ensure_installed = "maintained",
         highlight = {
           enable = true,
         }
@@ -119,6 +119,8 @@ return require('packer').startup(function(use)
     as = 'rose-pine',
     tag = 'v0.1.0', -- Optional tag release
   }
+
+  use 'Olical/conjure'
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins

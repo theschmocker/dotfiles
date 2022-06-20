@@ -20,6 +20,7 @@ vim.opt.mouse = 'nv'
 
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ','
+vim.g.typescript_disable_indent = true
 
 vim.cmd[[let $NVIM_TUI_ENABLE_TRUE_COLOR=1]]
 vim.cmd[[syntax on]]
