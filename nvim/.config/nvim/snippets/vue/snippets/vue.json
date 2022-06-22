@@ -1,0 +1,73 @@
+{
+	"Vue Single File Component Composition API with Typescript": {
+		"prefix": "vbase",
+		"body": [
+			"<template>",
+			"\t<div>",
+			"",
+			"\t</div>",
+			"</template>",
+			"",
+			"<script lang=\"ts\">",
+			"import { defineComponent } from 'vue'",
+			"",
+			"export default defineComponent({",
+				"\tsetup () {",
+					"\t\t${0}\n",
+					"\t\treturn {}",
+					"\t}",
+					"})",
+					"</script>",
+					"",
+					"<style scoped>",
+					"",
+					"</style>"
+		],
+		"description": "Base for Vue File Composition API - Typescript"
+	},
+	"Vue 2 Single File Component Composition API with Typescript": {
+		"prefix": "vbase-2",
+		"body": [
+			"<template>",
+			"\t<div>",
+			"",
+			"\t</div>",
+			"</template>",
+			"",
+			"<script lang=\"ts\">",
+			"import { defineComponent } from '@vue/composition-api'",
+			"",
+			"export default defineComponent({",
+				"\tsetup () {",
+					"\t\t${0}\n",
+					"\t\treturn {}",
+					"\t}",
+					"})",
+					"</script>",
+					"",
+					"<style scoped>",
+					"",
+					"</style>"
+		],
+		"description": "Base for Vue File Composition API - Typescript"
+	},
+	"Vue Single File Component Setup Composition API with Typescript": {
+		"prefix": "vbase-setup",
+		"body": [
+			"<template>",
+			"\t<div>",
+			"",
+			"\t</div>",
+			"</template>",
+			"",
+			"<script setup lang=\"ts\">",
+			"",
+			"</script>",
+			"",
+			"<style scoped>",
+			"",
+			"</style>"
+		],
+		"description": "Base for Vue File Setup Composition API - Typescript"
+	}
+}
