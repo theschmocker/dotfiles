@@ -59,7 +59,25 @@ return require('packer').startup({
 					dark_variant = 'moon',
 				}
 
-				vim.cmd('colorscheme rose-pine')
+				-- vim.cmd('colorscheme rose-pine')
+			end
+		}
+
+		use {
+			"catppuccin/nvim",
+			as = "catppuccin",
+			commit = "d46425163dad4cc74910c0c81eeedb00cadf8a61",
+			config = function ()
+				require'catppuccin'.setup {
+					integrations = {
+						cmp = true,
+						which_key = true,
+						lightspeed = true,
+					}
+				}
+
+				vim.g.catppuccin_flavour = "macchiato" -- latte, frappe, macchiato, mocha
+				vim.cmd[[colorscheme catppuccin]]
 			end
 		}
 
