@@ -87,6 +87,16 @@ require'lspconfig'.omnisharp.setup{
 	}
 }
 
+require'lspconfig'.eslint.setup{
+	on_attach = function (client, bufnr)
+		on_attach(client, bufnr)
+
+		local group = vim.api.nvim_create_augroup("EslintFix", { clear = true })
+		vim.api.nvim_create_autocmd("BufWritePre", { pattern = "*.tsx,*.ts,*.jsx,*.js,*.vue,*.svelte", group = group, command = "EslintFixAll" })
+	end,
+	capabilities = capabilities,
+}
+
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
 	border = "rounded",
 })
