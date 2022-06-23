@@ -155,6 +155,6 @@ return require('packer').startup({
 	end,
 	config = {
 		snapshot = "packer-lock",
-		snapshot_path = vim.fn.expand('~/dotfiles/nvim/.config/nvim')
+		snapshot_path = vim.fn.stdpath('config')
 	}
 })
