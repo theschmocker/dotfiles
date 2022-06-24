@@ -76,8 +76,17 @@ return require('packer').startup({
 					}
 				}
 
-				vim.g.catppuccin_flavour = "macchiato" -- latte, frappe, macchiato, mocha
-				vim.cmd[[colorscheme catppuccin]]
+				-- vim.g.catppuccin_flavour = "macchiato" -- latte, frappe, macchiato, mocha
+				-- vim.cmd[[colorscheme catppuccin]]
+			end
+		}
+
+		use {
+			"EdenEast/nightfox.nvim",
+			commit = "b85c5c3a0e3b309ffa7d0a6ca33e430c91532ba0",
+			config = function ()
+				-- require'nightfox'.setup()
+				vim.cmd("colorscheme nightfox")
 			end
 		}
 
@@ -144,7 +153,7 @@ return require('packer').startup({
 				require'lualine'.setup {
 					options = {
 						icons_enabled = true,
-						theme = 'rose-pine'
+						-- theme = 'rose-pine'
 					}
 				}
 			end
