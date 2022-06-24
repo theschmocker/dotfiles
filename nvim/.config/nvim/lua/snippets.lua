@@ -26,6 +26,12 @@ ls.add_snippets("all", {
 	})
 })
 
+ls.add_snippets("vue", {
+	s("arb", {
+		t(":aria-"), i(1, "attribute"), t("=\""), i(2, "bool"), t(" ? 'true' : 'false'\"")
+	})
+})
+
 vim.keymap.set({ "i", "s" }, "<c-j>", function()
   if ls.expand_or_jumpable() then
     ls.expand_or_jump()
