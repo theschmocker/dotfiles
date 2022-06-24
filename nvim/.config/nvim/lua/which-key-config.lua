@@ -51,6 +51,12 @@ function M.register_global_mappings()
 			p = { '<cmd>bp<cr>', 'previous buffer' },
 		},
 
+		g = {
+			name = '+git',
+			s = { '<cmd>Git<cr>', "git status" },
+			d = { '<cmd>Gvdiffsplit!<cr>', "git diff in vertical split" },
+		},
+
 	}, { prefix = "<leader>", mode = "n" })
 end
 
@@ -61,7 +67,7 @@ function M.register_lsp_mappings(bufnr)
 			a = { '<cmd>lua vim.lsp.buf.code_action()<cr>', 'lsp code actions' },
 			f = { '<cmd>Telescope lsp_references<cr>', 'find references' },
 			r = { '<cmd>lua vim.lsp.buf.rename()<cr>', 'rename current symbol' },
-			d = { '<cmd>lua vim.lsp.buf.definition()<cr>', 'jump to definition' },
+			d = { '<cmd>Telescope lsp_definitions<cr>', 'jump to definition' },
 			D = { '<cmd>lua vim.lsp.buf.declaration()<cr>', 'jump to declaration' },
 			i = { '<cmd>lua vim.lsp.buf.implementation()<cr>', 'jump to implmentation' },
 			t = { '<cmd>lua vim.lsp.buf.type_definition()<cr>', 'jump to type definition' },
