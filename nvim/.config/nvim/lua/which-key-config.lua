@@ -59,7 +59,7 @@ function M.register_lsp_mappings(bufnr)
 		c = {
 			name = '+code-actions (lsp)',
 			a = { '<cmd>lua vim.lsp.buf.code_action()<cr>', 'lsp code actions' },
-			f = { '<cmd>lua vim.lsp.buf.references()<cr>', 'find references' },
+			f = { '<cmd>Telescope lsp_references<cr>', 'find references' },
 			r = { '<cmd>lua vim.lsp.buf.rename()<cr>', 'rename current symbol' },
 			d = { '<cmd>lua vim.lsp.buf.definition()<cr>', 'jump to definition' },
 			D = { '<cmd>lua vim.lsp.buf.declaration()<cr>', 'jump to declaration' },
