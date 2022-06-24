@@ -21,7 +21,7 @@ return require('packer').startup({
 
 		use {
 			'ggandor/lightspeed.nvim',
-			commit = '22eb8615f13e627f4b0440ebcd4381cab3df293e';
+			commit = '79519bfae95741bc99872582ef0f268fd842115b';
 			config = function()
 				require'lightspeed'.setup {
 					exit_after_idle_msecs = { labeled = 1500, unlabeled = 1000 },
