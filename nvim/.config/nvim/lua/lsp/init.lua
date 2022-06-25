@@ -40,18 +40,6 @@ require'lspconfig'.sumneko_lua.setup {
 	},
 }
 
--- TODO I need to try and figure out if there's a good way that I can enable volar only for Vue projects
--- and tsserver otherwise. Running into issues with the Svelte TypeScript plugin when Volar is active
-require'lspconfig'.volar.setup{
-	capabilities = capabilities,
-	on_attach = on_attach,
-	filetypes = {'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue'}
-}
--- require'lspconfig'.tsserver.setup{
--- 	capabilities = capabilities,
--- 	on_attach = on_attach,
--- }
-
 require'lspconfig'.gopls.setup{
 	capabilities = capabilities,
 	on_attach = on_attach,
@@ -95,6 +83,16 @@ require'lspconfig'.eslint.setup{
 		vim.api.nvim_create_autocmd("BufWritePre", { pattern = "*.tsx,*.ts,*.jsx,*.js,*.vue,*.svelte", group = group, command = "EslintFixAll" })
 	end,
 	capabilities = capabilities,
+}
+
+require'lspconfig'.rust_analyzer.setup{
+	capabilities = capabilities,
+	on_attach = on_attach,
+}
+
+require'lsp/typescript'.setup {
+	capabilities = capabilities,
+	on_attach = on_attach,
 }
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
