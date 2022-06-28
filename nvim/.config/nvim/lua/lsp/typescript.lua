@@ -1,7 +1,7 @@
 local util = require'lspconfig.util'
 
 local function get_package_json()
-	local p_json_dir = util.find_package_json_ancestor(vim.fn.expand('%:p'))
+	local p_json_dir = util.find_package_json_ancestor(util.path.sanitize(vim.fn.expand('%:p')))
 	if p_json_dir == nil then
 		return nil
 	end
