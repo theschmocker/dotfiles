@@ -55,6 +55,7 @@ function M.register_global_mappings()
 			name = '+git',
 			s = { '<cmd>Git<cr>', "git status" },
 			d = { '<cmd>Gvdiffsplit!<cr>', "git diff in vertical split" },
+			b = { '<cmd>Git blame<cr>', "git blame" },
 		},
 
 	}, { prefix = "<leader>", mode = "n" })
