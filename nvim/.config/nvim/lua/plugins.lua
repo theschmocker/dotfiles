@@ -16,8 +16,14 @@ vim.g.jsx_ext_required = 0
 
 return require('packer').startup({
 	function(use)
-		use 'neovim/nvim-lspconfig'
-		use "williamboman/nvim-lsp-installer"
+		use {
+			'neovim/nvim-lspconfig',
+			commit = 'c107a0f',
+		}
+		use {
+			'williamboman/nvim-lsp-installer',
+			commit = '9887370',
+		}
 
 		use {
 			'ggandor/lightspeed.nvim',
@@ -31,6 +37,7 @@ return require('packer').startup({
 
 		use {
 			'nvim-telescope/telescope.nvim',
+			commit = 'd88b44d',
 			requires = { {'nvim-lua/plenary.nvim'} },
 			config = function()
 				require'telescope'.setup {
@@ -44,7 +51,10 @@ return require('packer').startup({
 			end
 		}
 
-		use 'folke/tokyonight.nvim'
+		use {
+			'folke/tokyonight.nvim',
+			commit = '8223c97',
+		}
 		-- use 'flazz/vim-colorschemes'
 		-- use 'dracula/vim'
 		-- use 'Mofiqul/dracula.nvim'
@@ -90,48 +100,91 @@ return require('packer').startup({
 		}
 
 
-		-- Syntax/Language
-		-- use 'pangloss/vim-javascript'
-		-- use 'leafgarland/typescript-vim'
-		-- use 'MaxMEllon/vim-jsx-pretty'
-		-- use 'ianks/vim-tsx'
-		use 'jparise/vim-graphql'
-		use 'hail2u/vim-css3-syntax'
-		use 'posva/vim-vue'
-		use 'nelsyeung/twig.vim'
-		use 'jwalton512/vim-blade'
-		use 'evanleck/vim-svelte'
-		use 'fatih/vim-go'
-		use 'StanAngeloff/php.vim'
-		use 'rust-lang/rust.vim'
+		use {
+			'nelsyeung/twig.vim',
+			commit = '014cd47',
+		}
+		use {
+			'fatih/vim-go',
+			commit = 'b7506c6d',
+		}
+		use {
+			'rust-lang/rust.vim',
+			commit = '4aa69b8',
+		}
 
 		-- Snippets
 		use {
 			'L3MON4D3/LuaSnip',
+			commit = 'a12441e',
 			config = function ()
 				require'snippets'
 			end
 		}
 
 		-- Completion
-		use 'hrsh7th/cmp-nvim-lsp'
-		use 'hrsh7th/cmp-buffer'
-		use 'hrsh7th/cmp-path'
-		use 'hrsh7th/cmp-cmdline'
-		use 'hrsh7th/nvim-cmp'
-		use 'saadparwaiz1/cmp_luasnip'
+		use {
+			'hrsh7th/cmp-nvim-lsp',
+			commit = 'affe808',
+		}
+		use {
+			'hrsh7th/cmp-buffer',
+			commit = '62fc67a',
+		}
+		use {
+			'hrsh7th/cmp-path',
+			commit = '466b6b8',
+		}
+		use {
+			'hrsh7th/cmp-cmdline',
+			commit = 'c36ca4b',
+		}
+		use {
+			'hrsh7th/nvim-cmp',
+			commit = 'df6734a',
+		}
+		use {
+			'saadparwaiz1/cmp_luasnip',
+			commit = 'a9de941',
+		}
+
 
 		-- Utilities
 		-- use 'Townk/vim-autoclose'
-		use 'jiangmiao/auto-pairs'
-		use 'tpope/vim-surround'
-		use 'tpope/vim-fugitive'
-		use 'tpope/vim-commentary'
-		use 'tpope/vim-repeat'
-		use 'mattn/emmet-vim'
+		-- use 'jiangmiao/auto-pairs'
+		use {
+			'windwp/nvim-autopairs',
+			commit = '4a95b3982be7397cd8e1370d1a09503f9b002dbf',
+			config = function ()
+				require'nvim-autopairs'.setup()
+			end
+		}
 
 		use {
-			"folke/which-key.nvim",
+			'tpope/vim-surround',
+			commit = 'bf3480d',
+		}
+		use {
+			'tpope/vim-fugitive',
+			commit = '69ead80',
+		}
+		use {
+			'tpope/vim-commentary',
+			commit = '3654775',
+		}
+		use {
+			'tpope/vim-repeat',
+			commit = '24afe92',
+		}
+		use {
+			'mattn/emmet-vim',
+			commit = 'def5d57',
+		}
+
+
+		use {
+			'folke/which-key.nvim',
+			commit = 'bd4411a',
 			config = function()
 				require("which-key").setup()
 				local which = require('which-key-config')
@@ -139,7 +192,11 @@ return require('packer').startup({
 			end
 		}
 
-		use 'editorconfig/editorconfig-vim'
+		use {
+			'editorconfig/editorconfig-vim',
+			commit = 'd354117',
+		}
+
 
 		use {
 			'kyazdani42/nvim-web-devicons',
@@ -148,6 +205,7 @@ return require('packer').startup({
 
 		use {
 			'nvim-lualine/lualine.nvim',
+			commit = 'b656978',
 			config = function()
 				require'lualine'.setup {
 					options = {
@@ -160,6 +218,7 @@ return require('packer').startup({
 
 		use {
 			'nvim-treesitter/nvim-treesitter',
+			commit = '8eccd82',
 			run = ':TSUpdate',
 			config = function()
 				require'nvim-treesitter.configs'.setup {
@@ -170,8 +229,6 @@ return require('packer').startup({
 			end
 		}
 
-		use 'Olical/conjure'
-
 		-- Automatically set up your configuration after cloning packer.nvim
 		-- Put this at the end after all plugins
 		if packer_bootstrap then
@@ -179,8 +236,4 @@ return require('packer').startup({
 		end
 
 	end,
-	config = {
-		snapshot = "packer-lock",
-		snapshot_path = vim.fn.stdpath('config')
-	}
 })
