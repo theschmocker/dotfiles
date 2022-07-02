@@ -118,7 +118,7 @@ return require('packer').startup({
 			'L3MON4D3/LuaSnip',
 			commit = 'a12441e',
 			config = function ()
-				require'snippets'
+				require'user.snippets'
 			end
 		}
 
@@ -187,7 +187,7 @@ return require('packer').startup({
 			commit = 'bd4411a',
 			config = function()
 				require("which-key").setup()
-				local which = require('which-key-config')
+				local which = require('user.which-key')
 				which.register_global_mappings()
 			end
 		}

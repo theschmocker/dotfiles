@@ -10,7 +10,7 @@ local on_attach = function(client, bufnr)
 	vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
 	vim.keymap.set('n', 'gh', vim.lsp.buf.hover, bufopts)
 	vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
-	require'which-key-config'.register_lsp_mappings(bufnr)
+	require'user.which-key'.register_lsp_mappings(bufnr)
 end
 
 require("nvim-lsp-installer").setup {}
@@ -90,10 +90,18 @@ require'lspconfig'.rust_analyzer.setup{
 	on_attach = on_attach,
 }
 
-require'lsp/typescript'.setup {
+require'user.lsp.typescript'.setup {
 	capabilities = capabilities,
 	on_attach = on_attach,
 }
+
+-- require("null-ls").setup({
+-- 	sources = {
+-- 		require("null-ls").builtins.formatting.stylua,
+-- 		require("null-ls").builtins.diagnostics.eslint,
+-- 		require("null-ls").builtins.completion.spell,
+-- 	},
+-- })
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
 	border = "rounded",
