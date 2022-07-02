@@ -32,6 +32,7 @@ function M.register_global_mappings()
 			p = { "<cmd>lua require'telescope.builtin'.find_files({ cwd = '~/dotfiles' })<cr>", 'Config files' },
 			c = { "<cmd>Telescope commands<cr>", "Commands" },
 			b = { "<cmd>Telescope buffers<cr>", "Buffers" },
+			t = { "<cmd>Telescope<cr>", "Telescope builtins" },
 			[':'] = { "<cmd>Telescope command_history<cr>", "Command history" },
 		},
 
