@@ -41,6 +41,11 @@ return require('packer').startup({
 			requires = { {'nvim-lua/plenary.nvim'} },
 			config = function()
 				require'telescope'.setup {
+					defaults = {
+						path_display = {
+							truncate = true,
+						},
+					},
 					pickers = {
 						find_files = {
 							hidden = true,
