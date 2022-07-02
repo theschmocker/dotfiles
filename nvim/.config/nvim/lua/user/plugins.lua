@@ -190,6 +190,10 @@ return require("packer").startup({
 			"mattn/emmet-vim",
 			commit = "def5d57",
 		})
+		use({
+			"tommcdo/vim-exchange",
+			commit = "784d63083ad7d613aa96f00021cd0dfb126a781a",
+		})
 
 		use({
 			"folke/which-key.nvim",
