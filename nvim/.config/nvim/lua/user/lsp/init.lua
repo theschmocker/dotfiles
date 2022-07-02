@@ -1,32 +1,32 @@
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
-local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+local capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities())
 -- capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 local on_attach = function(client, bufnr)
 	-- Mappings.
 	-- See `:help vim.lsp.*` for documentation on any of the below functions
-	local bufopts = { noremap=true, silent=true, buffer=bufnr }
-	vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-	vim.keymap.set('n', 'gh', vim.lsp.buf.hover, bufopts)
-	vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
-	require'user.which-key'.register_lsp_mappings(bufnr)
+	local bufopts = { noremap = true, silent = true, buffer = bufnr }
+	vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
+	vim.keymap.set("n", "gh", vim.lsp.buf.hover, bufopts)
+	vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, bufopts)
+	require("user.which-key").register_lsp_mappings(bufnr)
 end
 
-require("nvim-lsp-installer").setup {}
+require("nvim-lsp-installer").setup({})
 
-require'lspconfig'.sumneko_lua.setup {
+require("lspconfig").sumneko_lua.setup({
 	capabilities = capabilities,
 	on_attach = on_attach,
 	settings = {
 		Lua = {
 			runtime = {
 				-- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-				version = 'LuaJIT',
+				version = "LuaJIT",
 			},
 			diagnostics = {
 				-- Get the language server to recognize the `vim` global
-				globals = {'vim'},
+				globals = { "vim" },
 			},
 			workspace = {
 				-- Make the server aware of Neovim runtime files
@@ -38,28 +38,28 @@ require'lspconfig'.sumneko_lua.setup {
 			},
 		},
 	},
-}
+})
 
-require'lspconfig'.gopls.setup{
+require("lspconfig").gopls.setup({
 	capabilities = capabilities,
 	on_attach = on_attach,
-}
+})
 
-require'lspconfig'.svelte.setup{
+require("lspconfig").svelte.setup({
 	capabilities = capabilities,
 	on_attach = on_attach,
-}
+})
 
-require'lspconfig'.tailwindcss.setup{
+require("lspconfig").tailwindcss.setup({
 	capabilities = capabilities,
 	on_attach = on_attach,
-}
+})
 
-require'lspconfig'.jsonls.setup {
+require("lspconfig").jsonls.setup({
 	capabilities = capabilities,
-}
+})
 
-require'lspconfig'.omnisharp.setup{
+require("lspconfig").omnisharp.setup({
 	-- TODO TODO do I need any of this with the lsp installer?
 	-- TODO this is for work setup; configure for macOS too
 	-- local pid = vim.fn.getpid()
@@ -71,29 +71,32 @@ require'lspconfig'.omnisharp.setup{
 		RoslynExtensionsOptions = {
 			enableDecompilationSupport = true,
 			enableImportCompletion = true,
-		}
-	}
-}
+		},
+	},
+})
 
-require'lspconfig'.eslint.setup{
-	on_attach = function (client, bufnr)
+require("lspconfig").eslint.setup({
+	on_attach = function(client, bufnr)
 		on_attach(client, bufnr)
 
 		local group = vim.api.nvim_create_augroup("EslintFix", { clear = true })
-		vim.api.nvim_create_autocmd("BufWritePre", { pattern = "*.tsx,*.ts,*.jsx,*.js,*.vue,*.svelte", group = group, command = "EslintFixAll" })
+		vim.api.nvim_create_autocmd(
+			"BufWritePre",
+			{ pattern = "*.tsx,*.ts,*.jsx,*.js,*.vue,*.svelte", group = group, command = "EslintFixAll" }
+		)
 	end,
 	capabilities = capabilities,
-}
+})
 
-require'lspconfig'.rust_analyzer.setup{
+require("lspconfig").rust_analyzer.setup({
 	capabilities = capabilities,
 	on_attach = on_attach,
-}
+})
 
-require'user.lsp.typescript'.setup {
+require("user.lsp.typescript").setup({
 	capabilities = capabilities,
 	on_attach = on_attach,
-}
+})
 
 -- require("null-ls").setup({
 -- 	sources = {
@@ -106,4 +109,3 @@ require'user.lsp.typescript'.setup {
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
 	border = "rounded",
 })
-
