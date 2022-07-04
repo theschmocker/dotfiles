@@ -39,7 +39,7 @@
 	:vue_disable_pre_processors 1
 	:jsx_ext_required 0
 	:mapleader " "
-	:maplocalleader ",")
+	:maplocalleader "\\")
 
 ;; fnlfmt: skip
 (a.run!
