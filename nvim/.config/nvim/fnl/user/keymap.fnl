@@ -1,24 +1,26 @@
 (module user.keymap
-  {autoload {a aniseed.core}})
+  {autoload {a aniseed.core}
+   require-macros [user.macros]})
 
 ;; remap to Lightspeed's multiline versions
-(vim.keymap.set "n" ";" "<Plug>Lightspeed_;_ft" { :remap true })
-(vim.keymap.set "n" "," "<Plug>Lightspeed_,_ft" { :remap true })
+(nmap! ";" "<Plug>Lightspeed_;_ft")
+(nmap! "," "<Plug>Lightspeed_,_ft")
 
 ;; This is now a neovim default, but keeping here for clarify
-(vim.keymap.set "n" "Y" "y$")
+(nnoremap! "Y" :y$)
 
 ;; sets gh to whatever K is (uncertain what that runs behind the scenes). Overridden when LSP becomes active and becomes hover
-(vim.keymap.set "n" "gh" "K") 
+(nnoremap! "gh" :K)
 
-;; the on mapping I can't live without
-(vim.keymap.set "i" "jk" "<esc>")
+; ;; the one mapping I can't live without
+(inoremap! "jk" :<esc>)
 
 ;; into normal mode in a term buffer
-(vim.keymap.set "t" "jk" "<c-\\><c-n>")
+(tnoremap! "jk" "<c-\\><c-n>")
 
 ;; actually send escape to the shell in a term buffer
-(vim.keymap.set "t" "<M-[>" "<Esc>") 
+(tnoremap! "<M-[>" :<Esc>)
 
 ;; shell-fzf-like binding to open searchable command line history
-(vim.keymap.set "c" "<C-r>" "<cmd>Telescope command_history<cr>")
+(cnoremap! "<C-p>" "<cmd>Telescope command_history<cr>")
+

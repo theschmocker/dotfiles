@@ -4,17 +4,18 @@
                                  cmp-lsp cmp_nvim_lsp
                                  : nvim-lsp-installer
                                  my-which-key user.which-key
-                                 a aniseed.core}})
+                                 a aniseed.core}
+                       require-macros [user.macros]})
 
 (local default-capabilities
        (cmp-lsp.update_capabilities (vim.lsp.protocol.make_client_capabilities)))
 
 (defn default-on-attach [client bufnr]
-      (let [bufopts {:noremap true :silent true :buffer bufnr}]
+      (let [bufopts {:silent true :buffer bufnr}]
         (do
-          (vim.keymap.set :n :K vim.lsp.buf.hover bufopts)
-          (vim.keymap.set :n :gh vim.lsp.buf.hover bufopts)
-          (vim.keymap.set :n :<C-k> vim.lsp.buf.signature_help bufopts)
+          (nnoremap! :K vim.lsp.buf.hover bufopts)
+          (nnoremap! :gh vim.lsp.buf.hover bufopts)
+          (nnoremap! :<C-k> vim.lsp.buf.signature_help bufopts)
           (my-which-key.register-lsp-mappings bufnr))))
 
 (defn setup-server [server config]

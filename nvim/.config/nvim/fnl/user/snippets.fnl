@@ -1,4 +1,5 @@
-(module user.snippets {require {ls luasnip}})
+(module user.snippets {require {ls luasnip}
+                       require-macros [user.macros]})
 
 ((. (require :luasnip.loaders.from_vscode) :lazy_load) {:paths {1 :./snippets/vue}})
 
@@ -33,19 +34,19 @@
                            (i 2 :bool)
                            (t " ? 'true' : 'false'\"")])])
 
-(vim.keymap.set [:i :s] :<c-j>
+(noremap! [:i :s] :<c-j>
                 (fn []
                   (when (ls.expand_or_jumpable)
                     (ls.expand_or_jump))) {:silent true})
 
-(vim.keymap.set [:i :s] :<c-k>
+(noremap! [:i :s] :<c-k>
                 (fn []
                   (when (ls.jumpable (- 1))
                     (ls.jump (- 1)))) {:silent true})
 
-(vim.keymap.set :i :<c-l> (fn []
+(inoremap! :<c-l> (fn []
                             (when (ls.choice_active)
                               (ls.change_choice 1))))
 
-(vim.keymap.set :i :<c-u> (require :luasnip.extras.select_choice))
+(inoremap! :<c-u> (require :luasnip.extras.select_choice))
 
