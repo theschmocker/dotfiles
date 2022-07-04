@@ -68,7 +68,8 @@
                    (use :windwp/nvim-autopairs
                         {:commit :4a95b3982be7397cd8e1370d1a09503f9b002dbf
                          :config (fn []
-                                   ((. (require :nvim-autopairs) :setup)))})
+                                   (let [pairs (require :nvim-autopairs)]
+                                     (pairs.setup {:enable_check_bracket_line false})))})
                    (use :tpope/vim-surround {:commit :bf3480d})
                    (use :tpope/vim-fugitive {:commit :69ead80})
                    (use :tpope/vim-commentary {:commit :3654775})
