@@ -1,4 +1,5 @@
-(module user.plugins {autoload {: packer}})
+(module user.plugins {autoload {: packer}
+                      require-macros [user.macros]})
 
 (macro with-require [[mod-name var-ident] body]
   `(let [,var-ident (require ,mod-name)]
@@ -33,8 +34,8 @@
                                            {:integrations {:cmp true
                                                            :which_key true
                                                            :lightspeed true}})
-                                   (set vim.g.catppuccin_flavour :macchiato)
-                                   (vim.cmd "colorscheme catppuccin"))})
+                                   (let-g! catppuccin_flavour :macchiato)
+                                   (vim.cmd "colorscheme dayfox"))})
                    (use :EdenEast/nightfox.nvim
                         {:commit :b85c5c3a0e3b309ffa7d0a6ca33e430c91532ba0})
 
@@ -46,8 +47,7 @@
                    ;; Snippets
                    (use :L3MON4D3/LuaSnip
                         {:commit :a12441e
-                         :config (fn []
-                                   (require :user.snippets))})
+                         :config #(require :user.snippets)})
 
                    ;; Completion
                    (use :hrsh7th/cmp-nvim-lsp {:commit :affe808})
