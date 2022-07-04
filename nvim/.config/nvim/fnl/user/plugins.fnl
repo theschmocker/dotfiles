@@ -1,5 +1,9 @@
 (module user.plugins {autoload {: packer}})
 
+(macro with-require [[mod-name var-ident] body]
+  `(let [,var-ident (require ,mod-name)]
+     ,body))
+
 (packer.startup [(fn [use-]
                    (fn use [name config]
                      (let [config (or config {})]
@@ -21,9 +25,10 @@
                         {:as :catppuccin
                          :commit :d46425163dad4cc74910c0c81eeedb00cadf8a61
                          :config (fn []
-                                   ((. (require :catppuccin) :setup) {:integrations {:cmp true
-                                                                                     :which_key true
-                                                                                     :lightspeed true}})
+                                   (with-require [:catppuccin catppuccin]
+                                                 (catppuccin.setup {:integrations {:cmp true
+                                                                                   :which_key true
+                                                                                   :lightspeed true}}))
                                    (set vim.g.catppuccin_flavour :macchiato)
                                    (vim.cmd "colorscheme catppuccin"))})
                    (use :EdenEast/nightfox.nvim
@@ -52,24 +57,26 @@
                    (use :ggandor/lightspeed.nvim
                         {:commit :79519bfae95741bc99872582ef0f268fd842115b
                          :config (fn []
-                                   ((. (require :lightspeed) :setup) {:exit_after_idle_msecs {:labeled 1500
-                                                                                              :unlabeled 1000}}))})
+                                   (with-require [:lightspeed lightspeed]
+                                                 (lightspeed.setup {:exit_after_idle_msecs {:labeled 1500
+                                                                                            :unlabeled 1000}})))})
                    (use :nvim-telescope/telescope.nvim
                         {:commit :d88b44d
-                         :requires {1 {1 :nvim-lua/plenary.nvim}}
+                         :requires [[:nvim-lua/plenary.nvim]]
                          :config (fn []
-                                   ((. (require :telescope) :setup) {:defaults {:path_display {:truncate true}}
-                                                                     :pickers {:find_files {:hidden true
-                                                                                            :find_command [:rg
-                                                                                                           :--files
-                                                                                                           :--iglob
-                                                                                                           :!.git
-                                                                                                           :--hidden]}}}))})
+                                   (with-require [:telescope telescope]
+                                                 (telescope.setup {:defaults {:path_display {:truncate true}}
+                                                                   :pickers {:find_files {:hidden true
+                                                                                          :find_command [:rg
+                                                                                                         :--files
+                                                                                                         :--iglob
+                                                                                                         :!.git
+                                                                                                         :--hidden]}}})))})
                    (use :windwp/nvim-autopairs
                         {:commit :4a95b3982be7397cd8e1370d1a09503f9b002dbf
                          :config (fn []
-                                   (let [pairs (require :nvim-autopairs)]
-                                     (pairs.setup {:enable_check_bracket_line false})))})
+                                   (with-require [:nvim-autopairs pairs]
+                                                 (pairs.setup {:enable_check_bracket_line false})))})
                    (use :tpope/vim-surround {:commit :bf3480d})
                    (use :tpope/vim-fugitive {:commit :69ead80})
                    (use :tpope/vim-commentary {:commit :3654775})
@@ -83,10 +90,9 @@
                    (use :folke/which-key.nvim
                         {:commit :bd4411a
                          :config (fn []
-                                   ((. (require :which-key) :setup))
-                                   (local which (require :user.which-key))
-                                   ((. which :register-global-mappings)))})
-
+                                   (with-require [:which-key wk] (wk.setup))
+                                   (with-require [:user.which-key my-wk]
+                                                 (my-wk.register-global-mappings)))})
 
                    ;; Icons
                    (use :kyazdani42/nvim-web-devicons
@@ -96,32 +102,33 @@
                    (use :nvim-lualine/lualine.nvim
                         {:commit :b656978
                          :config (fn []
-                                   ((. (require :lualine) :setup) {:options {:icons_enabled true}}))})
-
+                                   (with-require [:lualine lualine]
+                                                 (lualine.setup {:options {:icons_enabled true}})))})
                    (use :nvim-treesitter/nvim-treesitter
                         {:commit :8eccd82
                          :run ":TSUpdate"
                          :config (fn []
-                                   (let [configs (require :nvim-treesitter.configs)]
-                                     (configs.setup {:highlight {:enable true}
-                                                     :ensure_installed [:html
-                                                                        :css
-                                                                        :scss
-                                                                        :javascript
-                                                                        :typescript
-                                                                        :tsx
-                                                                        :svelte
-                                                                        :vue
-                                                                        :lua
-                                                                        :fennel
-                                                                        :c_sharp
-                                                                        :rust
-                                                                        :markdown
-                                                                        :json
-                                                                        :jsonc
-                                                                        :go
-                                                                        :gomod
-                                                                        :haskell]})))})
+                                   (with-require [:nvim-treesitter.configs
+                                                  configs]
+                                                 (configs.setup {:highlight {:enable true}
+                                                                 :ensure_installed [:html
+                                                                                    :css
+                                                                                    :scss
+                                                                                    :javascript
+                                                                                    :typescript
+                                                                                    :tsx
+                                                                                    :svelte
+                                                                                    :vue
+                                                                                    :lua
+                                                                                    :fennel
+                                                                                    :c_sharp
+                                                                                    :rust
+                                                                                    :markdown
+                                                                                    :json
+                                                                                    :jsonc
+                                                                                    :go
+                                                                                    :gomod
+                                                                                    :haskell]})))})
 
                    ;; Lisp
                    (use :Olical/aniseed)
