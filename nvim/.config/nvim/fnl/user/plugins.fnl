@@ -90,10 +90,7 @@
                    ;; Which Key
                    (use :folke/which-key.nvim
                         {:commit :bd4411a
-                         :config (fn []
-                                   (setup! :which-key)
-                                   (with-require [:user.which-key my-wk]
-                                                 (my-wk.register-global-mappings)))})
+                         :config #(setup! :which-key)})
 
                    ;; Icons
                    (use :kyazdani42/nvim-web-devicons
