@@ -24,8 +24,9 @@ local function ensure(user, repo, after_install)
 end
 
 -- Bootstrap essential plugins required for installing and loading the rest.
+local installed_packer = false
 ensure("wbthomason", "packer.nvim", function ()
-	require('packer').sync()
+	installed_packer = true
 end)
 ensure("Olical", "aniseed")
 
@@ -34,5 +35,8 @@ vim.g["aniseed#env"] = {
 	compile = true,
 }
 
+if installed_packer then
+	require('packer').sync()
+end
 -- require('user.plugins')
 -- require('old_lsp')
