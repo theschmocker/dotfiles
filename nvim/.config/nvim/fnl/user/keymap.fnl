@@ -3,7 +3,7 @@
 
 ;; remap to Lightspeed's multiline versions
 (vim.keymap.set "n" ";" "<Plug>Lightspeed_;_ft" { :remap true })
-(vim.keymap.set "n" "," "<Plug>Lightspeed__ft" { :remap true })
+(vim.keymap.set "n" "," "<Plug>Lightspeed_,_ft" { :remap true })
 
 ;; This is now a neovim default, but keeping here for clarify
 (vim.keymap.set "n" "Y" "y$")
