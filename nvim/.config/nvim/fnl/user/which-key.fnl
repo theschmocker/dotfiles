@@ -18,7 +18,8 @@
                         :s [:<C-W>s :split-window-below]
                         :v [:<C-W>v :split-window-vertical]}
                     :f {:name :+find/file
-                        :f ["<cmd>Telescope find_files<cr>" "Find File"]
+                        :f ["<cmd>lua require'telescope.builtin'.find_files({ hidden = true, find_command = {'rg', '--files', '--iglob', '!.git', '--no-ignore', '--hidden'}})<cr>"
+                            "Files (include ignored)"]
                         :r ["<cmd>Telescope oldfiles<cr>" "Open Recent File"]
                         :g ["<cmd>Telescope live_grep<cr>" :Grep]
                         :n [:<cmd>enew<cr> "New File"]
