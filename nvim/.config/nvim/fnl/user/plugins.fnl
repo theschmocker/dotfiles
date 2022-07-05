@@ -35,7 +35,7 @@
                                                            :which_key true
                                                            :lightspeed true}})
                                    (let-g! catppuccin_flavour :macchiato)
-                                   (vim.cmd "colorscheme dayfox"))})
+                                   (vim.cmd "colorscheme catppuccin"))})
                    (use :EdenEast/nightfox.nvim
                         {:commit :b85c5c3a0e3b309ffa7d0a6ca33e430c91532ba0})
 
