@@ -29,13 +29,10 @@
                    (use :catppuccin/nvim
                         {:as :catppuccin
                          :commit :d46425163dad4cc74910c0c81eeedb00cadf8a61
-                         :config (fn []
-                                   (setup! :catppuccin
-                                           {:integrations {:cmp true
-                                                           :which_key true
-                                                           :lightspeed true}})
-                                   (let-g! catppuccin_flavour :macchiato)
-                                   (vim.cmd "colorscheme catppuccin"))})
+                         :config #(setup! :catppuccin
+                                         {:integrations {:cmp true
+                                                         :which_key true
+                                                         :lightspeed true}})})
                    (use :EdenEast/nightfox.nvim
                         {:commit :b85c5c3a0e3b309ffa7d0a6ca33e430c91532ba0})
 
