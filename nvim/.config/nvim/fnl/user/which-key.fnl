@@ -22,6 +22,7 @@
                             "Files (include ignored)"]
                         :r ["<cmd>Telescope oldfiles<cr>" "Open Recent File"]
                         :g ["<cmd>Telescope live_grep<cr>" :Grep]
+                        :G ["<cmd>Telescope git_files<cr>" "Git Files"]
                         :n [:<cmd>enew<cr> "New File"]
                         :p ["<cmd>lua require'telescope.builtin'.find_files({ cwd = '~/dotfiles' })<cr>"
                             "Config files"]
