@@ -3,7 +3,6 @@
                    : lspconfig
                    cmp-lsp cmp_nvim_lsp
                    : nvim-lsp-installer
-                   my-which-key user.which-key
                    a aniseed.core
                    {:default-capabilities default-capabilities
                      :default-on-attach default-on-attach

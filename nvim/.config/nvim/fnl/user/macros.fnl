@@ -1,25 +1,27 @@
-(fn noremap! [modes lhs rhs c_or_f opts]
+(fn noremap! [modes lhs rhs opts]
   (let [opts (or opts {})]
     (tset opts :remap nil)
-    `(vim.keymap.set ,modes ,lhs ,rhs ,c_or_f)))
+    `(vim.keymap.set ,modes ,lhs ,rhs ,opts)))
 
-(fn remap! [modes lhs rhs c_or_f]
-  `(vim.keymap.set ,modes ,lhs ,rhs ,c_or_f {:remap true}))
+(fn remap! [modes lhs rhs opts]
+  (let [opts (or opts {})]
+    (tset opts :remap true)
+    `(vim.keymap.set ,modes ,lhs ,rhs ,opts)))
 
-(fn nnoremap! [lhs rhs c_or_f]
-  `,(noremap! :n lhs rhs c_or_f))
+(fn nnoremap! [lhs rhs opts]
+  `,(noremap! :n lhs rhs opts))
 
-(fn nmap! [lhs rhs c_or_f]
-  `,(remap! :n lhs rhs c_or_f))
+(fn nmap! [lhs rhs opts]
+  `,(remap! :n lhs rhs opts))
 
-(fn inoremap! [lhs rhs c_or_f]
-  `,(noremap! :i lhs rhs c_or_f))
+(fn inoremap! [lhs rhs opts]
+  `,(noremap! :i lhs rhs opts))
 
-(fn tnoremap! [lhs rhs c_or_f]
-  `,(noremap! :t lhs rhs c_or_f))
+(fn tnoremap! [lhs rhs opts]
+  `,(noremap! :t lhs rhs opts))
 
-(fn cnoremap! [lhs rhs c_or_f]
-  `,(noremap! :c lhs rhs c_or_f))
+(fn cnoremap! [lhs rhs opts]
+  `,(noremap! :c lhs rhs opts))
 
 (fn chunks [n t]
   (let [out []]
@@ -44,6 +46,17 @@
 (fn let-g! [...]
   `,(table-set `vim.g ...))
 
+(fn leader-map! [[name prefix mode] ...]
+  `(do
+     ((. (require :which-key) :register)
+       {,prefix {:name ,name}}
+       {:prefix :<leader> :mode ,(or mode :n)})
+     ,(unpack
+        (icollect [_ [lhs rhs desc opts] (ipairs [...])]
+          (let [opts `((. (require :aniseed.core) :merge) ,{: desc} ,(or opts {}))
+                lhs (.. "<leader>" (tostring prefix) lhs)]
+            `(noremap! ,(or mode :n) ,lhs ,rhs ,opts))))))
+
 {: noremap!
  : remap!
  : nnoremap!
@@ -52,5 +65,6 @@
  : tnoremap!
  : cnoremap!
  : set!
- : let-g! }
+ : let-g!
+ : leader-map!}
 
