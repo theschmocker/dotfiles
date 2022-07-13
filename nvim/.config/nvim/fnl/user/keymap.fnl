@@ -80,3 +80,19 @@
 
 (leader-map! ["+git push" :gP]
              (:P "<cmd>Git push<cr>" "REALLY git push"))
+
+(fn make-setting-toggler [setting on off tbl]
+  (let [tbl (or tbl vim.o)]
+    (fn []
+      (if (= on (. tbl setting))
+        (tset tbl setting off)
+        (tset tbl setting on))
+      (when (= tbl vim.o)
+        (vim.cmd (.. "set " setting "?"))))))
+
+(local toggle-background (make-setting-toggler :background :dark :light))
+(local toggle-wrap (make-setting-toggler :wrap true false))
+
+(leader-map! ["+setting toggles" :s]
+             (:b toggle-background "background light/dark")
+             (:w toggle-wrap "wrap"))
