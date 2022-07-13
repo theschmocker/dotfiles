@@ -13,7 +13,7 @@
 ;; sets gh to whatever K is (uncertain what that runs behind the scenes). Overridden when LSP becomes active and becomes hover
 (nnoremap! "gh" :K)
 
-; ;; the one mapping I can't live without
+;; the one mapping I can't live without
 (inoremap! "jk" :<esc>)
 
 ;; into normal mode in a term buffer
@@ -22,11 +22,9 @@
 ;; actually send escape to the shell in a term buffer
 (tnoremap! "<M-[>" :<Esc>)
 
-;; shell-fzf-like binding to open searchable command line history
-(cnoremap! "<C-p>" "<cmd>Telescope command_history<cr>")
-
 (leader-map! ["" ""]
-             (:<leader> #(telescope.find_files) "Find File"))
+             (:<leader> #(telescope.find_files) "Find File")
+             (";" #(telescope.command_history) "Fuzzy Command History"))
 
 (leader-map! [:+window :w]
              (:w :<C-W>w :other-window)
@@ -50,7 +48,6 @@
              (:g "<cmd>Telescope live_grep<cr>" :Grep)
              (:n :<cmd>enew<cr> "New File")
              (:p "<cmd>lua require'telescope.builtin'.find_files({ cwd = '~/dotfiles' })<cr>" "Config files")
-             (:c "<cmd>Telescope commands<cr>" :Commands)
              (:b "<cmd>Telescope buffers<cr>" :Buffers)
              (:t :<cmd>Telescope<cr> "Telescope builtins")
              (":" "<cmd>Telescope command_history<cr>" "Command history")
@@ -72,4 +69,11 @@
 (leader-map! [:+git :g] 
              (:s :<cmd>Git<cr> "git status")
              (:d :<cmd>Gvdiffsplit!<cr> "git diff in vertical split")
-             (:b "<cmd>Git blame<cr>" "git blame"))
+             (:b "<cmd>Git blame<cr>" "git blame")
+             (:c ":Git checkout " "git checkout")
+             (:p "<cmd>Git pull<cr>" "git pull")
+             (:f "<cmd>Git fetch<cr>" "git fetch"))
+
+(leader-map! ["+git pull" :gp]
+             (:p "<cmd>Git pull<cr>" "git pull")
+             (:r "<cmd>Git pull --rebase<cr>" "git pull --rebase"))
