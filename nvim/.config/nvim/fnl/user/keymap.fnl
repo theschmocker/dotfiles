@@ -77,3 +77,6 @@
 (leader-map! ["+git pull" :gp]
              (:p "<cmd>Git pull<cr>" "git pull")
              (:r "<cmd>Git pull --rebase<cr>" "git pull --rebase"))
+
+(leader-map! ["+git push" :gP]
+             (:P "<cmd>Git push<cr>" "REALLY git push"))
