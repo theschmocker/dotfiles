@@ -33,6 +33,7 @@
 	mapleader " "
 	maplocalleader "\\")
 
+(set! background :dark)
 (vim.cmd "colorscheme rose-pine")
 
 ;; fnlfmt: skip
