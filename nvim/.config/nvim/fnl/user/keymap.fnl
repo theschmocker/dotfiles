@@ -51,7 +51,7 @@
              (:b "<cmd>Telescope buffers<cr>" :Buffers)
              (:t :<cmd>Telescope<cr> "Telescope builtins")
              (":" "<cmd>Telescope command_history<cr>" "Command history")
-             (:G "<cmd>Telescope git_files" "Git files"))
+             (:G "<cmd>Telescope git_files<cr>" "Git files"))
 
 
 (leader-map! [:+tabs :t]
