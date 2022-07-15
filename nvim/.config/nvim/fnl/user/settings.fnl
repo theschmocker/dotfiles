@@ -22,7 +22,8 @@
 	termguicolors true
 	mouse "nv"
 	signcolumn "yes"
-	syntax "on")
+	syntax "on"
+    swapfile false)
 
 ;; fnlfmt: skip
 (let-g!
