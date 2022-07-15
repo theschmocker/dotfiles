@@ -1,20 +1,21 @@
 (module user.completion.conjure
   {autoload {: cmp
-             conjure-eval conjure.eval}})
-
+             conjure-eval conjure.eval
+             view aniseed.fennel.view}})
 (local source {})
-(set source.new (fn []
-                  (let [self (setmetatable {} {:__index source})]
-                    self)))
+
+(fn source.new []
+  (let [self (setmetatable {} {:__index source})]
+    self))
 
 (fn source.is_available [self]
-  (if (= ((. (require :conjure.client) :current)) nil) false true))
+  (not= nil (. (require :conjure.client) :current)))
 
 (fn source.get_keyword_pattern [self]
   "\\%([0-9a-zA-Z\\*\\+!\\-_'?<>=\\/.:]*\\)")
 
 (fn source.get_trigger_characters [self]
-  {1 "/" 2 "." 3 ":"})
+  ["/" "." ":"])
 
 (local kind-tbl
   {:clojure {:C cmp.lsp.CompletionItemKind.Class
@@ -31,23 +32,16 @@
             :string cmp.lsp.CompletionItemKind.Value
             :table cmp.lsp.CompletionItemKind.Struct}})
 
-(fn lookup-kind [s ft]
-  (let [ft-kinds (. kind-tbl ft)]
-    (if ft-kinds (. ft-kinds s) nil)))
-
 (fn source.complete [self request callback]
   (let [input (string.sub request.context.cursor_before_line request.offset)]
     (conjure-eval.completions input
                               (fn [results]
-                                (let [items {}]
-                                  (each [_ completion (ipairs results)]
-                                    (table.insert items
-                                                  {:label completion.word
-                                                   :documentation {:kind cmp.lsp.MarkupKind.PlainText
-                                                                   :value completion.info}
-                                                   :kind (lookup-kind completion.kind
-                                                                      request.context.filetype)}))
-                                  (callback items))))))
-
+                                (callback (icollect [_ completion (ipairs results)]
+                                            {:label completion.word
+                                             :documentation {:kind (?. kind-tbl
+                                                                       request.context.filetype
+                                                                       completion.kind)
+                                                             :kind cmp.lsp.MarkupKind.PlainText
+                                                             :value completion.info}}))))))
 (defn get-source []
   source)
