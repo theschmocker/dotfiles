@@ -11,18 +11,17 @@
 
 (defn default-on-attach [client bufnr]
       (let [bufopts {:silent true :buffer bufnr}]
-        (do
-          (nnoremap! :K vim.lsp.buf.hover bufopts)
-          (nnoremap! :gh vim.lsp.buf.hover bufopts)
-          (nnoremap! :<C-k> vim.lsp.buf.signature_help bufopts)
-          (leader-map! ["+code-actions (lsp)" :c]
-                       (:a "<cmd>lua vim.lsp.buf.code_action()<cr>" "lsp code actions" bufopts)
-                       (:f "<cmd>Telescope lsp_references<cr>" "find references" bufopts)
-                       (:r "<cmd>lua vim.lsp.buf.rename()<cr>" "rename current symbol" bufopts)
-                       (:d "<cmd>Telescope lsp_definitions<cr>" "jump to definition" bufopts)
-                       (:D "<cmd>lua vim.lsp.buf.declaration()<cr>" "jump to declaration" bufopts)
-                       (:i "<cmd>lua vim.lsp.buf.implementation()<cr>" "jump to implmentation" bufopts)
-                       (:t "<cmd>lua vim.lsp.buf.type_definition()<cr>" "jump to type definition" bufopts)))))
+        (nnoremap! :K vim.lsp.buf.hover bufopts)
+        (nnoremap! :gh vim.lsp.buf.hover bufopts)
+        (nnoremap! :<C-k> vim.lsp.buf.signature_help bufopts)
+        (leader-map! ["+code-actions (lsp)" :c]
+                     (:a "<cmd>lua vim.lsp.buf.code_action()<cr>" "lsp code actions" bufopts)
+                     (:f "<cmd>Telescope lsp_references<cr>" "find references" bufopts)
+                     (:r "<cmd>lua vim.lsp.buf.rename()<cr>" "rename current symbol" bufopts)
+                     (:d "<cmd>Telescope lsp_definitions<cr>" "jump to definition" bufopts)
+                     (:D "<cmd>lua vim.lsp.buf.declaration()<cr>" "jump to declaration" bufopts)
+                     (:i "<cmd>lua vim.lsp.buf.implementation()<cr>" "jump to implmentation" bufopts)
+                     (:t "<cmd>lua vim.lsp.buf.type_definition()<cr>" "jump to type definition" bufopts))))
 
 (defn setup-server [server config]
       (let [setup-fn (. lspconfig server :setup)
