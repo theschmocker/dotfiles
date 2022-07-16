@@ -1,12 +1,13 @@
 (module user.lsp.init
-        {autoload {ts-lsp user.lsp.typescript
-                   : lspconfig
-                   cmp-lsp cmp_nvim_lsp
-                   : nvim-lsp-installer
-                   a aniseed.core
-                   {:default-capabilities default-capabilities
-                     :default-on-attach default-on-attach
-                     :setup-server setup-server} user.lsp.util}})
+  {autoload {ts-lsp user.lsp.typescript
+             : lspconfig
+             cmp-lsp cmp_nvim_lsp
+             : nvim-lsp-installer
+             a aniseed.core
+             {:default-capabilities default-capabilities
+              :default-on-attach default-on-attach
+              :setup-server setup-server} user.lsp.util}
+   require-macros user.macros})
 
 (nvim-lsp-installer.setup)
 
@@ -16,14 +17,14 @@
 (setup-server :jsonls)
 (setup-server :rust_analyzer)
 
-(local eslint-group (vim.api.nvim_create_augroup :EslintFix {:clear true}))
+(local eslint-group (augroup! [:EslintFix {:clear true}]))
 (setup-server :eslint
               {:on_attach (fn [client bufnr]
                             (default-on-attach client bufnr)
-                            (vim.api.nvim_create_autocmd :BufWritePre
-                                                         {:pattern "*.tsx,*.ts,*.jsx,*.js,*.vue,*.svelte"
-                                                          :group eslint-group
-                                                          :command :EslintFixAll}))})
+                            (au! :BufWritePre
+                                 {:pattern "*.tsx,*.ts,*.jsx,*.js,*.vue,*.svelte"
+                                  :group eslint-group
+                                  :command :EslintFixAll}))})
 
 (setup-server :sumneko_lua
               {:settings {:Lua {:runtime {:version :LuaJIT}

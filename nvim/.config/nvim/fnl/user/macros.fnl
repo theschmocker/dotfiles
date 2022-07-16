@@ -51,6 +51,20 @@
                 lhs (.. "<leader>" (tostring prefix) lhs)]
             `(noremap! ,(or mode :n) ,lhs ,rhs ,opts))))))
 
+(fn augroup! [[name opts] ...]
+  `(let [group# (vim.api.nvim_create_augroup ,name ,opts)]
+     ,(let [body [...]]
+        `(do
+           ,(unpack (icollect [_ form (ipairs body)]
+                      (do
+                        (when (= "au!" (tostring (. form 1)))
+                          (tset form 3 `((. (require :aniseed.core) :merge) ,(. form 3) {:group group#})))
+                        form)))
+           group#))))
+
+(fn au! [name opts]
+  `(vim.api.nvim_create_autocmd ,name ,opts))
+
 {: noremap!
  : remap!
  : nnoremap!
@@ -60,5 +74,7 @@
  : cnoremap!
  : set!
  : let-g!
- : leader-map!}
+ : leader-map!
+ : augroup!
+ : au!}
 
