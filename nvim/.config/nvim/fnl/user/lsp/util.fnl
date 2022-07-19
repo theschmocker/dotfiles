@@ -39,34 +39,7 @@
           (with-open [p_json (io.open (.. p-json-dir :/package.json) :r)]
             (vim.json.decode (p_json:read :*a))))))
 
-(fn sanitize [path]
-  (pick-values 1 (string.gsub path "\\" "/")))
-
-(local cache-path (-> (vim.fn.stdpath "cache")
-                      (.. "/schmo")
-                      (sanitize)))
-
-(local cache-file (-> cache-path
-                      (.. "/npm-global")
-                      (sanitize)))
-
-(local one-day (* 60 60 24))
-
-(defn- get-global-node-modules-path-with-npm []
-      (pick-values 1 (string.gsub (vim.fn.system "npm root -g") "\n" "")))
-
-(defn get-global-node-modules-path []
-      "Returns the path to the system's global node_modules"
-      (vim.fn.mkdir cache-path "p")
-      (let [last-updated (- (vim.fn.localtime) (vim.fn.getftime cache-file))
-            cached-value (a.slurp cache-file true)]
-        (if (or (= nil cached-value)
-                (> last-updated one-day))
-          (do
-            (let [value (get-global-node-modules-path-with-npm)]
-              (a.spit cache-file value)
-              value))
-          cached-value)))
-
-(defn is-vue-project [p_json] (not= nil (?. p_json :dependencies :vue)))
+(defn is-vue-project [p_json]
+  "Determines whether the given package.json (as a table) belongs to a Vue project."
+  (not= nil (?. p_json :dependencies :vue)))
 

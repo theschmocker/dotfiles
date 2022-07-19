@@ -2,10 +2,10 @@
         {autoload {a aniseed.core
                    : lspconfig
                    lsputil lspconfig.util
-                   {:get-global-node-modules-path get-global-node-modules-path
-                     :get-package-json get-package-json
-                     :is-vue-project is-vue-project
-                     :setup-server setup-server} user.lsp.util}})
+                   {:get-package-json get-package-json
+                    :is-vue-project is-vue-project
+                    :setup-server setup-server} user.lsp.util
+                   {: with-svelte-plugin} user.lsp.svelte-ts-plugin}})
 
 (fn temp-text-document-edit-handler [text_document_edit index offset_encoding]
   "temporary fix for volar's document version issue"
@@ -26,16 +26,11 @@
         (tset vim.lsp.util :apply_text_document_edit
               temp-text-document-edit-handler)
         (setup-server :tsserver
-                      {;; TODO: I wonder how I could hook into init_options more dynamically. There doesn't seem to be an issue if the plugin isn't installed, but it'd be interesting to somehow extract
-                       ;; this to a plugin. Maybe one that handled registering the TS plugin automatically in a Svelte workspace, installing it, etc. like the VSCode plugin. VSCode handles TS plugins
-                       ;; in a special way
-                       :init_options {:plugins [{:name :typescript-svelte-plugin
-                                                 :location (.. (get-global-node-modules-path)
-                                                               :/typescript-svelte-plugin)}]}
-                       :root_dir (fn [filepath]
-                                   (if (is-vue-project (get-package-json))
-                                     nil
-                                     (default_root_dir filepath)))})
+                      (with-svelte-plugin {
+                        :root_dir (fn [filepath]
+                                    (if (is-vue-project (get-package-json))
+                                      nil
+                                      (default_root_dir filepath)))}))
         (setup-server :volar
                       {:filetypes [:typescript
                                    :javascript
