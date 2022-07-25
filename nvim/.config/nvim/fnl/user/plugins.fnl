@@ -60,7 +60,7 @@
                          {:exit_after_idle_msecs {:labeled 1500
                                                   :unlabeled 1000}})})
   (use :nvim-telescope/telescope.nvim
-       {:commit :d88b44d
+       {:commit :0.1.0
         :requires [[:nvim-lua/plenary.nvim]]
         :config #(setup! :telescope
                          {:defaults {:path_display {:truncate true}}
