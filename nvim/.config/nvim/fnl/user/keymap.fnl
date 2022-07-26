@@ -7,6 +7,10 @@
 (nmap! ";" "<Plug>Lightspeed_;_ft")
 (nmap! "," "<Plug>Lightspeed_,_ft")
 
+;; Omnidirectional Lightspeed mappings
+(nmap! "s" "<Plug>Lightspeed_omni_s")
+(nmap! "gs" "<Plug>Lightspeed_omni_gs")
+
 ;; This is now a neovim default, but keeping here for clarify
 (nnoremap! "Y" :y$)
 
