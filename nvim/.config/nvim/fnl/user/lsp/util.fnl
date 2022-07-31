@@ -10,7 +10,6 @@
   (cmp-lsp.update_capabilities (vim.lsp.protocol.make_client_capabilities)))
 
 (defn default-on-attach [client bufnr]
-  (print client.name (vim.inspect client.resolved_capabilities))
   (when client.resolved_capabilities.document_highlight
     (augroup! ["lsp_document_highlight" {:clear false}]
               (vim.api.nvim_clear_autocmds {:buffer bufnr
