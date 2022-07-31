@@ -23,7 +23,9 @@
 	mouse "nv"
 	signcolumn "yes"
 	syntax "on"
-    swapfile false)
+    swapfile false
+    updatetime 250 ; decrease time for CursorHold
+    )
 
 ;; fnlfmt: skip
 (let-g!
