@@ -40,16 +40,19 @@
 (fn let-g! [...]
   `,(table-set `vim.g ...))
 
-(fn leader-map! [[name prefix mode] ...]
-  `(do
-     ((. (require :which-key) :register)
-       {,prefix {:name ,name}}
-       {:prefix :<leader> :mode ,(or mode :n)})
-     ,(unpack
-        (icollect [_ [lhs rhs desc opts] (ipairs [...])]
-          (let [opts `((. (require :aniseed.core) :merge) ,{: desc} ,(or opts {}))
-                lhs (.. "<leader>" (tostring prefix) lhs)]
-            `(noremap! ,(or mode :n) ,lhs ,rhs ,opts))))))
+(fn leader-map! [[name prefix global-opts mode] ...]
+  `(let [global-opts# (or ,global-opts {})]
+     (do
+       ((. (require :which-key) :register)
+        {,prefix {:name ,name}}
+        {:prefix :<leader>
+         :mode ,(or mode :n)
+         :buffer (or global-opts#.buffer nil)})
+       ,(unpack
+          (icollect [_ [lhs rhs desc opts] (ipairs [...])]
+            (let [opts `((. (require :aniseed.core) :merge) ,{: desc} global-opts# ,(or opts {}))
+                  lhs (.. "<leader>" (tostring prefix) lhs)]
+              `(noremap! ,(or mode :n) ,lhs ,rhs ,opts)))))))
 
 (fn augroup! [[name opts] ...]
   `(let [group# (vim.api.nvim_create_augroup ,name ,opts)]
