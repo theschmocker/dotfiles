@@ -18,6 +18,7 @@
 (setup-server :tailwindcss)
 (setup-server :jsonls)
 (setup-server :rust_analyzer)
+(setup-server :intelephense)
 
 (local eslint-group (augroup! [:EslintFix {:clear true}]))
 (setup-server :eslint
