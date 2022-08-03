@@ -11,7 +11,7 @@
 (nmap! "s" "<Plug>Lightspeed_omni_s")
 (nmap! "gs" "<Plug>Lightspeed_omni_gs")
 
-;; This is now a neovim default, but keeping here for clarify
+;; This is now a neovim default, but keeping here for clarity
 (nnoremap! "Y" :y$)
 
 ;; sets gh to whatever K is (uncertain what that runs behind the scenes). Overridden when LSP becomes active and becomes hover
@@ -44,7 +44,8 @@
              (:K "<cmd>resize -5<cr>" :expand-window-up)
              (:= :<C-W>= :balance-window)
              (:s :<C-W>s :split-window-below)
-             (:v :<C-W>v :split-window-vertical))
+             (:v :<C-W>v :split-window-vertical)
+             (:o :<cmd>only<cr> :only))
 
 (leader-map! [:+find/file :f]
              (:f "<cmd>lua require'telescope.builtin'.find_files({ hidden = true, find_command = {'rg', '--files', '--iglob', '!.git', '--no-ignore', '--hidden'}})<cr>" "Files (include ignored)")
