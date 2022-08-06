@@ -2,14 +2,22 @@
   {autoload {ts-lsp user.lsp.typescript
              : lspconfig
              cmp-lsp cmp_nvim_lsp
-             : nvim-lsp-installer
+             : mason-lspconfig
              a aniseed.core
+             : null-ls
              {:default-capabilities default-capabilities
               :default-on-attach default-on-attach
               :setup-server setup-server} user.lsp.util}
    require-macros user.macros})
 
-(nvim-lsp-installer.setup)
+(mason-lspconfig.setup {:ensure_installed [:gopls
+                                           :svelte
+                                           :tailwindcss
+                                           :jsonls
+                                           :sumneko_lua
+                                           :eslint
+                                           :tsserver
+                                           :volar]})
 
 (require :user.lsp.svelte-ts-plugin)
 
@@ -45,3 +53,31 @@
                         :underline true
                         :update_in_insert false
                         :severity_sort false})
+
+(null-ls.setup {:sources [null-ls.builtins.formatting.stylua
+                          (null-ls.builtins.formatting.prettierd.with {:filetypes ["javascript"
+                                                                                  "javascriptreact"
+                                                                                  "typescript"
+                                                                                  "typescriptreact"
+                                                                                  "vue"
+                                                                                  "css"
+                                                                                  "scss"
+                                                                                  "less"
+                                                                                  "html"
+                                                                                  "json"
+                                                                                  "jsonc"
+                                                                                  "yaml"
+                                                                                  "markdown"
+                                                                                  "graphql"
+                                                                                  "handlebars"
+                                                                                  "svelte"]})]
+                :on_attach (fn [client bufnr]
+                             (when (and (= :null-ls client.name)
+                                        client.resolved_capabilities.document_formatting)
+                               (nnoremap! :<leader>cF vim.lsp.buf.formatting_sync {:desc "format"})
+                               (augroup! [:NullLsFmt {:clear true}]
+                                         (vim.api.nvim_clear_autocmds {:buffer bufnr
+                                                                       :group :NullLsFmt})
+                                         (au! :BufWritePre
+                                              {:buffer bufnr
+                                               :callback vim.lsp.buf.formatting_sync}))))})

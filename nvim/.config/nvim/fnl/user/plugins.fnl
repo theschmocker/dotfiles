@@ -16,8 +16,11 @@
 
 (plugins!
   ;; LSP
+  (use :williamboman/mason.nvim {:commit :a3c6efeaab798b50fde833c5ced3b4e3a8ebf66c
+                                 :config #(setup! :mason)})
+  (use :williamboman/mason-lspconfig.nvim {:commit :af46a169385271671164c8b97ab4c24a776be465})
   (use :neovim/nvim-lspconfig {:commit :c107a0f})
-  (use :williamboman/nvim-lsp-installer {:commit :9887370})
+  (use :jose-elias-alvarez/null-ls.nvim {:commit :4f9fd416ef682121ebc9e7e5d5fc3f319aa5e64f})
 
   ;; Colorscheme
   (use :folke/tokyonight.nvim {:commit :8223c97})

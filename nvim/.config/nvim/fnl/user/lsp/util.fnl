@@ -10,6 +10,10 @@
   (cmp-lsp.update_capabilities (vim.lsp.protocol.make_client_capabilities)))
 
 (defn default-on-attach [client bufnr]
+  ;; Manually turn off LSP formatting. This is a workaround to avoid the prompt to choose a formatter when
+  ;; multiple attached servers have the document_formatting. Formatting handled by null-ls. After nvim 0.8.0,
+  ;; I should be able to remove this in favor of using the ability to filter by client in vim.lsp.format
+  (tset client.resolved_capabilities :document_formatting false)
   (when client.resolved_capabilities.document_highlight
     (augroup! ["lsp_document_highlight" {:clear false}]
               (vim.api.nvim_clear_autocmds {:buffer bufnr
