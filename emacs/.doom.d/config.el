@@ -41,7 +41,6 @@
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type 'relative)
 
-
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
 ;; - `load!' for loading external *.el files relative to this one
@@ -62,8 +61,27 @@
 ;; Editor
 (setq scroll-margin 8)
 
+(remove-hook 'doom-first-input-hook #'evil-snipe-mode)
+
 ;; Normal mode mappings
 (map! (:n "gh" 'lsp-glance-or-lookup))
+(defun lsp-glance-or-lookup (identifier &optional arg)
+  "If lsp-mode is enabled, then call lsp-ui-doc-glance. Fall back to +lookup/documentation"
+  (interactive (list (doom-thing-at-point-or-region)
+                     current-prefix-arg))
+  (if (bound-and-true-p lsp-mode)
+      (lsp-ui-doc-glance)
+    (+lookup/documentation identifier arg)))
+
+(map! (:n "s" 'avy-goto-char-2))
+(map! (:n "S" (lambda ()
+                (interactive)
+                (let ((avy-all-windows 'all-frames))
+                  (call-interactively #'avy-goto-char-2)))))
+
+(map! :after company
+      :map company-active-map
+      "C-y" #'company-complete-selection)
 
 (use-package! lisp-mode
   :init
@@ -75,13 +93,6 @@
   (map! (:map sly-mrepl-mode-map
          :n "gh" 'sly-describe-symbol)))
 
-(defun lsp-glance-or-lookup (identifier &optional arg)
-  "If lsp-mode is enabled, then call lsp-ui-doc-glance. Fall back to +lookup/documentation"
-  (interactive (list (doom-thing-at-point-or-region)
-                     current-prefix-arg))
-  (if (bound-and-true-p lsp-mode)
-      (lsp-ui-doc-glance)
-    (+lookup/documentation identifier arg)))
 
 ;; LSP
 (after! lsp-mode
@@ -103,7 +114,6 @@
 ;; (add-to-list 'completion-styles 'flex) ;; fuzzy completion
 ;; (setq completion-styles (remove 'flex completion-styles))
 
-
 ;; Org
 ;; (set-company-backend! 'org-mode
 ;;   '(:separate company-capf company-yasnippet company-dabbrev))
@@ -113,3 +123,6 @@
   (setq web-mode-part-padding 0)
   (setq web-mode-script-padding 0)
   (setq web-mode-style-padding 0))
+
+(modify-syntax-entry ?- "w" emacs-lisp-mode-syntax-table)
+(modify-syntax-entry ?- "w" lisp-mode-syntax-table)

@@ -51,3 +51,5 @@
 
 (package! monokai-pro-theme)
 (package! spacemacs-theme)
+
+(unpin! lsp-mode)
