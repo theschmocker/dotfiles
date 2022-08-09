@@ -38,10 +38,10 @@
                               (fn [results]
                                 (callback (icollect [_ completion (ipairs results)]
                                             {:label completion.word
-                                             :documentation {:kind (?. kind-tbl
-                                                                       request.context.filetype
-                                                                       completion.kind)
-                                                             :kind cmp.lsp.MarkupKind.PlainText
+                                             :documentation {:kind (or (?. kind-tbl
+                                                                           request.context.filetype
+                                                                           completion.kind)
+                                                                       cmp.lsp.CompletionItemKind.Value)
                                                              :value completion.info}}))))))
 (defn get-source []
   source)

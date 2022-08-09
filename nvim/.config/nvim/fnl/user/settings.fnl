@@ -34,7 +34,9 @@
 	vue_disable_pre_processors 1
 	jsx_ext_required 0
 	mapleader " "
-	maplocalleader "\\")
+	maplocalleader "\\"
+    conjure#client#scheme#stdio#command "csi -quiet -:c"
+    conjure#client#scheme#stdio#prompt_pattern "\n-#;%d-> ")
 
 (set! background :dark)
 (vim.cmd "colorscheme rose-pine")
