@@ -99,12 +99,13 @@
 
 ;; LSP
 (after! lsp-mode
-  (setq lsp-ui-doc-position 'top)
-  (setq lsp-ui-doc-max-width 200)
   (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html")))
 
-;; Vue
-(setq lsp-vetur-experimental-template-interpolation-service t)
+(after! lsp-ui
+  (setq lsp-ui-doc-max-width 100)
+  (setq lsp-ui-doc-max-height 13)
+  (setq lsp-ui-doc-delay 0)
+  (setq lsp-signature-render-documentation nil))
 
 ;; TS
 (setenv "TSSERVER_LOG_FILE" "/tmp/tsserver.log") ;; prevents ts server from polluting project dir with log files
