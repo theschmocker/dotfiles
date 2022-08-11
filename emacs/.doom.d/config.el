@@ -84,7 +84,11 @@
 
 (map! :after company
       :map company-active-map
-      "C-y" #'company-complete-selection)
+      ("C-y" #'company-complete-selection)
+      ("TAB" #'company-complete-selection)
+      ("<tab>" #'company-complete-selection)
+      ("RET" nil)
+      ("<return>" nil))
 
 (use-package! lisp-mode
   :init
