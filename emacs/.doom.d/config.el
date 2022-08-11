@@ -61,18 +61,21 @@
 ;; Editor
 (setq scroll-margin 8)
 
-(remove-hook 'doom-first-input-hook #'evil-snipe-mode)
-
 ;; Normal mode mappings
 (map! (:n "gh" 'lsp-glance-or-lookup))
-(defun lsp-glance-or-lookup (identifier &optional arg)
-  "If lsp-mode is enabled, then call lsp-ui-doc-glance. Fall back to +lookup/documentation"
-  (interactive (list (doom-thing-at-point-or-region)
-                     current-prefix-arg))
+(defun lsp-glance-or-lookup ()
+  "If lsp-mode is enabled, then show LSP documentation. Fall back to +lookup/documentation"
+  (interactive)
   (if (bound-and-true-p lsp-mode)
-      (lsp-ui-doc-glance)
-    (+lookup/documentation identifier arg)))
+      ;; if hover doc is already visible, then open and focus a help buffer. similar to how
+      ;; neovim will focus the hover popup when pressing gh twice
+      (if (lsp-ui-doc--frame-visible-p)
+          (lsp-describe-thing-at-point)
+        (lsp-ui-doc-glance))
+    (call-interactively #'+lookup/documentation)))
 
+;; Remap s and S to avy-goto-char-2
+(remove-hook 'doom-first-input-hook #'evil-snipe-mode)
 (map! (:n "s" 'avy-goto-char-2))
 (map! (:n "S" (lambda ()
                 (interactive)
