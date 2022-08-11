@@ -51,5 +51,6 @@
 
 (package! monokai-pro-theme)
 (package! spacemacs-theme)
+(package! evil-cleverparens)
 
 (unpin! lsp-mode)

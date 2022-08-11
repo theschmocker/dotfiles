@@ -96,6 +96,9 @@
   (map! (:map sly-mrepl-mode-map
          :n "gh" 'sly-describe-symbol)))
 
+;; Cleverparens
+(setq evil-cleverparens-use-s-and-S nil)
+(add-hook 'smartparens-mode-hook #'evil-cleverparens-mode)
 
 ;; LSP
 (after! lsp-mode
