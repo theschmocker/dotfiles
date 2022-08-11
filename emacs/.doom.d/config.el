@@ -118,8 +118,7 @@
 (setq doom-leader-alt-key "M-RET")
 
 ;; Completion
-;; (add-to-list 'completion-styles 'flex) ;; fuzzy completion
-;; (setq completion-styles (remove 'flex completion-styles))
+(add-to-list 'completion-styles 'flex) ;; fuzzy completion
 
 ;; Org
 ;; (set-company-backend! 'org-mode
