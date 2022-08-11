@@ -136,3 +136,6 @@
 
 (modify-syntax-entry ?- "w" emacs-lisp-mode-syntax-table)
 (modify-syntax-entry ?- "w" lisp-mode-syntax-table)
+
+;; Maximize window on startup
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
