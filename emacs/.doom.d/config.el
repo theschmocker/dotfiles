@@ -123,6 +123,7 @@
 
 ;; Completion
 (add-to-list 'completion-styles 'flex) ;; fuzzy completion
+(setq completion-ignore-case t)
 
 ;; Org
 ;; (set-company-backend! 'org-mode
