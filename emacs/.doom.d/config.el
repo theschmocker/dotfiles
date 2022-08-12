@@ -1,9 +1,5 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;; Place your private configuration here! Remember, you do not need to run 'doom
-;; sync' after modifying this file!
-
-
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets.
 (setq user-full-name "Jacob"
@@ -58,10 +54,10 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
-;; Editor
+;;; Editor
 (setq scroll-margin 8)
 
-;; Normal mode mappings
+;;; Normal mode mappings
 (map! (:n "gh" 'lsp-glance-or-lookup))
 (defun lsp-glance-or-lookup ()
   "If lsp-mode is enabled, then show LSP documentation. Fall back to +lookup/documentation"
@@ -100,11 +96,11 @@
   (map! (:map sly-mrepl-mode-map
          :n "gh" 'sly-describe-symbol)))
 
-;; Cleverparens
+;;; Cleverparens
 (setq evil-cleverparens-use-s-and-S nil)
 (add-hook 'smartparens-mode-hook #'evil-cleverparens-mode)
 
-;; LSP
+;;; LSP
 (after! lsp-mode
   (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html")))
 
@@ -114,27 +110,28 @@
   (setq lsp-ui-doc-delay 0)
   (setq lsp-signature-render-documentation nil))
 
-;; TS
+;;; TS
 (setenv "TSSERVER_LOG_FILE" "/tmp/tsserver.log") ;; prevents ts server from polluting project dir with log files
 
-;; Which key
+;;; Which key
 (setq which-key-idle-delay 0.25)
 (setq doom-leader-alt-key "M-RET")
 
-;; Completion
-(add-to-list 'completion-styles 'flex) ;; fuzzy completion
+;;; Completion
+;; fuzzy completion
+(add-to-list 'completion-styles 'flex)
+
 (setq completion-ignore-case t)
 
-;; Org
-;; (set-company-backend! 'org-mode
-;;   '(:separate company-capf company-yasnippet company-dabbrev))
 
-;; Web Mode
+;;; Web Mode
 (after! web-mode
   (setq web-mode-part-padding 0)
   (setq web-mode-script-padding 0)
   (setq web-mode-style-padding 0))
 
+;;; Misc
+;; Treat symbols-with-hypens as whole words
 (modify-syntax-entry ?- "w" emacs-lisp-mode-syntax-table)
 (modify-syntax-entry ?- "w" lisp-mode-syntax-table)
 
