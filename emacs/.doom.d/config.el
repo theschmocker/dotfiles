@@ -123,6 +123,8 @@
 
 (setq completion-ignore-case t)
 
+;; Current company selection will get put into to the buffer
+(add-hook 'after-init-hook 'company-tng-mode)
 
 ;;; Web Mode
 (after! web-mode
