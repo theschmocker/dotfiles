@@ -139,3 +139,12 @@
 
 ;; Maximize window on startup
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+;;; Popups
+;; I have a habit of pressing escape too many times... meaning I keep losing popup buffers.
+;; This should make "q" the primary way to close some of them
+(set-popup-rules!
+  '(("^\\*info" :quit nil :modeline t :size 0.35)
+    ("^\\*helpful" :quit nil :modeline t :size 0.35)))
+
+(plist-put +popup-defaults :modeline t)
