@@ -151,3 +151,10 @@
     ("^\\*helpful" :quit nil :modeline t :size 0.35)))
 
 (plist-put +popup-defaults :modeline t)
+
+;;; org
+(add-to-list 'org-modules 'ol-info)
+
+;;; org-roam
+(setq org-roam-directory (file-truename "~/notes"))
+(org-roam-db-autosync-mode)
