@@ -142,8 +142,10 @@
 ;; Treat symbols-with-hypens as whole words
 (modify-syntax-entry ?- "w" emacs-lisp-mode-syntax-table)
 (modify-syntax-entry ?- "w" lisp-mode-syntax-table)
-(modify-syntax-entry ?- "w" scheme-mode-syntax-table)
-(modify-syntax-entry ?- "w" clojure-mode-syntax-table)
+(add-hook 'clojure-mode-hook (lambda ()
+                              (modify-syntax-entry ?- "w" clojure-mode-syntax-table)))
+(add-hook 'scheme-mode-hook (lambda ()
+                              (modify-syntax-entry ?- "w" scheme-mode-syntax-table)))
 
 ;; Maximize window on startup
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
