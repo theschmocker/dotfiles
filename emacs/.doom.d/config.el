@@ -77,6 +77,10 @@
                 (let ((avy-all-windows 'all-frames))
                   (call-interactively #'avy-goto-char-2)))))
 
+(map! :leader
+      :prefix "o"
+      (:desc "Open link at point" "l" #'link-hint-open-link-at-point))
+
 (map! :after company
       :map company-active-map
       ("C-y" #'company-complete-selection)
