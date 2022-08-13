@@ -24,8 +24,7 @@
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 ;; (setq doom-theme 'spacemacs-light)
-(setq doom-theme 'doom-palenight)
-(setq doom-gruvbox-dark-variant "soft")
+(setq doom-theme 'doom-rose-pine-moon)
 ;; (setq doom-gruvbox-light-variant "hard")
 ;; (load-theme 'monokai-pro-spectrum t)
 
