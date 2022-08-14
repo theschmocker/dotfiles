@@ -78,8 +78,12 @@
                   (call-interactively #'avy-goto-char-2)))))
 
 (map! :leader
-      :prefix "o"
-      (:desc "Open link at point" "l" #'link-hint-open-link-at-point))
+      (:prefix "o"
+       (:desc "Open link at point" "l" #'link-hint-open-link-at-point))
+      (:prefix "c"
+       :desc "Jump to references" "f" #'+lookup/references
+       :desc "Format buffer/region" "F" #'+format/region-or-buffer
+       "D" nil))
 
 (map! :after company
       :map company-active-map
@@ -143,7 +147,7 @@
 (modify-syntax-entry ?- "w" emacs-lisp-mode-syntax-table)
 (modify-syntax-entry ?- "w" lisp-mode-syntax-table)
 (add-hook 'clojure-mode-hook (lambda ()
-                              (modify-syntax-entry ?- "w" clojure-mode-syntax-table)))
+                               (modify-syntax-entry ?- "w" clojure-mode-syntax-table)))
 (add-hook 'scheme-mode-hook (lambda ()
                               (modify-syntax-entry ?- "w" scheme-mode-syntax-table)))
 
