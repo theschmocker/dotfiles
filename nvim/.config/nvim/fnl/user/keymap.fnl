@@ -72,7 +72,8 @@
              (:p :<cmd>bp<cr> "previous buffer"))
 
 (leader-map! [:+git :g] 
-             (:s :<cmd>Git<cr> "git status")
+             (:g :<cmd>Git<cr> "git status")
+             (:s "<cmd>echoerr \"Git status was rebound to <leader>gg\"<cr>" "(obsolete git status)")
              (:d :<cmd>Gvdiffsplit!<cr> "git diff in vertical split")
              (:b "<cmd>Git blame<cr>" "git blame")
              (:c ":Git checkout " "git checkout")
