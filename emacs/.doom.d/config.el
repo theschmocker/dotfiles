@@ -93,15 +93,10 @@
       ("RET" nil)
       ("<return>" nil))
 
-(use-package! lisp-mode
-  :init
-  (map! (:map lisp-mode-map
-         :n "gh" 'sly-describe-symbol)))
-
-(use-package! sly
-  :init
-  (map! (:map sly-mrepl-mode-map
-         :n "gh" 'sly-describe-symbol)))
+(map!
+ :after sly
+ :map sly-mrepl-mode-map
+ :n "gh" 'sly-describe-symbol)
 
 ;;; Cleverparens
 (setq evil-cleverparens-use-s-and-S nil)
