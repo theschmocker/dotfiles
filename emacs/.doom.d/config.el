@@ -135,6 +135,7 @@
 
 ;; Current company selection will get put into to the buffer
 (add-hook 'after-init-hook 'company-tng-mode)
+(setq company-idle-delay 0.3)
 
 ;;; Web Mode
 (after! web-mode
