@@ -94,9 +94,15 @@
       ("<return>" nil))
 
 (map!
- :after sly
  :map sly-mrepl-mode-map
  :n "gh" 'sly-describe-symbol)
+
+(map!
+ :map lisp-mode-map
+ :n "gh" 'sly-describe-symbol
+ (:localleader
+  (:prefix "e"
+   :desc "Evaluate defun" "d" 'sly-eval-defun)))
 
 ;;; Cleverparens
 (setq evil-cleverparens-use-s-and-S nil)
