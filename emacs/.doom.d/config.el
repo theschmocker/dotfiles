@@ -73,13 +73,13 @@
 (setq scroll-margin 8)
 
 ;;; Normal mode mappings
-(map! (:n "gh" 'lsp-glance-or-lookup))
-(defun lsp-glance-or-lookup ()
+(map! (:n "gh" 'schmo/lsp-glance-or-lookup))
+(defun schmo/lsp-glance-or-lookup ()
   "If lsp-mode is enabled, then show LSP documentation. Fall back to +lookup/documentation"
   (interactive)
   (if (bound-and-true-p lsp-mode)
       ;; if hover doc is already visible, then open and focus a help buffer. similar to how
-      ;; neovim will focus the hover popup when pressing gh twice
+      ;; vim.lsp.buf.hover neovim will focus the hover popup when called twice
       (if (lsp-ui-doc--frame-visible-p)
           (lsp-describe-thing-at-point)
         (lsp-ui-doc-glance))
@@ -102,7 +102,12 @@
       (:prefix "c"
        :desc "Jump to references" "f" #'+lookup/references
        :desc "Format buffer/region" "F" #'+format/region-or-buffer
-       "D" nil))
+       "D" nil)
+      (:prefix "s"
+       (:desc "Fuzzy search buffer" "f" 'schmo/swiper-fuzzy)
+       (:desc "Locate file" "F" 'locate))
+      (:prefix "w"
+       (:desc "ace-window" "w" 'ace-window)))
 
 (map! :after company
       :map company-active-map
@@ -122,6 +127,11 @@
  (:localleader
   (:prefix "e"
    :desc "Evaluate defun" "d" 'sly-eval-defun)))
+
+(defun schmo/swiper-fuzzy ()
+  (interactive)
+  (let ((ivy-re-builders-alist (cons `(swiper . ,#'ivy--regex-fuzzy) ivy-re-builders-alist)))
+    (call-interactively 'swiper)))
 
 ;;; Cleverparens
 (setq evil-cleverparens-use-s-and-S nil)
@@ -156,6 +166,7 @@
 
 ;; Current company selection will get put into to the buffer
 (add-hook 'after-init-hook 'company-tng-mode)
+
 (setq company-idle-delay 0.3)
 
 ;;; Web Mode
