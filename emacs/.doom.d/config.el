@@ -93,7 +93,7 @@
 (map! (:n "s" 'avy-goto-char-2))
 (map! (:n "S" (lambda ()
                 (interactive)
-                (let ((avy-all-windows 'all-frames))
+                (let ((avy-all-windows 't))
                   (call-interactively #'avy-goto-char-2)))))
 
 (map! :leader
