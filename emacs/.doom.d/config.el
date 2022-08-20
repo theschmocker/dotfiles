@@ -125,10 +125,11 @@
 
 ;;; Cleverparens
 (setq evil-cleverparens-use-s-and-S nil)
-(add-hook 'emacs-lisp-mode-hook #'evil-cleverparens-mode)
-(add-hook 'lisp-mode-hook #'evil-cleverparens-mode)
-(add-hook 'clojure-mode-hook #'evil-cleverparens-mode)
-(add-hook 'scheme-mode-hook #'evil-cleverparens-mode)
+(add-hook! '(emacs-lisp-mode-hook
+             lisp-mode-hook
+             clojure-mode-hook
+             scheme-mode-hook)
+           #'evil-cleverparens-mode)
 
 ;;; LSP
 (after! lsp-mode
