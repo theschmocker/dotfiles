@@ -164,13 +164,18 @@
   (setq web-mode-style-padding 0))
 
 ;;; Misc
+(defmacro modify-syntax! (mode char newentry)
+  (let* ((m-name (concat (symbol-name mode) "-mode"))
+         (hook (intern (concat m-name "-hook")))
+         (syntax-table (intern (concat m-name "-syntax-table"))))
+    `(add-hook ',hook (lambda ()
+                       (modify-syntax-entry ,char ,newentry ,syntax-table)))))
+
 ;; Treat symbols-with-hypens as whole words
-(modify-syntax-entry ?- "w" emacs-lisp-mode-syntax-table)
-(modify-syntax-entry ?- "w" lisp-mode-syntax-table)
-(add-hook 'clojure-mode-hook (lambda ()
-                               (modify-syntax-entry ?- "w" clojure-mode-syntax-table)))
-(add-hook 'scheme-mode-hook (lambda ()
-                              (modify-syntax-entry ?- "w" scheme-mode-syntax-table)))
+(modify-syntax! emacs-lisp ?- "w")
+(modify-syntax! lisp ?- "w")
+(modify-syntax! clojure ?- "w")
+(modify-syntax! scheme ?- "w")
 
 ;; Maximize window on startup
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
