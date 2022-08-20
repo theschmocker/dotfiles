@@ -85,8 +85,11 @@
         (lsp-ui-doc-glance))
     (call-interactively #'+lookup/documentation)))
 
-;; Remap s and S to avy-goto-char-2
+;; disable evil-snipe
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
+(remove-hook 'doom-first-input-hook #'evil-snipe-override-mode) ; fixes stuff like df<Space>
+
+;; Remap s and S to avy-goto-char-2
 (map! (:n "s" 'avy-goto-char-2))
 (map! (:n "S" (lambda ()
                 (interactive)
