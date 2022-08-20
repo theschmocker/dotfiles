@@ -18,7 +18,23 @@
 ;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
 ;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
 
-(setq doom-font (font-spec :family "MonoLisa" :size 12))
+(defmacro doom-font! (&rest specs)
+  "Sets `doom-font' to the first available font in `SPECS'"
+  (let* ((specs (mapcar (lambda (spec-form)
+                          (if (and (listp spec-form)
+                                   (not (eql 'font-spec (car spec-form))))
+                              (cons #'font-spec spec-form)
+                            spec-form))
+                        specs))
+         (spec (cl-find-if (lambda (spec-form)
+                             (doom-font-exists-p (eval spec-form)))
+                           specs)))
+    `(setq doom-font ,spec)))
+
+(doom-font!
+ (:family "MonoLisa Nerd Font" :size 13)
+ (:family "MonoLisa" :size 13)
+ (:family "Dank Mono" :size 14))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
