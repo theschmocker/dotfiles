@@ -177,6 +177,7 @@
 (add-hook 'after-init-hook 'company-tng-mode)
 
 (setq company-idle-delay 0.3)
+(setq company-selection-wrap-around t)
 
 ;;; Web Mode
 (after! web-mode
