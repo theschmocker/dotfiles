@@ -183,7 +183,17 @@
 (after! web-mode
   (setq web-mode-part-padding 0)
   (setq web-mode-script-padding 0)
-  (setq web-mode-style-padding 0))
+  (setq web-mode-style-padding 0)
+  ;; doom modifies web-mode's autopairs to avoid conflict with smart parens,
+  ;; but it doesn't remove whitespace from the closing portion. In Vue (for example),
+  ;; this leads to this being inserted: {{ |  }}, when this is desired: {{ | }}
+  ;; just disabling web-modes auto-pairing altogether for now; smartparens covers
+  ;; most of my needs
+  (setq web-mode-enable-auto-pairing nil))
+
+(setq emmet-indent-after-insert nil)
+;; Something about emmet-expand-yas breaks undo... just use emmet-expand-line instead
+(advice-add 'emmet-expand-yas :override 'emmet-expand-line)
 
 ;;; Misc
 (defmacro modify-syntax! (mode char newentry)
