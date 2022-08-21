@@ -107,7 +107,16 @@
        (:desc "Fuzzy search buffer" "f" 'schmo/swiper-fuzzy)
        (:desc "Locate file" "F" 'locate))
       (:prefix "w"
-       (:desc "ace-window" "w" 'ace-window)))
+       (:desc "ace-window" "w" 'ace-window))
+      (:prefix "g"
+       ("B" nil)
+       ("b" 'magit-blame-addition)
+       (:prefix "c"
+        ("o" 'magit-branch-checkout)))
+      (:prefix "b"
+       ("b" 'switch-to-buffer)
+       ("B" nil)
+       ("w" '+ivy/switch-workspace-buffer)))
 
 (map! :after company
       :map company-active-map
