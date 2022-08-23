@@ -224,6 +224,22 @@
 ;;; org
 (add-to-list 'org-modules 'ol-info)
 
+(defun schmo/org-insert-week ()
+  (interactive)
+  (let ((monday-label (let ((date (calendar-current-date)))
+                        (cl-destructuring-bind (month day year)
+                            (calendar-gregorian-from-absolute
+                             (1+ (- (calendar-absolute-from-gregorian date)
+                                    (calendar-day-of-week date))))
+                          (format "%02d/%02d" month day)))))
+    (newline)
+    (insert (concat "* " monday-label))
+    (dolist (day '("Mon" "Tue" "Wed" "Thu" "Fri"))
+      (newline)
+      (insert (concat "** " day))
+      (newline)
+      (insert "- "))))
+
 ;;; org-roam
 (setq org-roam-directory (file-truename "~/notes"))
 (org-roam-db-autosync-mode)
