@@ -49,8 +49,6 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
-(package! monokai-pro-theme)
-(package! spacemacs-theme)
 (package! evil-cleverparens)
 
 (unpin! lsp-mode)
