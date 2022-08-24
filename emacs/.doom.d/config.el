@@ -1,5 +1,7 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
+(require 's)
+
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets.
 (setq user-full-name "Jacob"
@@ -220,6 +222,33 @@
     ("^\\*helpful" :quit nil :modeline t :size 0.35)))
 
 (plist-put +popup-defaults :modeline t)
+
+;; CSS
+(defun schmo/print-float-with-max-places (num max-places)
+  "Truncates decimal places of `num' to `max-places' without trailing 0s"
+  (number-to-string
+   (string-to-number
+    (format (concat "%0." (number-to-string max-places) "f")
+            num))))
+
+(defun schmo/insert-relative-units (val &optional arg)
+  "Inserts `val' relative to some base number for use with relative units in CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
+  (interactive (list (read-number "Value: ")
+                     current-prefix-arg))
+  (let ((base (float (if arg
+                         (read-number "Base: ")
+                       16))))
+    (when (<= base 0)
+      (error "Base must be greater than 0"))
+    (let ((res (schmo/print-float-with-max-places (/ val base) 4)))
+      (insert (if (s-ends-with? ".0" res)
+                  (s-replace ".0" "" res)
+                res)))))
+
+(map! :leader
+      (:prefix "i"
+       (:prefix ("n" . "number")
+        (:desc "Relative units" "r" 'schmo/insert-relative-units))))
 
 ;;; org
 (add-to-list 'org-modules 'ol-info)
