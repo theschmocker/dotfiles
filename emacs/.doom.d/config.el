@@ -141,7 +141,7 @@
 
 (defun schmo/swiper-fuzzy ()
   (interactive)
-  (let ((ivy-re-builders-alist (cons `(swiper . ,#'ivy--regex-fuzzy) ivy-re-builders-alist)))
+  (let ((ivy-re-builders-alist (cons '(swiper . ivy--regex-fuzzy) ivy-re-builders-alist)))
     (call-interactively 'swiper)))
 
 ;;; Cleverparens
