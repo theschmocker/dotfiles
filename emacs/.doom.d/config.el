@@ -130,8 +130,8 @@
 
       (:prefix "g"
        ("B" nil)
-       ("b" 'magit-blame-addition)
-       (:prefix "c"
+       (:desc "Blame" "b" 'magit-blame-addition)
+       (:prefix ("c" . "create/checkout")
         ("o" 'magit-branch-checkout)))
 
       (:prefix "b"
