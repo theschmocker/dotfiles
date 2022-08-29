@@ -181,8 +181,11 @@
   (setq lsp-ui-doc-delay 0)
   (setq lsp-signature-render-documentation nil))
 
-;;; TS
-(setenv "TSSERVER_LOG_FILE" "/tmp/tsserver.log") ;; prevents ts server from polluting project dir with log files
+;; Not sure why lsp-mode doesn't respect this variable
+(setq lsp-eslint-auto-fix-on-save t)
+(advice-add 'lsp--before-save :before (lambda ()
+                                        (when lsp-eslint-auto-fix-on-save
+                                          (lsp-eslint-fix-all))))
 
 ;;; Which key
 (setq which-key-idle-delay 0.25)
