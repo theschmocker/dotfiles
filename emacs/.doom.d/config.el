@@ -99,22 +99,41 @@
                   (call-interactively #'avy-goto-char-2)))))
 
 (map! :leader
+      ;; Swapped from defaults
+      :desc "M-x" ";" 'execute-extended-command
+      :desc "Eval expression" ":" 'pp-eval-expression
+
       (:prefix "o"
        (:desc "Open link at point" "l" #'link-hint-open-link-at-point))
+
       (:prefix "c"
        :desc "Jump to references" "f" #'+lookup/references
        :desc "Format buffer/region" "F" #'+format/region-or-buffer
        "D" nil)
+
       (:prefix "s"
        (:desc "Fuzzy search buffer" "f" 'schmo/swiper-fuzzy)
        (:desc "Locate file" "F" 'locate))
+
       (:prefix "w"
-       (:desc "ace-window" "w" 'ace-window))
+       ("w" 'ace-window)
+
+       ;; swap default o bindings
+       ("o" 'delete-other-windows)
+       ("C-o" 'doom/window-enlargen)
+
+       ;; swap default split bindings
+       ("v" '+evil/window-vsplit-and-follow)
+       ("V" 'evil-window-vsplit)
+       ("s" '+evil/window-split-and-follow)
+       ("S" 'evil-window-split))
+
       (:prefix "g"
        ("B" nil)
        ("b" 'magit-blame-addition)
        (:prefix "c"
         ("o" 'magit-branch-checkout)))
+
       (:prefix "b"
        ("b" 'switch-to-buffer)
        ("B" nil)
