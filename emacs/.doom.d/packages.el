@@ -52,3 +52,4 @@
 (package! evil-cleverparens)
 
 (unpin! lsp-mode)
+(unpin! lsp-ui)

@@ -75,18 +75,6 @@
 (setq scroll-margin 8)
 
 ;;; Normal mode mappings
-(map! (:n "gh" 'schmo/lsp-glance-or-lookup))
-(defun schmo/lsp-glance-or-lookup ()
-  "If lsp-mode is enabled, then show LSP documentation. Fall back to +lookup/documentation"
-  (interactive)
-  (if (bound-and-true-p lsp-mode)
-      ;; if hover doc is already visible, then open and focus a help buffer. similar to how
-      ;; vim.lsp.buf.hover neovim will focus the hover popup when called twice
-      (if (lsp-ui-doc--frame-visible-p)
-          (lsp-describe-thing-at-point)
-        (lsp-ui-doc-glance))
-    (call-interactively #'+lookup/documentation)))
-
 ;; disable evil-snipe
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
 (remove-hook 'doom-first-input-hook #'evil-snipe-override-mode) ; fixes stuff like df<Space>
@@ -176,16 +164,47 @@
   (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html")))
 
 (after! lsp-ui
-  (setq lsp-ui-doc-max-width 100)
-  (setq lsp-ui-doc-max-height 13)
-  (setq lsp-ui-doc-delay 0)
-  (setq lsp-signature-render-documentation nil))
+  (setq lsp-ui-doc-max-width 100
+        lsp-ui-doc-max-height 13
+        lsp-ui-doc-delay 0
+        lsp-signature-render-documentation nil
+        lsp-ui-doc-include-signature t))
 
 ;; Not sure why lsp-mode doesn't respect this variable
 (setq lsp-eslint-auto-fix-on-save t)
 (advice-add 'lsp--before-save :before (lambda ()
                                         (when lsp-eslint-auto-fix-on-save
                                           (lsp-eslint-fix-all))))
+
+;; Copied from lsp-mode docs to fix some workspace folder weirdness
+(advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
+
+(defun schmo/lsp-volar-vue-project-p (workspace-root)
+  "Check if the 'vue' package is present in the package.json file
+in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
+  (if-let ((package-json (f-join workspace-root "package.json"))
+           (exist (f-file-p package-json))
+           (config (json-read-file package-json)))
+      (let ((dependencies (alist-get 'dependencies config))
+            (dev-dependencies (alist-get 'devDependencies config)))
+        (or (alist-get 'vue dependencies)
+            (alist-get 'vue dev-dependencies)))
+    nil))
+
+;; I work on a project that has vue in the devDependencies... for reasons. This ensures that volar gets initialized in that workspace
+(advice-add 'lsp-volar--vue-project-p :override 'schmo/lsp-volar-vue-project-p)
+
+(map! (:n "gh" 'schmo/lsp-glance-or-lookup))
+(defun schmo/lsp-glance-or-lookup ()
+  "If lsp-mode is enabled, then show LSP documentation. Fall back to +lookup/documentation"
+  (interactive)
+  (if (bound-and-true-p lsp-mode)
+      ;; if hover doc is already visible, then open and focus a help buffer. similar to how
+      ;; vim.lsp.buf.hover neovim will focus the hover popup when called twice
+      (if (lsp-ui-doc--frame-visible-p)
+          (lsp-describe-thing-at-point)
+        (lsp-ui-doc-glance))
+    (call-interactively #'+lookup/documentation)))
 
 ;;; Which key
 (setq which-key-idle-delay 0.25)
@@ -225,7 +244,7 @@
          (hook (intern (concat m-name "-hook")))
          (syntax-table (intern (concat m-name "-syntax-table"))))
     `(add-hook ',hook (lambda ()
-                       (modify-syntax-entry ,char ,newentry ,syntax-table)))))
+                        (modify-syntax-entry ,char ,newentry ,syntax-table)))))
 
 ;; Treat symbols-with-hypens as whole words
 (modify-syntax! emacs-lisp ?- "w")
