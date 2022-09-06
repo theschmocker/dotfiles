@@ -161,7 +161,8 @@
 
 ;;; LSP
 (after! lsp-mode
-  (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html")))
+  (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html"))
+  (setq lsp-eldoc-enable-hover nil))
 
 (after! lsp-ui
   (setq lsp-ui-doc-max-width 100
