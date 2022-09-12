@@ -217,6 +217,11 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
 
 (setq completion-ignore-case t)
 
+(use-package! fussy
+  :config
+  (push 'fussy completion-styles)
+  (setq fussy-filter-fn 'fussy-filter-orderless-flex))
+
 ;; Current company selection will get put into to the buffer
 (add-hook 'after-init-hook 'company-tng-mode)
 
@@ -313,4 +318,8 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
 
 ;;; org-roam
 (setq org-roam-directory (file-truename "~/notes"))
-(org-roam-db-autosync-mode)
+(after! org
+  (org-roam-db-autosync-mode))
+
+(after! orderless
+  (pushnew! orderless-matching-styles 'orderless-flex))
