@@ -72,7 +72,10 @@
              (:p :<cmd>bp<cr> "previous buffer"))
 
 (leader-map! [:+git :g] 
-             (:g :<cmd>Git<cr> "git status")
+             (:g (fn []
+                   (set! splitbelow false)
+                   (vim.cmd "Git")
+                   (set! splitbelow true)) "git status")
              (:s "<cmd>echoerr \"Git status was rebound to <leader>gg\"<cr>" "(obsolete git status)")
              (:d :<cmd>Gvdiffsplit!<cr> "git diff in vertical split")
              (:b "<cmd>Git blame<cr>" "git blame")

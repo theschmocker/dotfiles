@@ -25,6 +25,8 @@
 	syntax "on"
     swapfile false
     updatetime 250 ; decrease time for CursorHold
+    splitright true
+    splitbelow true
     )
 
 ;; fnlfmt: skip
