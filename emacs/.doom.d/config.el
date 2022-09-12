@@ -245,6 +245,8 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
 (advice-add 'emmet-expand-yas :override 'emmet-expand-line)
 
 ;;; Misc
+(setq whitespace-global-modes nil)
+
 (defmacro modify-syntax! (mode char newentry)
   (let* ((m-name (concat (symbol-name mode) "-mode"))
          (hook (intern (concat m-name "-hook")))
@@ -300,6 +302,9 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
 ;;; org
 (add-to-list 'org-modules 'ol-info)
 
+(defalias 'run-geiser 'geiser
+  "org-babel tries to execute scheme blocks with `run-geiser', which no longer exists")
+
 (defun schmo/org-insert-week ()
   (interactive)
   (let ((monday-label (let ((date (calendar-current-date)))
@@ -322,4 +327,5 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
   (org-roam-db-autosync-mode))
 
 (after! orderless
+  (pushnew! completion-styles 'fussy)
   (pushnew! orderless-matching-styles 'orderless-flex))
