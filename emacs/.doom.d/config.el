@@ -220,7 +220,7 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
 (use-package! fussy
   :config
   (push 'fussy completion-styles)
-  (setq fussy-filter-fn 'fussy-filter-orderless-flex))
+  (setq fussy-filter-fn 'fussy-filter-default))
 
 ;; Current company selection will get put into to the buffer
 (add-hook 'after-init-hook 'company-tng-mode)
@@ -327,5 +327,5 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
   (org-roam-db-autosync-mode))
 
 (after! orderless
-  (pushnew! completion-styles 'fussy)
+  (setq completion-styles '(fussy basic))
   (pushnew! orderless-matching-styles 'orderless-flex))

@@ -167,6 +167,9 @@
 
     ;; Company
     (company-tooltip-selection :background overlay :foreground text)
+    (company-tooltip-common :foreground (doom-lighten pine 0.2)
+                            :background base
+                            :weight 'bold)
     (company-tooltip-search :foreground rose :weight 'bold)
 
     ;; CSS mode <built-in> / scss-mode
@@ -231,6 +234,11 @@
     (swiper-match-face-1 :inherit 'ivy-minibuffer-match-face-1)
     (swiper-match-face-2 :inherit 'ivy-minibuffer-match-face-2)
     (swiper-match-face-3 :inherit 'ivy-minibuffer-match-face-3)
-    (swiper-match-face-4 :inherit 'ivy-minibuffer-match-face-4)))
+    (swiper-match-face-4 :inherit 'ivy-minibuffer-match-face-4)
+
+    ;; Completion
+    (completions-common-part :foreground (doom-lighten pine 0.2)
+                             :background base
+                             :weight 'bold)))
 
 ;;; doom-rose-pine-moon-theme.el ends here
