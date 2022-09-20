@@ -99,10 +99,6 @@
        :desc "Format buffer/region" "F" #'+format/region-or-buffer
        "D" nil)
 
-      (:prefix "s"
-       (:desc "Fuzzy search buffer" "f" 'schmo/swiper-fuzzy)
-       (:desc "Locate file" "F" 'locate))
-
       (:prefix "w"
        ("w" 'ace-window)
 
@@ -125,7 +121,7 @@
       (:prefix "b"
        ("b" 'switch-to-buffer)
        ("B" nil)
-       ("w" '+ivy/switch-workspace-buffer)))
+       ("w" '+vertico/switch-workspace-buffer)))
 
 (map! :after company
       :map company-active-map
@@ -146,10 +142,11 @@
   (:prefix "e"
    :desc "Evaluate defun" "d" 'sly-eval-defun)))
 
-(defun schmo/swiper-fuzzy ()
-  (interactive)
-  (let ((ivy-re-builders-alist (cons '(swiper . ivy--regex-fuzzy) ivy-re-builders-alist)))
-    (call-interactively 'swiper)))
+(map!
+ :map emacs-lisp-mode-map
+ :localleader
+ (:prefix "e"
+          ("p" 'eval-print-last-sexp)))
 
 ;;; Cleverparens
 (setq evil-cleverparens-use-s-and-S nil)
@@ -303,12 +300,13 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
 (add-to-list 'org-modules 'ol-info)
 
 (defalias 'run-geiser 'geiser
-  "org-babel tries to execute scheme blocks with `run-geiser', which no longer exists")
+  "org-babel tries to execute scheme blocks with `run-geiser', which
+no longer exists")
 
 (defun schmo/org-insert-week ()
   (interactive)
   (let ((monday-label (let ((date (calendar-current-date)))
-                        (cl-destructuring-bind (month day year)
+                        (cl-destructuring-bind (month day _year)
                             (calendar-gregorian-from-absolute
                              (1+ (- (calendar-absolute-from-gregorian date)
                                     (calendar-day-of-week date))))
