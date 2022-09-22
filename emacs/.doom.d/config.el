@@ -244,18 +244,28 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
 ;;; Misc
 (setq whitespace-global-modes nil)
 
-(defmacro modify-syntax! (mode char newentry)
-  (let* ((m-name (concat (symbol-name mode) "-mode"))
-         (hook (intern (concat m-name "-hook")))
-         (syntax-table (intern (concat m-name "-syntax-table"))))
-    `(add-hook ',hook (lambda ()
-                        (modify-syntax-entry ,char ,newentry ,syntax-table)))))
+(defmacro modify-syntax! (modes &rest entries)
+  (declare (indent defun))
+  `(progn ,@(mapcar (lambda (mode)
+                      (let* ((m-name (symbol-name mode))
+                             (hook (intern (concat m-name "-hook")))
+                             (syntax-table (intern (concat m-name "-syntax-table"))))
+                        `(add-hook ',hook (lambda ()
+                                            ,@(mapcar (lambda (entry)
+                                                        (cl-destructuring-bind (char newentry) entry
+                                                          `(modify-syntax-entry ,char ,newentry ,syntax-table)))
+                                                      entries)))))
+                    (if (listp modes)
+                        modes
+                      (list modes)))))
 
-;; Treat symbols-with-hypens as whole words
-(modify-syntax! emacs-lisp ?- "w")
-(modify-syntax! lisp ?- "w")
-(modify-syntax! clojure ?- "w")
-(modify-syntax! scheme ?- "w")
+(modify-syntax! (emacs-lisp-mode lisp-mode clojure-mode scheme-mode)
+  ;; consider these symbols to be parts of words
+  (?- "w")
+  (?: "w")
+  (?? "w")
+  (?/ "w")
+  (?+ "w"))
 
 ;; Maximize window on startup
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
