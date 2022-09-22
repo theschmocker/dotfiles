@@ -92,7 +92,7 @@
       :desc "Eval expression" ":" 'pp-eval-expression
 
       (:prefix "o"
-       (:desc "Open link at point" "l" #'link-hint-open-link-at-point))
+               (:desc "Open link at point" "l" #'link-hint-open-link-at-point))
 
       (:prefix "c"
        :desc "Jump to references" "f" #'+lookup/references
@@ -100,28 +100,28 @@
        "D" nil)
 
       (:prefix "w"
-       ("w" 'ace-window)
+               ("w" 'ace-window)
 
-       ;; swap default o bindings
-       ("o" 'delete-other-windows)
-       ("C-o" 'doom/window-enlargen)
+               ;; swap default o bindings
+               ("o" 'delete-other-windows)
+               ("C-o" 'doom/window-enlargen)
 
-       ;; swap default split bindings
-       ("v" '+evil/window-vsplit-and-follow)
-       ("V" 'evil-window-vsplit)
-       ("s" '+evil/window-split-and-follow)
-       ("S" 'evil-window-split))
+               ;; swap default split bindings
+               ("v" '+evil/window-vsplit-and-follow)
+               ("V" 'evil-window-vsplit)
+               ("s" '+evil/window-split-and-follow)
+               ("S" 'evil-window-split))
 
       (:prefix "g"
-       ("B" nil)
-       (:desc "Blame" "b" 'magit-blame-addition)
-       (:prefix ("c" . "create/checkout")
-        ("o" 'magit-branch-checkout)))
+               ("B" nil)
+               (:desc "Blame" "b" 'magit-blame-addition)
+               (:prefix ("c" . "create/checkout")
+                        ("o" 'magit-branch-checkout)))
 
       (:prefix "b"
-       ("b" 'switch-to-buffer)
-       ("B" nil)
-       ("w" '+vertico/switch-workspace-buffer)))
+               ("b" 'switch-to-buffer)
+               ("B" nil)
+               ("w" '+vertico/switch-workspace-buffer)))
 
 (map! :after company
       :map company-active-map
@@ -219,6 +219,10 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
   (push 'fussy completion-styles)
   (setq fussy-filter-fn 'fussy-filter-default))
 
+(after! orderless
+  (setq completion-styles '(fussy basic))
+  (pushnew! orderless-matching-styles 'orderless-flex))
+
 ;; Current company selection will get put into to the buffer
 (add-hook 'after-init-hook 'company-tng-mode)
 
@@ -303,8 +307,8 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
 
 (map! :leader
       (:prefix "i"
-       (:prefix ("n" . "number")
-        (:desc "Relative units" "r" 'schmo/insert-relative-units))))
+               (:prefix ("n" . "number")
+                        (:desc "Relative units" "r" 'schmo/insert-relative-units))))
 
 ;;; org
 (add-to-list 'org-modules 'ol-info)
@@ -334,6 +338,3 @@ no longer exists")
 (after! org
   (org-roam-db-autosync-mode))
 
-(after! orderless
-  (setq completion-styles '(fussy basic))
-  (pushnew! orderless-matching-styles 'orderless-flex))
