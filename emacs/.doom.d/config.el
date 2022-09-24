@@ -204,14 +204,6 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
         (lsp-ui-doc-glance))
     (call-interactively #'+lookup/documentation)))
 
-;; I have no clue whether OmniSharp or lsp-mode is at fault here, but hoverProvider isn't registered as a capability for the omnisharp client.
-;; OmniSharp _does_ have this capability, evidenced by the fact the `lsp-describe-thing-at-point' works. lsp-ui, though, checks for the (missing)
-;; capability and will not run `lsp-ui-doc-glance'. This makes `lsp--capability' always return true when checking for hoverProvider... and it works
-(advice-add 'lsp--capability :around (lambda (original-fun capability)
-                                       (if (string-equal capability "hoverProvider")
-                                           t
-                                         (funcall original-fun capability))))
-
 ;;; Which key
 (setq which-key-idle-delay 0.25)
 (setq doom-leader-alt-key "M-RET")

@@ -53,6 +53,8 @@
 
 (unpin! lsp-mode)
 (unpin! lsp-ui)
+(package! lsp-ui
+  :recipe (:host github :repo "theschmocker/lsp-ui"))
 
 (package! fussy
   :recipe (:host github :repo "jojojames/fussy")
