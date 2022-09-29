@@ -292,7 +292,8 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
             num))))
 
 (defun schmo/insert-relative-units (val &optional arg)
-  "Inserts `val' relative to some base number for use with relative units in CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
+  "Inserts `val' relative to some base number for use with relative units in
+CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
   (interactive (list (read-number "Value: ")
                      current-prefix-arg))
   (let ((base (float (if arg
