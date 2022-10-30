@@ -194,7 +194,8 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
 
 (map! (:n "gh" 'schmo/lsp-glance-or-lookup))
 (defun schmo/lsp-glance-or-lookup ()
-  "If lsp-mode is enabled, then show LSP documentation. Fall back to +lookup/documentation"
+  "If lsp-mode is enabled, then show LSP documentation. Fall back to
++lookup/documentation"
   (interactive)
   (if (bound-and-true-p lsp-mode)
       ;; if hover doc is already visible, then open and focus a help buffer. similar to how
