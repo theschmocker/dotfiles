@@ -28,7 +28,8 @@
 
 (leader-map! ["" ""]
              (:<leader> #(telescope.find_files) "Find File")
-             (";" #(telescope.command_history) "Fuzzy Command History"))
+             (";" #(telescope.command_history) "Fuzzy Command History")
+             ("/" "<cmd>Telescope live_grep<cr>" :Grep))
 
 (leader-map! [:+window :w]
              (:w :<C-W>w :other-window)
@@ -50,13 +51,12 @@
 (leader-map! [:+find/file :f]
              (:f "<cmd>lua require'telescope.builtin'.find_files({ hidden = true, find_command = {'rg', '--files', '--iglob', '!.git', '--no-ignore', '--hidden'}})<cr>" "Files (include ignored)")
              (:r "<cmd>Telescope oldfiles<cr>" "Open Recent File")
-             (:g "<cmd>Telescope live_grep<cr>" :Grep)
+             (:g "<cmd>Telescope git_files<cr>" "Git files")
              (:n :<cmd>enew<cr> "New File")
              (:p "<cmd>lua require'telescope.builtin'.find_files({ cwd = '~/dotfiles' })<cr>" "Config files")
              (:b "<cmd>Telescope buffers<cr>" :Buffers)
              (:t :<cmd>Telescope<cr> "Telescope builtins")
-             (":" "<cmd>Telescope command_history<cr>" "Command history")
-             (:G "<cmd>Telescope git_files<cr>" "Git files"))
+             (":" "<cmd>Telescope command_history<cr>" "Command history"))
 
 
 (leader-map! [:+tabs :t]
