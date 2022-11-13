@@ -218,7 +218,7 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
 (use-package! fussy
   :config
   (push 'fussy completion-styles)
-  (setq fussy-filter-fn 'fussy-filter-default))
+  (setq fussy-filter-fn 'fussy-filter-orderless-flex))
 
 (after! orderless
   (setq completion-styles '(fussy basic))
@@ -339,4 +339,3 @@ no longer exists")
 (setq org-roam-directory (file-truename "~/notes"))
 (after! org
   (org-roam-db-autosync-mode))
-
