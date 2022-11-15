@@ -1,6 +1,7 @@
 ;;; personal/my-go/config.el -*- lexical-binding: t; -*-
 
 (after! go-mode
+  (require 'consult)
   (map! :map go-mode-map
         :localleader
         (:prefix ("c" . "coverage")
