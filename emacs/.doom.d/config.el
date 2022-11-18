@@ -101,6 +101,7 @@
 
       (:prefix "w"
                ("w" 'ace-window)
+               ("-" #'schmo/window-resize/body "Interactive Resize")
 
                ;; swap default o bindings
                ("o" 'delete-other-windows)
@@ -341,3 +342,11 @@ no longer exists")
 (setq org-roam-directory (file-truename "~/notes"))
 (after! org
   (org-roam-db-autosync-mode))
+
+(defhydra schmo/window-resize nil
+  "Window Resize"
+  ("h" #'evil-window-decrease-width "Decrease Width")
+  ("j" #'evil-window-increase-height "Increase Height")
+  ("k" #'evil-window-decrease-height "Decrease Height")
+  ("l" #'evil-window-increase-width "Increase Width")
+  ("=" #'balance-windows "Balance"))
