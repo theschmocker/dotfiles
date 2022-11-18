@@ -218,10 +218,12 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
 (use-package! fussy
   :config
   (push 'fussy completion-styles)
-  (setq fussy-filter-fn 'fussy-filter-orderless-flex))
+  (setq fussy-filter-fn 'fussy-filter-flex))
 
 (after! orderless
-  (setq completion-styles '(fussy basic))
+  (let ((styles '(fussy flex basic partial-completion emacs22)))
+    (setq completion-styles styles
+          +vertico-company-completion-styles styles))
   (pushnew! orderless-matching-styles 'orderless-flex))
 
 ;; Current company selection will get put into to the buffer
