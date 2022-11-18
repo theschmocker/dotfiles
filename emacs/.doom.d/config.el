@@ -131,8 +131,8 @@
 (map! :after company
       :map company-active-map
       ("C-y" #'company-complete-selection)
-      ("TAB" #'company-complete-selection)
-      ("<tab>" #'company-complete-selection)
+      ("TAB" nil)
+      ("<tab>" nil)
       ("RET" nil)
       ("<return>" nil))
 
