@@ -73,6 +73,7 @@
 
 ;;; Editor
 (setq scroll-margin 8)
+(setq hscroll-margin 16)
 
 ;;; Normal mode mappings
 ;; disable evil-snipe
@@ -90,6 +91,9 @@
       ;; Swapped from defaults
       :desc "M-x" ";" 'execute-extended-command
       :desc "Eval expression" ":" 'pp-eval-expression
+      :desc "Search History" "\"" (lambda ()
+                                    (interactive)
+                                    (vertico-repeat t))
 
       (:prefix "o"
                (:desc "Open link at point" "l" #'link-hint-open-link-at-point))
