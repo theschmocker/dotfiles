@@ -342,11 +342,6 @@ no longer exists")
       (newline)
       (insert "- "))))
 
-;;; org-roam
-(setq org-roam-directory (file-truename "~/notes"))
-(after! org
-  (org-roam-db-autosync-mode))
-
 (defhydra schmo/window-resize nil
   "Window Resize"
   ("h" #'evil-window-decrease-width "Decrease Width")
