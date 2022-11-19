@@ -349,3 +349,6 @@ no longer exists")
   ("k" #'evil-window-decrease-height "Decrease Height")
   ("l" #'evil-window-increase-width "Increase Width")
   ("=" #'balance-windows "Balance"))
+
+;; Prevent package pins and other properties from being truncated
+(advice-add '+emacs-lisp-truncate-pin :override (-const nil))
