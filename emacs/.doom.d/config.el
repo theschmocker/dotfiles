@@ -1,6 +1,9 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 (require 's)
+(require 'f)
+
+(add-to-list 'load-path (f-join doom-user-dir "lisp"))
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets.
@@ -209,6 +212,42 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
           (lsp-describe-thing-at-point)
         (lsp-ui-doc-glance))
     (call-interactively #'+lookup/documentation)))
+
+(defun schmo/project-has-styled-components-p (workspace-root)
+  "Check if the `styled-components' package is present in the package.json file
+in the WORKSPACE-ROOT."
+  (if-let ((package-json (f-join workspace-root "package.json"))
+           (exist (f-file-p package-json))
+           (config (json-read-file package-json)))
+      (let ((dependencies (alist-get 'dependencies config))
+            (dev-dependencies (alist-get 'devDependencies config)))
+        (or (alist-get 'styled-components dependencies)
+            (alist-get 'styled-components dev-dependencies)))
+    nil))
+
+(defun lsp-svelte--svelte-project-p (workspace-root)
+  "Check if the `Svelte' package is present in the package.json file in the
+WORKSPACE-ROOT."
+  (if-let ((package-json (f-join workspace-root "package.json"))
+           (exist (f-file-p package-json))
+           (config (json-read-file package-json))
+           (dev-dependencies (alist-get 'devDependencies config)))
+      (alist-get 'svelte dev-dependencies)
+  nil))
+
+
+(after! lsp-mode
+  (require 'lsp-javascript)
+  (require 'lsp-typescript-plugin)
+  (lsp-typescript-plugin-register 'typescript-styled-plugin
+                         #'schmo/project-has-styled-components-p
+                         '(:npm :package "typescript-styled-plugin"
+                                :path "typescript-styled-plugin"))
+
+  (lsp-typescript-plugin-register 'typescript-svelte-plugin
+                         #'lsp-svelte--svelte-project-p
+                         '(:npm :package "typescript-svelte-plugin"
+                                :path "typescript-svelte-plugin")))
 
 ;;; Which key
 (setq which-key-idle-delay 0.25)
