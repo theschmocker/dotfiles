@@ -78,10 +78,23 @@
 (setq scroll-margin 8)
 (setq hscroll-margin 16)
 
-;;; Normal mode mappings
+;;; Evil
 ;; disable evil-snipe
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
 (remove-hook 'doom-first-input-hook #'evil-snipe-override-mode) ; fixes stuff like df<Space>
+
+(defun schmo/with-evil-cross-lines (fun &rest args)
+  "Call FUN with `evil-cross-lines' bound to `t'"
+  (dlet ((evil-cross-lines t))
+    (apply fun args)))
+
+;; movement with f and t not restricted to current line.
+;; I prefer the normal behavior for other commands affected by
+;; `evil-cross-lines', so this advice only overrides it for `evil-find-char' and
+;; its variants
+(advice-add 'evil-find-char :around #'schmo/with-evil-cross-lines)
+
+;;; Normal mode mappings
 
 ;; Remap s and S to avy-goto-char-2
 (map! (:n "s" 'avy-goto-char-2))
