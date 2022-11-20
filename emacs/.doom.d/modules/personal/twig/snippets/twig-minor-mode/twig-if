@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: twig-block
+# uuid: E9BDE798-2FBD-4E63-A0CC-2FE21C1CF04E
+# key: tif
+# --
+{% if $1 %}
+	$0
+{% endif %}

@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: twig-block
+# uuid: 23418741-D8E7-4F26-9840-DC5B99CAC17E
+# key: tfor
+# --
+{% for $1 in $2 %}
+	$0
+{% endfor %}

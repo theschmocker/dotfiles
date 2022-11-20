@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: twig-set
+# key: tset
+# uuid: 94B81E2A-A351-49DC-A9E3-179A22961A20
+# condition: t
+# --
+{% set $1 = $2 %}$0
