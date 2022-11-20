@@ -310,28 +310,16 @@ WORKSPACE-ROOT."
 ;;; Misc
 (setq whitespace-global-modes nil)
 
-(defmacro modify-syntax! (modes &rest entries)
-  (declare (indent defun))
-  `(progn ,@(mapcar (lambda (mode)
-                      (let* ((m-name (symbol-name mode))
-                             (hook (intern (concat m-name "-hook")))
-                             (syntax-table (intern (concat m-name "-syntax-table"))))
-                        `(add-hook ',hook (lambda ()
-                                            ,@(mapcar (lambda (entry)
-                                                        (cl-destructuring-bind (char newentry) entry
-                                                          `(modify-syntax-entry ,char ,newentry ,syntax-table)))
-                                                      entries)))))
-                    (if (listp modes)
-                        modes
-                      (list modes)))))
-
-(modify-syntax! (emacs-lisp-mode lisp-mode clojure-mode scheme-mode)
-  ;; consider these symbols to be parts of words
-  (?- "w")
-  (?: "w")
-  (?? "w")
-  (?/ "w")
-  (?+ "w"))
+;; consider these symbols to be parts of words in lisp modes
+(let ((word-characters (list ?- ?: ?? ?/ ?+))
+      (modes '(emacs-lisp-mode lisp-mode clojure-mode scheme-mode)))
+  (dolist (mode modes)
+    (let* ((mode-name (symbol-name mode))
+           (hook (intern (concat mode-name "-hook")))
+           (syntax-table-sym (intern (concat mode-name "-syntax-table"))))
+      (add-hook hook (lambda ()
+                       (dolist (char word-characters)
+                         (modify-syntax-entry char "w" (symbol-value syntax-table-sym))))))))
 
 ;; Maximize window on startup
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
