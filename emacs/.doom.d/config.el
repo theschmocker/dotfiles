@@ -303,7 +303,8 @@ WORKSPACE-ROOT."
   ;; most of my needs
   (setq web-mode-enable-auto-pairing nil)
   ;; move company-web-html to the end so it doesn't shadow other backends (specifically company-yasnippet)
-  (setq-local company-backends (append (remq 'company-web-html company-backends) '(company-web-html))))
+  (set-company-backend! 'web-mode
+    '(:separate company-yasnippet company-web-html)))
 
 (setq emmet-indent-after-insert nil)
 ;; Something about emmet-expand-yas breaks undo... just use emmet-expand-line instead
