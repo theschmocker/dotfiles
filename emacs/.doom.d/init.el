@@ -189,4 +189,5 @@
        (default +bindings +smartparens)
 
        :personal
-       go)
+       go
+       twig)
