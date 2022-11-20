@@ -3,6 +3,7 @@
 (require 's)
 (require 'f)
 
+;; Adds custom non-DOOM-module lisp files to load path
 (add-to-list 'load-path (f-join doom-user-dir "lisp"))
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
@@ -55,7 +56,6 @@
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type 'relative)
 
 ;; Here are some additional functions/macros that could help you configure Doom:
 ;;
@@ -77,6 +77,7 @@
 ;;; Editor
 (setq scroll-margin 8)
 (setq hscroll-margin 16)
+(setq display-line-numbers-type 'relative)
 
 ;;; Evil
 ;; disable evil-snipe
