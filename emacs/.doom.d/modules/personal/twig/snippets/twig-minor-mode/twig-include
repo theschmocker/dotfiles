@@ -2,6 +2,5 @@
 # name: twig-block
 # uuid: 7871B4F0-9AA0-49CE-A7CC-E5174C09D045
 # key: tin
-# condition: (string-match-p ".twig$" (buffer-name))
 # --
 {% include "partial/$1.twig"$2 %}

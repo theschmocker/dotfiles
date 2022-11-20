@@ -2,7 +2,6 @@
 # name: twig-block
 # uuid: A14C487C-96DA-411E-91F1-7EC29742D364
 # key: tem
-# condition: (string-match-p ".twig$" (buffer-name))
 # --
 {% embed "partial/$1.twig"$2 %}
 	$0

@@ -2,7 +2,6 @@
 # name: twig-block
 # uuid: 35E756CA-AA51-4D8F-B043-C2AAE5C29D77
 # key: tb
-# condition: (string-match-p ".twig$" (buffer-name))
 # --
 {% block $1 %}
 	$0
