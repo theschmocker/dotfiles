@@ -28,7 +28,7 @@ When prefix UPDATE? is t force installation even if the plugin is present."
                                  (user-error "There are no plugins with automatic installation"))
                              (lambda (plugin)
                                (let ((plugin-name (-> plugin lsp-typescript-plugin--def-name symbol-name)))
-                                 (if (lsp-typescript-plugin--plugin-present-p plugin) ;; TODO(lsp--server-binary-present? client)
+                                 (if (lsp-typescript-plugin--plugin-present-p plugin)
                                      (concat plugin-name " (Already installed)")
                                    plugin-name)))
                              nil
@@ -69,10 +69,10 @@ Check `*lsp-install*' and `*lsp-log*' buffer."
                                 error-message))
                   (seq-do
                    (lambda (workspace)
-                     (with-lsp-workspace workspace
-                       ;; (cl-callf2 -remove-item '(t (:eval (lsp--download-status)))
-                       ;;            global-mode-string)
-                       (when success? (lsp-restart-workspace))))
+                     (when success? (lsp-workspace-restart workspace))
+                     ;; (cl-callf2 -remove-item '(t (:eval (lsp--download-status)))
+                     ;;            global-mode-string)
+                     )
                    tsls-workspaces)
                   ;; (unless (some #'lsp-typescript-plugin--def-download-in-progress? (ht-values lsp-typescript-plugin--registered-plugins))
                   ;;   (cl-callf2 -remove-item '(t (:eval (lsp--download-status)))
@@ -145,9 +145,10 @@ is calculated based on the current buffer."
                             available-plugins
                             ", ")))))
 
-;; defun lsp--start-workspace (session client-template root &optional initialization-options)
 (defun lsp-typescript-plugin--add-to-client (original-start-workspace session client root original-init-options)
-  ""
+  "Adds relevant TypeScript plugins to the initilization options
+(ORIGINAL-INIT-OPTIONS) of the client that will be started in ROOT. Intended as
+advice around `lsp--start-workspace'."
   (let ((init-options (if (not (eq 'ts-ls (lsp--client-server-id client)))
                           original-init-options
                         (let ((plugins (or (plist-get original-init-options :plugins) (vector))))
@@ -158,14 +159,6 @@ is calculated based on the current buffer."
                                                                          :location (lsp-typescript-plugin--get-location plugin))))
                                                            (apply #'vector))))))))
     (funcall original-start-workspace session client root init-options)))
-
-;; (with-current-buffer (get-buffer "pointing-session.ts")
-;;   (let* ((client (ht-get lsp-clients 'ts-ls))
-;;          (init-options (lsp--client-initialization-options client)))
-;;     (funcall init-options)))
-
-
-;; (add-hook 'lsp-workspace-folders-changed-functions #'lsp-typescript-plugin--add-to-client)
 
 (advice-add 'lsp--start-workspace :around #'lsp-typescript-plugin--add-to-client)
 
