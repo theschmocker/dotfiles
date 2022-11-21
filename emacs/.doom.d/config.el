@@ -104,6 +104,13 @@
                 (dlet ((avy-all-windows 't))
                   (call-interactively #'avy-goto-char-2)))))
 
+(defun schmo/insert-uuid ()
+  "Shell out to uuidgen and insert the result"
+  (interactive)
+  (thread-last (shell-command-to-string "uuidgen")
+               (string-replace "\n" "" )
+               insert))
+
 (map! :leader
       ;; Swapped from defaults
       :desc "M-x" ";" 'execute-extended-command
@@ -143,7 +150,11 @@
       (:prefix "b"
                ("b" 'switch-to-buffer)
                ("B" nil)
-               ("w" '+vertico/switch-workspace-buffer)))
+               ("w" '+vertico/switch-workspace-buffer))
+      (:prefix "i"
+               (:desc "UUID" "U" #'schmo/insert-uuid)
+               (:prefix ("n" . "number")
+                        (:desc "Relative units" "r" 'schmo/insert-relative-units))))
 
 (map! :after company
       :map company-active-map
@@ -358,11 +369,6 @@ CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
       (insert (if (s-ends-with? ".0" res)
                   (s-replace ".0" "" res)
                 res)))))
-
-(map! :leader
-      (:prefix "i"
-               (:prefix ("n" . "number")
-                        (:desc "Relative units" "r" 'schmo/insert-relative-units))))
 
 ;;; org
 (add-to-list 'org-modules 'ol-info)
