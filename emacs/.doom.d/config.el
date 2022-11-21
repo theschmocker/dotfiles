@@ -258,21 +258,23 @@ WORKSPACE-ROOT."
            (config (json-read-file package-json))
            (dev-dependencies (alist-get 'devDependencies config)))
       (alist-get 'svelte dev-dependencies)
-  nil))
+    nil))
 
 
 (after! lsp-mode
   (require 'lsp-javascript)
   (require 'lsp-typescript-plugin)
   (lsp-typescript-plugin-register 'typescript-styled-plugin
-                         #'schmo/project-has-styled-components-p
-                         '(:npm :package "typescript-styled-plugin"
-                                :path "typescript-styled-plugin"))
+                                  #'schmo/project-has-styled-components-p
+                                  '(:npm
+                                    :package "typescript-styled-plugin"
+                                    :path "typescript-styled-plugin"))
 
   (lsp-typescript-plugin-register 'typescript-svelte-plugin
-                         #'lsp-svelte--svelte-project-p
-                         '(:npm :package "typescript-svelte-plugin"
-                                :path "typescript-svelte-plugin")))
+                                  #'lsp-svelte--svelte-project-p
+                                  '(:npm
+                                    :package "typescript-svelte-plugin"
+                                    :path "typescript-svelte-plugin")))
 
 ;;; Which key
 (setq which-key-idle-delay 0.25)
