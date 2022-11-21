@@ -21,6 +21,10 @@
   (sp-point-before-same-p "}" action context))
 
 (add-hook! 'twig-minor-mode-hook
+  ;; {# comments #} instead of normal html comments
+  (setq-local web-mode-comment-style 2)
+
+  ;; Setup templating pairs
   (dolist (twig-pair '(("#" . "#") ("%" . "%")))
     (let ((open (car twig-pair))
           (close (cdr twig-pair)))
