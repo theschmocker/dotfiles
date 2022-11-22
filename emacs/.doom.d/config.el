@@ -282,21 +282,25 @@ WORKSPACE-ROOT."
 (setq doom-leader-alt-key "M-RET")
 
 ;;; Completion
-;; fuzzy completion
-(add-to-list 'completion-styles 'flex)
-
 (setq completion-ignore-case t)
 
 (use-package! fussy
   :config
-  (push 'fussy completion-styles)
+  ;; use fussy for company instead of orderless
+  (defadvice! schmo/company-capf-candidates (fn &rest args)
+    :around #'company-capf--candidates
+    (let ((completion-styles '(fussy flex orderless basic partial-completion emacs22)))
+      (apply fn args)))
   (setq fussy-filter-fn 'fussy-filter-flex))
 
 (after! orderless
-  (let ((styles '(fussy flex basic partial-completion emacs22)))
-    (setq completion-styles styles
-          +vertico-company-completion-styles styles))
-  (pushnew! orderless-matching-styles 'orderless-flex))
+  ;; NOTE gonna try out orderless for a while, but keeping this around to quickly switch back
+  ;;
+  ;; (let ((styles '(fussy flex orderless basic partial-completion emacs22)))
+  ;;   (setq completion-styles styles
+  ;;         +vertico-company-completion-styles styles))
+  ;; (pushnew! orderless-matching-styles 'orderless-flex)
+  )
 
 ;; Current company selection will get put into to the buffer
 (add-hook 'after-init-hook 'company-tng-mode)
