@@ -57,3 +57,5 @@
 (package! fussy
   :recipe (:host github :repo "jojojames/fussy")
   :pin "27baf4c5bd...")
+
+(package! diffview)

@@ -406,3 +406,8 @@ no longer exists")
 
 ;; Prevent package pins and other properties from being truncated
 (advice-add '+emacs-lisp-truncate-pin :override (-const nil))
+
+;; Make maps like q and l work in diffview-mode
+(add-hook 'diffview-mode-hook (lambda (&rest _)
+                                         (evil-make-overriding-map diffview--mode-map 'normal t)
+                                         (evil-normalize-keymaps)))
