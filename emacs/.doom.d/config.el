@@ -274,7 +274,8 @@ WORKSPACE-ROOT."
                                   #'lsp-svelte--svelte-project-p
                                   '(:npm
                                     :package "typescript-svelte-plugin"
-                                    :path "typescript-svelte-plugin")))
+                                    :path "typescript-svelte-plugin")
+                                  'svelte-language-server))
 
 ;;; Which key
 (setq which-key-idle-delay 0.25)

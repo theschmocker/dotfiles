@@ -10,7 +10,8 @@
   dependency
   activation-fn
   download-plugin-fn
-  download-in-progress?)
+  download-in-progress?
+  dependency-of)
 
 (defun lsp-typescript-plugin-install (update? &optional plugin-name)
   "Interactively install or re-install typescript plugin.
@@ -89,7 +90,7 @@ Check `*lsp-install*' and `*lsp-log*' buffer."
       (error
        (done nil (error-message-string err))))))
 
-(defun lsp-typescript-plugin-register (name activation-fn dep-definition)
+(defun lsp-typescript-plugin-register (name activation-fn dep-definition &optional dependency-of)
   "Registers a typescript plugin with NAME (a symbol) for
 auto-installation/activation.
 
@@ -105,7 +106,8 @@ DEP-DEFINITION is a the `lsp-dependency' recipe for installing the plugin."
            :dependency dep-definition
            :activation-fn activation-fn
            :download-plugin-fn (lambda (_plugin callback error-callback _update?)
-                                 (lsp-package-ensure name callback error-callback)))))
+                                 (lsp-package-ensure name callback error-callback))
+           :dependency-of dependency-of)))
 
 (defun lsp-typescript-plugin--workspace-plugins (&optional workspace-root)
   "Returns a list of typescript plugins that should be activated for the
@@ -161,6 +163,35 @@ advice around `lsp--start-workspace'."
     (funcall original-start-workspace session client root init-options)))
 
 (advice-add 'lsp--start-workspace :around #'lsp-typescript-plugin--add-to-client)
+
+(defun lsp-typescript-plugin--install-plugin-as-dependency (orig-package-ensure dependency callback error-callback)
+  ""
+  (let* ((plugins (if lsp--cur-workspace
+                      (lsp-typescript-plugin--workspace-plugins)
+                    (ht-values lsp-typescript-plugin--registered-plugins)))
+         (auto-install (-filter (lambda (plugin)
+                                  (let ((dependents (ensure-list (lsp-typescript-plugin--def-dependency-of plugin))))
+                                    (seq-contains-p dependents dependency)))
+                                plugins)))
+    (funcall orig-package-ensure
+             dependency
+             (lambda ()
+               (lsp-typescript-plugin--chain-install auto-install callback error-callback))
+             error-callback)))
+
+(advice-add 'lsp-package-ensure :around #'lsp-typescript-plugin--install-plugin-as-dependency)
+
+(defun lsp-typescript-plugin--chain-install (plugins callback error-callback &optional update?)
+  (if (null plugins)
+      (funcall callback)
+    (let ((plugin (car plugins)))
+      (funcall
+       (lsp-typescript-plugin--def-download-plugin-fn plugin)
+       plugin
+       (lambda ()
+         (lsp-typescript-plugin--chain-install (cdr plugins) callback error-callback))
+       error-callback
+       update?))))
 
 (provide 'lsp-typescript-plugin)
 ;;; lsp-typescript-plugin.el ends here
