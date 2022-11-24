@@ -190,4 +190,5 @@
 
        :personal
        go
-       twig)
+       twig
+       sql)
