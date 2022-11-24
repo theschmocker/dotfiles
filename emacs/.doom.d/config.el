@@ -151,10 +151,22 @@
                ("b" 'switch-to-buffer)
                ("B" nil)
                ("w" '+vertico/switch-workspace-buffer))
+
       (:prefix "i"
                (:desc "UUID" "U" #'schmo/insert-uuid)
                (:prefix ("n" . "number")
                         (:desc "Relative units" "r" 'schmo/insert-relative-units))))
+
+;; Version Control Mappings
+(map!
+ (:leader
+  (:desc "vc" "v" vc-prefix-map))
+ (:map vc-prefix-map
+       "=" #'vc-dir
+       "d" #'vc-diff)
+ (:localleader
+  :mode (diff-mode magit-diff-mode)
+  :desc "Show side-by-side diff" "d" #'diffview-current))
 
 (map! :after company
       :map company-active-map
