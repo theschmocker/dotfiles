@@ -172,7 +172,8 @@ advice around `lsp--start-workspace'."
 (advice-add 'lsp--start-workspace :around #'lsp-typescript-plugin--add-to-client)
 
 (defun lsp-typescript-plugin--install-plugin-as-dependency (orig-package-ensure dependency callback error-callback)
-  ""
+  "Advice around `lsp-package-ensure' that installs typescript plugins whose
+dependency-of field names DEPENDENCY"
   (let* ((plugins (if lsp--cur-workspace
                       (lsp-typescript-plugin--workspace-plugins)
                     (ht-values lsp-typescript-plugin--registered-plugins)))
