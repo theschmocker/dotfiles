@@ -395,6 +395,20 @@ CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
     (when (<= base 0)
       (error "Base must be greater than 0"))
     (let ((res (schmo/print-float-with-max-places (/ val base) 4)))
+      ;; If in normal mode and the point visual covers a space, I want the
+      ;; relative units to be inserted at the next position.
+      ;; Typical CSS example:
+      ;; line-height:❚;
+      ;; should become
+      ;; line-height: 0.75❚ (where cursor covers the semicolon)
+      ;; But if I'm in insert mode, I still want this:
+      ;; line-height: |;
+      ;; to become
+      ;; line-height: 0.75|;
+      (when (and evil-normal-state-minor-mode
+                 (= 32 (char-after))
+                 (not (= (point) (point-at-eol))))
+        (goto-char (+ 1 (point))))
       (insert (if (s-ends-with? ".0" res)
                   (s-replace ".0" "" res)
                 res)))))
