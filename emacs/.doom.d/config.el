@@ -307,14 +307,22 @@ WORKSPACE-ROOT."
       (apply fn args)))
   (setq fussy-filter-fn 'fussy-filter-flex))
 
+(defun schmo/+vertico-orderless-dispatch (pattern _index _total)
+  "Orderless dispatch which swaps % and ~ from DOOM's
+`+vertico-orderless-dispatch'. I'm more likely to use `orderless-flex', so I
+want it on a key that's easier to hit"
+  (cond
+   ;; Character folding
+   ((string-prefix-p "~" pattern) `(char-fold-to-regexp . ,(substring pattern 1)))
+   ((string-suffix-p "~" pattern) `(char-fold-to-regexp . ,(substring pattern 0 -1)))
+   ;; Flex matching
+   ((string-prefix-p "%" pattern) `(orderless-flex . ,(substring pattern 1)))
+   ((string-suffix-p "%" pattern) `(orderless-flex . ,(substring pattern 0 -1)))))
+
 (after! orderless
-  ;; NOTE gonna try out orderless for a while, but keeping this around to quickly switch back
-  ;;
-  ;; (let ((styles '(fussy flex orderless basic partial-completion emacs22)))
-  ;;   (setq completion-styles styles
-  ;;         +vertico-company-completion-styles styles))
-  ;; (pushnew! orderless-matching-styles 'orderless-flex)
-  )
+  (add-to-list 'orderless-style-dispatchers #'schmo/+vertico-orderless-dispatch)
+  ;; fall back on fussy for automatic fuzzy matching if I get lazy using orderless
+  (setq completion-styles '(orderless fussy basic)))
 
 ;; Current company selection will get put into to the buffer
 (add-hook 'after-init-hook 'company-tng-mode)
