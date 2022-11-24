@@ -2,6 +2,7 @@
 
 (require 'ht)
 (require 'lsp-mode)
+(require 'dash)
 
 (defvar lsp-typescript-plugin--registered-plugins (ht))
 
@@ -90,21 +91,27 @@ Check `*lsp-install*' and `*lsp-log*' buffer."
       (error
        (done nil (error-message-string err))))))
 
-(defun lsp-typescript-plugin-register (name activation-fn dep-definition &optional dependency-of)
-  "Registers a typescript plugin with NAME (a symbol) for
-auto-installation/activation.
+(cl-defun lsp-typescript-plugin-register (&key name activation-fn lsp-dependency-recipe dependency-of)
+  "Registers a typescript plugin with NAME for auto-installation/activation.
+
+NAME is a symbol which acts as this plugin's id
 
 ACTIVATION-FN is a function that receives the workspace root directory and
 returns t if the plugin should be activated in the workspace, or nil otherwise.
+Defaults to a function that always returns t
 
-DEP-DEFINITION is a the `lsp-dependency' recipe for installing the plugin."
-  (lsp-dependency name dep-definition)
+LSP-DEPENDENCY-RECIPE is a the `lsp-dependency' recipe for installing the
+plugin.
+
+DEPENDENCY-OF is a symbol or a list of symbols of other lsp dependency packages.
+If set, then this plugin will be installed at the same time."
+  (lsp-dependency name lsp-dependency-recipe)
   (ht-set lsp-typescript-plugin--registered-plugins
           name
           (make-lsp-typescript-plugin--def
            :name name
-           :dependency dep-definition
-           :activation-fn activation-fn
+           :dependency lsp-dependency-recipe
+           :activation-fn (or activation-fn (-const t))
            :download-plugin-fn (lambda (_plugin callback error-callback _update?)
                                  (lsp-package-ensure name callback error-callback))
            :dependency-of dependency-of)))
