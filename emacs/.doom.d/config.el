@@ -275,21 +275,19 @@ WORKSPACE-ROOT."
 
 (after! lsp-mode
   (require 'lsp-javascript)
-  (require 'lsp-typescript-plugin)
-  (lsp-typescript-plugin-register
-   :name 'typescript-styled-plugin
-   :activation-fn #'schmo/project-has-styled-components-p
-   :lsp-dependency-recipe '(:npm
-                            :package "typescript-styled-plugin"
-                            :path "typescript-styled-plugin"))
+  (require 'lsp-ts-plugin-manager)
+  (lsp-ts-plugin-manager-register
+   (lsp-ts-plugin-manager-plugin
+    :name 'typescript-styled-plugin
+    :activation-fn #'schmo/project-has-styled-components-p
+    :package (lsp-ts-plugin-manager-npm-package :package-name "typescript-styled-plugin")))
 
-  (lsp-typescript-plugin-register
-   :name 'typescript-svelte-plugin
-   :activation-fn #'lsp-svelte--svelte-project-p
-   :lsp-dependency-recipe '(:npm
-                            :package "typescript-svelte-plugin"
-                            :path "typescript-svelte-plugin")
-   :dependency-of 'svelte-language-server))
+  (lsp-ts-plugin-manager-register
+   (lsp-ts-plugin-manager-plugin
+    :name 'typescript-svelte-plugin
+    :activation-fn #'lsp-svelte--svelte-project-p
+    :package (lsp-ts-plugin-manager-npm-package :package-name "typescript-svelte-plugin")
+    :dependency-of 'svelte-language-server)))
 
 ;;; Which key
 (setq which-key-idle-delay 0.25)
