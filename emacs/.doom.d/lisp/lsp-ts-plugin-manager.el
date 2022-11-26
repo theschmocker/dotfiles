@@ -35,15 +35,29 @@
 
 (defclass lsp-ts-plugin-manager-plugin ()
   ((name :initarg :name
-         :type symbol)
+         :type symbol
+         :documentation "Symbolic name of the plugin. Should be unique.")
    (package :initarg :package
-            :type lsp-ts-plugin-manager-package)
+            :type lsp-ts-plugin-manager-package
+            :documentation "An instance of some subclass of
+            `lsp-ts-plugin-manager-package'. Determines how/where the plugin
+            will be installed.")
    (activation-fn :initarg :activation-fn
-                  :initform #'always)
+                  :initform #'always
+                  :documentation "A function of one argument that returns a
+                  truthy value when a plugin should be activated/installed; nil
+                  otherwise. Receives the workspace root path as an argument.")
    (download-in-progress? :initarg :download-in-progress?
-                          :initform nil)
+                          :initform nil
+                          :documentation "Whether or not the plugin is currently
+                          being downloaded.")
    (dependency-of :initarg :dependency-of
-                  :initform nil)))
+                  :initform nil
+                  :documentation "A symbol or list of symbols of packages
+                  registered with `lsp-dependency'. The plugin will be installed
+                  automatically when packages in this field are installed and
+                  ACTIVATION-FN returns true in the current workspace."))
+  :documentation "TypeScript plugin definition")
 
 (cl-defmethod lsp-ts-plugin-manager-plugin-installed-p ((plugin lsp-ts-plugin-manager-plugin))
   "Return t when an installation of PLUGIN is detected, nil otherwise."
@@ -56,7 +70,10 @@
 (defclass lsp-ts-plugin-manager-package ()
   ((package-name :initarg :package-name
                  :type string
-                 :reader lsp-ts-plugin-manager-package-name)))
+                 :reader lsp-ts-plugin-manager-package-name
+                 :documentation "String name of the package definition."))
+  :documentation "Base class for TypeScript plugin package definitions, ie. recipes for how to install and/or where to find TS plugins."
+  :abstract t)
 
 (cl-defgeneric lsp-ts-plugin-manager-package-install-location (package)
   "Return the installation path for PACKAGE.")
@@ -65,7 +82,9 @@
   "Return the `lsp-dependency' dependency recipe for PACKAGE.")
 
 (defclass lsp-ts-plugin-manager-npm-package (lsp-ts-plugin-manager-package)
-  ((package-name :initarg :package-name)))
+  ((package-name :initarg :package-name
+                 :documentation "Name of the package on npm."))
+  :documentation "Recipe for a TypeScript plugin downloaded from npm.")
 
 (cl-defmethod lsp-ts-plugin-manager-package-install-location ((package lsp-ts-plugin-manager-npm-package))
   "Return the install location of npm PACKAGE."
@@ -86,9 +105,12 @@
 
 (defclass lsp-ts-plugin-manager-downloaded-package (lsp-ts-plugin-manager-package)
   ((url :initarg :url
-        :type string)
+        :type string
+        :documentation "URL from which to download the package.")
    (archive-type :initarg :archive-type
-                 :type (member :gzip :zip :targz))))
+                 :type (member :gzip :zip :targz)
+                 :documentation "Type of the downloaded archive. Tells lsp-mode how to handle the downloaded archive."))
+  :documentation "Recipe for a TypeScript plugin download from an arbitrary URL.")
 
 (cl-defmethod lsp-ts-plugin-manager-package-install-location ((package lsp-ts-plugin-manager-downloaded-package))
   "Return the install location of downloaded PACKAGE."
