@@ -1,12 +1,32 @@
-;;; $DOOMDIR/lisp/lsp-typescript-plugin.el -*- lexical-binding: t; -*-
+;;; lsp-typescript-plugin.el --- Automatic TypeScript plugin management for lsp-mode -*- lexical-binding: t; -*-
+
+;; Copyright (C) 2022 Jacob Schmocker
+;;
+;; Author: Jacob Schmocker
+;; Maintainer: Jacob Schmocker
+;; Created: Nov 19, 2022
+;; Version: 0.1.0
+;; Keywords: tools convenience
+;; Homepage: https://github.com/theschmocker/dotfiles/blob/main/emacs/.doom.d/lisp/lsp-typescript-plugin.el
+;; Package-Requires: ((emacs "28.2") (lsp-mode "8.0.1") (ht "2.4") (f "0.20.0") (dash "2.19.1"))
+
+;;; Commentary:
+;;
+;; Improves on lsp-mode's built-in support for TypeScript plugins
+;; (`lsp-clients-typescript-plugins') with automatic installation—either as a
+;; dependency of a particular language server or with a `completing-read'
+;; prompt—and conditional activation depending on workspace information.
+;;
+;;; Code:
 
 (require 'ht)
-(require 'lsp-mode)
 (require 'dash)
+(require 'f)
+(require 'lsp-mode)
 
 (defvar lsp-typescript-plugin--registered-plugins (ht))
 
-(cl-defstruct lsp-typescript-plugin--def
+(cl-defstruct lsp-typescript-plugin--plugin
   name
   dependency
   activation-fn
@@ -16,6 +36,10 @@
 
 (defun lsp-typescript-plugin-install (update? &optional plugin-name)
   "Interactively install or re-install typescript plugin.
+
+If PLUGIN-NAME is non-nil, install that if it's registered. Otherwise, offer a
+list of plugins to install.
+
 When prefix UPDATE? is t force installation even if the plugin is present."
   (interactive "P")
   (lsp--require-packages)
@@ -25,26 +49,29 @@ When prefix UPDATE? is t force installation even if the plugin is present."
                              (or (->> lsp-typescript-plugin--registered-plugins
                                       (ht-values)
                                       (-filter (-andfn
-                                                (-not #'lsp-typescript-plugin--def-download-in-progress?)
-                                                #'lsp-typescript-plugin--def-download-plugin-fn)))
+                                                (-not #'lsp-typescript-plugin--plugin-download-in-progress?)
+                                                #'lsp-typescript-plugin--plugin-download-plugin-fn)))
                                  (user-error "There are no plugins with automatic installation"))
                              (lambda (plugin)
-                               (let ((plugin-name (-> plugin lsp-typescript-plugin--def-name symbol-name)))
+                               (let ((plugin-name (-> plugin lsp-typescript-plugin--plugin-name symbol-name)))
                                  (if (lsp-typescript-plugin--plugin-present-p plugin)
                                      (concat plugin-name " (Already installed)")
                                    plugin-name)))
                              nil
                              t)))
          (update? (or update?
-                      (and (not (lsp-typescript-plugin--def-download-in-progress? chosen-plugin))
+                      (and (not (lsp-typescript-plugin--plugin-download-in-progress? chosen-plugin))
                            (lsp-typescript-plugin--plugin-present-p chosen-plugin)))))
     (lsp-typescript-plugin--install-internal chosen-plugin update?)))
 
 (defun lsp-typescript-plugin--install-internal (plugin &optional update?)
-  (unless (lsp-typescript-plugin--def-download-plugin-fn plugin)
-    (user-error "There is no automatic installation for `%s', you have to install it manually following lsp-mode's documentation."
-                (lsp-typescript-plugin--def-name plugin)))
-  (setf (lsp-typescript-plugin--def-download-in-progress? plugin) t)
+  "This is the internal function that handles async installation.
+installing PLUGIN. UPDATE? is passed through to the
+`lsp-typescript-plugin--plugin''s download-plugin-fn"
+  (unless (lsp-typescript-plugin--plugin-download-plugin-fn plugin)
+    (user-error "There is no automatic installation for `%s', you have to install it manually following lsp-mode's documentation"
+                (lsp-typescript-plugin--plugin-name plugin)))
+  (setf (lsp-typescript-plugin--plugin-download-in-progress? plugin) t)
   ;; (add-to-list 'global-mode-string '(t (:eval (lsp--download-status))))
   (cl-flet ((done
              (success? &optional error-message)
@@ -57,16 +84,16 @@ When prefix UPDATE? is t force installation even if the plugin is present."
                 (let ((tsls-workspaces (-filter (lambda (workspace)
                                                   (and (equal 'ts-ls (lsp--workspace-server-id workspace))
                                                        (with-lsp-workspace workspace
-                                                         (funcall (lsp-typescript-plugin--def-activation-fn plugin)
+                                                         (funcall (lsp-typescript-plugin--plugin-activation-fn plugin)
                                                                   (lsp--workspace-root workspace)))))
                                                 (lsp--session-workspaces (lsp-session))))
-                      (plugin-name (lsp-typescript-plugin--def-name plugin)))
-                  (setf (lsp-typescript-plugin--def-download-in-progress? plugin) nil)
+                      (plugin-name (lsp-typescript-plugin--plugin-name plugin)))
+                  (setf (lsp-typescript-plugin--plugin-download-in-progress? plugin) nil)
                   (if success?
                       (lsp--info "Plugin %s downloaded, restarting %s workspaces" plugin-name
                                  (length tsls-workspaces))
                     (lsp--error "Plugin %s install process failed with the following error message: %s.
-Check `*lsp-install*' and `*lsp-log*' buffer."
+Check `*lsp-install*' and `*lsp-log*' buffer"
                                 plugin-name
                                 error-message))
                   (seq-do
@@ -76,14 +103,14 @@ Check `*lsp-install*' and `*lsp-log*' buffer."
                      ;;            global-mode-string)
                      )
                    tsls-workspaces)
-                  ;; (unless (some #'lsp-typescript-plugin--def-download-in-progress? (ht-values lsp-typescript-plugin--registered-plugins))
+                  ;; (unless (some #'lsp-typescript-plugin--plugin-download-in-progress? (ht-values lsp-typescript-plugin--registered-plugins))
                   ;;   (cl-callf2 -remove-item '(t (:eval (lsp--download-status)))
                   ;;              global-mode-string))
                   )))))
-    (lsp--info "Download %s started." (lsp-typescript-plugin--def-name plugin))
+    (lsp--info "Download %s started." (lsp-typescript-plugin--plugin-name plugin))
     (condition-case err
         (funcall
-         (lsp-typescript-plugin--def-download-plugin-fn plugin)
+         (lsp-typescript-plugin--plugin-download-plugin-fn plugin)
          plugin
          (lambda () (done t))
          (lambda (msg) (done nil msg))
@@ -108,7 +135,7 @@ If set, then this plugin will be installed at the same time."
   (lsp-dependency name lsp-dependency-recipe)
   (ht-set lsp-typescript-plugin--registered-plugins
           name
-          (make-lsp-typescript-plugin--def
+          (make-lsp-typescript-plugin--plugin
            :name name
            :dependency lsp-dependency-recipe
            :activation-fn (or activation-fn (-const t))
@@ -117,23 +144,25 @@ If set, then this plugin will be installed at the same time."
            :dependency-of dependency-of)))
 
 (defun lsp-typescript-plugin--workspace-plugins (&optional workspace-root)
-  "Returns a list of typescript plugins that should be activated for the
-workspace. Optionally, provide a WORKSPACE-ROOT directory. Otherwise, the root
+  "Return a list of typescript plugins that should be activated for the workspace.
+Optionally, provide a WORKSPACE-ROOT directory. Otherwise, the root
 is calculated based on the current buffer."
   (->> (ht-values lsp-typescript-plugin--registered-plugins)
        (-filter (lambda (plugin)
-                  (funcall (lsp-typescript-plugin--def-activation-fn plugin)
+                  (funcall (lsp-typescript-plugin--plugin-activation-fn plugin)
                            (or workspace-root
                                (lsp--calculate-root (lsp-session) (buffer-file-name))))))))
 
 (defun lsp-typescript-plugin--get-name (plugin)
-  (plist-get (cdr (lsp-typescript-plugin--def-dependency plugin))
+  "Return the the package name of PLUGIN."
+  (plist-get (cdr (lsp-typescript-plugin--plugin-dependency plugin))
              :package))
 
 (defun lsp-typescript-plugin--get-location (plugin)
+  "Return the path to PLUGIN's installation directory."
   (let ((name (lsp-typescript-plugin--get-name plugin))
         (path (plist-get
-               (cdr (lsp-typescript-plugin--def-dependency plugin))
+               (cdr (lsp-typescript-plugin--plugin-dependency plugin))
                :path)))
     (f-join lsp-server-install-dir
             "npm"
@@ -143,6 +172,7 @@ is calculated based on the current buffer."
             name)))
 
 (defun lsp-typescript-plugin--plugin-present-p (plugin)
+  "Return t when an installation of PLUGIN is detected, nil otherwise."
   (file-exists-p (lsp-typescript-plugin--get-location plugin)))
 
 (defun lsp--notify-typescript-plugins-available-for-installation ()
@@ -150,7 +180,7 @@ is calculated based on the current buffer."
     (when-let ((available-plugins (-filter (-compose #'not #'lsp-typescript-plugin--plugin-present-p)
                                            (lsp-typescript-plugin--workspace-plugins (lsp--workspace-root lsp--cur-workspace)))))
       (lsp--info "tsserver plugin(s) available for this workspace: %s. Install using M-x lsp-install-typescript-server"
-                 (mapconcat (-compose #'symbol-name #'lsp-typescript-plugin--def-name)
+                 (mapconcat (-compose #'symbol-name #'lsp-typescript-plugin--plugin-name)
                             available-plugins
                             ", ")))))
 
@@ -172,13 +202,12 @@ advice around `lsp--start-workspace'."
 (advice-add 'lsp--start-workspace :around #'lsp-typescript-plugin--add-to-client)
 
 (defun lsp-typescript-plugin--install-plugin-as-dependency (orig-package-ensure dependency callback error-callback)
-  "Advice around `lsp-package-ensure' that installs typescript plugins whose
-dependency-of field names DEPENDENCY"
+  "Advice around `lsp-package-ensure' that will install typescript plugins whose dependency-of field names DEPENDENCY."
   (let* ((plugins (if lsp--cur-workspace
                       (lsp-typescript-plugin--workspace-plugins)
                     (ht-values lsp-typescript-plugin--registered-plugins)))
          (auto-install (-filter (lambda (plugin)
-                                  (let ((dependents (ensure-list (lsp-typescript-plugin--def-dependency-of plugin))))
+                                  (let ((dependents (ensure-list (lsp-typescript-plugin--plugin-dependency-of plugin))))
                                     (seq-contains-p dependents dependency)))
                                 plugins)))
     (funcall orig-package-ensure
@@ -190,11 +219,20 @@ dependency-of field names DEPENDENCY"
 (advice-add 'lsp-package-ensure :around #'lsp-typescript-plugin--install-plugin-as-dependency)
 
 (defun lsp-typescript-plugin--chain-install (plugins callback error-callback &optional update?)
+  "Install PLUGINS in sequence.
+
+CALLBACK is function that will be called when all plugins have been installed
+
+ERROR-CALLBACK is a function that receives a message string when a plugin
+installation results in an error
+
+UPDATE? is passed through to the `lsp-typescript-plugin--plugin''s
+download-plugin-fn"
   (if (null plugins)
       (funcall callback)
     (let ((plugin (car plugins)))
       (funcall
-       (lsp-typescript-plugin--def-download-plugin-fn plugin)
+       (lsp-typescript-plugin--plugin-download-plugin-fn plugin)
        plugin
        (lambda ()
          (lsp-typescript-plugin--chain-install (cdr plugins) callback error-callback))
