@@ -8,7 +8,7 @@
 ;; Version: 0.1.0
 ;; Keywords: tools convenience
 ;; Homepage: https://github.com/theschmocker/dotfiles/blob/main/emacs/.doom.d/lisp/lsp-typescript-plugin.el
-;; Package-Requires: ((emacs "28.2") (lsp-mode "8.0.1") (ht "2.4") (f "0.20.0") (dash "2.19.1"))
+;; Package-Requires: ((emacs "28.2") (lsp-mode "8.0.1") (dash "2.19.1"))
 
 ;;; Commentary:
 ;;
@@ -19,12 +19,10 @@
 ;;
 ;;; Code:
 
-(require 'ht)
 (require 'dash)
-(require 'f)
 (require 'lsp-mode)
 
-(defvar lsp-typescript-plugin--registered-plugins (ht))
+(defvar lsp-typescript-plugin--registered-plugins (make-hash-table :test #'equal))
 
 (cl-defstruct lsp-typescript-plugin--plugin
   name
@@ -47,7 +45,7 @@ When prefix UPDATE? is t force installation even if the plugin is present."
                             (lsp--completing-read
                              "Select plugin to install/re-install: "
                              (or (->> lsp-typescript-plugin--registered-plugins
-                                      (ht-values)
+                                      (hash-table-values)
                                       (-filter (-andfn
                                                 (-not #'lsp-typescript-plugin--plugin-download-in-progress?)
                                                 #'lsp-typescript-plugin--plugin-download-plugin-fn)))
@@ -103,7 +101,7 @@ Check `*lsp-install*' and `*lsp-log*' buffer"
                      ;;            global-mode-string)
                      )
                    tsls-workspaces)
-                  ;; (unless (some #'lsp-typescript-plugin--plugin-download-in-progress? (ht-values lsp-typescript-plugin--registered-plugins))
+                  ;; (unless (some #'lsp-typescript-plugin--plugin-download-in-progress? (hash-table-values lsp-typescript-plugin--registered-plugins))
                   ;;   (cl-callf2 -remove-item '(t (:eval (lsp--download-status)))
                   ;;              global-mode-string))
                   )))))
@@ -133,21 +131,21 @@ plugin.
 DEPENDENCY-OF is a symbol or a list of symbols of other lsp dependency packages.
 If set, then this plugin will be installed at the same time."
   (lsp-dependency name lsp-dependency-recipe)
-  (ht-set lsp-typescript-plugin--registered-plugins
-          name
-          (make-lsp-typescript-plugin--plugin
-           :name name
-           :dependency lsp-dependency-recipe
-           :activation-fn (or activation-fn (-const t))
-           :download-plugin-fn (lambda (_plugin callback error-callback _update?)
-                                 (lsp-package-ensure name callback error-callback))
-           :dependency-of dependency-of)))
+  (puthash name
+           (make-lsp-typescript-plugin--plugin
+            :name name
+            :dependency lsp-dependency-recipe
+            :activation-fn (or activation-fn (-const t))
+            :download-plugin-fn (lambda (_plugin callback error-callback _update?)
+                                  (lsp-package-ensure name callback error-callback))
+            :dependency-of dependency-of)
+           lsp-typescript-plugin--registered-plugins))
 
 (defun lsp-typescript-plugin--workspace-plugins (&optional workspace-root)
   "Return a list of typescript plugins that should be activated for the workspace.
 Optionally, provide a WORKSPACE-ROOT directory. Otherwise, the root
 is calculated based on the current buffer."
-  (->> (ht-values lsp-typescript-plugin--registered-plugins)
+  (->> (hash-table-values lsp-typescript-plugin--registered-plugins)
        (-filter (lambda (plugin)
                   (funcall (lsp-typescript-plugin--plugin-activation-fn plugin)
                            (or workspace-root
@@ -164,18 +162,18 @@ is calculated based on the current buffer."
         (path (plist-get
                (cdr (lsp-typescript-plugin--plugin-dependency plugin))
                :path)))
-    (f-join lsp-server-install-dir
-            "npm"
-            path
-            "lib"
-            "node_modules"
-            name)))
+    (file-name-concat lsp-server-install-dir
+                      "npm"
+                      path
+                      "lib"
+                      "node_modules"
+                      name)))
 
 (defun lsp-typescript-plugin--plugin-present-p (plugin)
   "Return t when an installation of PLUGIN is detected, nil otherwise."
   (file-exists-p (lsp-typescript-plugin--get-location plugin)))
 
-(defun lsp--notify-typescript-plugins-available-for-installation ()
+(defun lsp-typescript-plugin--notify-plugins-available-for-installation ()
   (when (eq 'ts-ls (lsp--workspace-server-id lsp--cur-workspace))
     (when-let ((available-plugins (-filter (-compose #'not #'lsp-typescript-plugin--plugin-present-p)
                                            (lsp-typescript-plugin--workspace-plugins (lsp--workspace-root lsp--cur-workspace)))))
@@ -205,7 +203,7 @@ advice around `lsp--start-workspace'."
   "Advice around `lsp-package-ensure' that will install typescript plugins whose dependency-of field names DEPENDENCY."
   (let* ((plugins (if lsp--cur-workspace
                       (lsp-typescript-plugin--workspace-plugins)
-                    (ht-values lsp-typescript-plugin--registered-plugins)))
+                    (hash-table-values lsp-typescript-plugin--registered-plugins)))
          (auto-install (-filter (lambda (plugin)
                                   (let ((dependents (ensure-list (lsp-typescript-plugin--plugin-dependency-of plugin))))
                                     (seq-contains-p dependents dependency)))
