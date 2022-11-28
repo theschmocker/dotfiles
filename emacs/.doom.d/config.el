@@ -37,6 +37,60 @@
                            specs)))
     `(setq doom-font ,spec)))
 
+(setq doom-variable-pitch-font (font-spec :family "ETBembo" :size 16))
+
+(setq custom-file (make-temp-file "custom"))
+
+;; prevent janky line numbers in variable-pitch-mode
+(custom-set-faces!
+  '(line-number-current-line :inherit fixed-pitch)
+  '(line-number :inherit fixed-pitch))
+
+
+(after! org
+  (dolist (face '(org-code
+                  org-block
+                  org-table
+                  org-property-value
+                  org-formula
+                  org-tag
+                  org-verbatim
+                  org-date
+                  company-tooltip
+                  org-special-keyword
+                  org-block-begin-line
+                  org-block-end-line
+                  org-meta-line
+                  org-document-info-keyword))
+    (custom-set-faces!
+      `(,face :inherit fixed-pitch)))
+
+  (let ((base-color (face-foreground 'default nil 'default)))
+    (dolist (face '(org-level-8
+                    org-level-7
+                    org-level-6
+                    org-level-5
+                    org-level-4
+                    org-level-3
+                    org-level-2
+                    org-level-1))
+      (custom-set-faces!
+        `(,face :inherit default :height 1.5 :weight bold)))))
+
+(setq org-hide-emphasis-markers t)
+(add-hook! 'org-mode-hook
+  (setq org-appear-trigger 'manual)
+  (org-appear-mode 1)
+  (add-hook! 'evil-insert-state-entry-hook :local #'org-appear-manual-start)
+  (add-hook! 'evil-insert-state-exit-hook :local #'org-appear-manual-stop))
+
+(defadvice! schmo/text-scale-mode (fn face)
+  :around #'face-remap--remap-face
+  (when (eq face 'default)
+    (dolist (additional-face '(fixed-pitch fixed-pitch-serif variable-pitch))
+      (funcall fn additional-face)))
+  (funcall fn face))
+
 (doom-font!
  (:family "MonoLisa Nerd Font" :size 13)
  (:family "MonoLisa" :size 13)
@@ -83,6 +137,11 @@
 ;; disable evil-snipe
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
 (remove-hook 'doom-first-input-hook #'evil-snipe-override-mode) ; fixes stuff like df<Space>
+
+(use-package! evil
+  :init
+  (setq evil-respect-visual-line-mode t) ;; sane j and k behavior
+  t)
 
 (defun schmo/with-evil-cross-lines (fun &rest args)
   "Call FUN with `evil-cross-lines' bound to `t'"
@@ -326,6 +385,7 @@ want it on a key that's easier to hit"
 (add-hook 'after-init-hook 'company-tng-mode)
 
 (add-hook! 'org-mode-hook
+  (variable-pitch-mode 1)
   (setq-local company-idle-delay 0.3))
 (setq company-selection-wrap-around t)
 
@@ -447,5 +507,5 @@ no longer exists")
 
 ;; Make maps like q and l work in diffview-mode
 (add-hook 'diffview-mode-hook (lambda (&rest _)
-                                         (evil-make-overriding-map diffview--mode-map 'normal t)
-                                         (evil-normalize-keymaps)))
+                                (evil-make-overriding-map diffview--mode-map 'normal t)
+                                (evil-normalize-keymaps)))
