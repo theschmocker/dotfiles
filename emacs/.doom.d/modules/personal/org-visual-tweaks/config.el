@@ -1,4 +1,4 @@
-;;; personal/org-visual/config.el -*- lexical-binding: t; -*-
+;;; personal/org-visual-tweaks/config.el -*- lexical-binding: t; -*-
 
 (defvar-local +org-visual-tweaks/face-cookies nil)
 
