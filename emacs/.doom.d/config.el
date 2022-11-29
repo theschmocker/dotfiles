@@ -63,7 +63,7 @@
   '(line-number-current-line :inherit fixed-pitch)
   '(line-number :inherit fixed-pitch))
 
-(defadvice! schmo/text-scale-mode (fn face)
+(defadvice! schmo/text-scale-mode-face-remap (fn face)
   :around #'face-remap--remap-face
   (when (eq face 'default)
     (dolist (additional-face '(fixed-pitch fixed-pitch-serif variable-pitch))
