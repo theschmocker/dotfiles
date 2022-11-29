@@ -191,4 +191,5 @@
        :personal
        go
        twig
-       sql)
+       sql
+       org-visual-tweaks)
