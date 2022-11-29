@@ -5,8 +5,6 @@
 (defvar schmo/last-go-cover-file-by-project (make-hash-table)
   "Path to the most-recently generated coverage profile file")
 
-(projectile-current-project-files)
-
 ;;;###autoload
 (defmacro run-once-after-hook (hook function)
   "Add `function' to `hook' and remove it after it's run"
