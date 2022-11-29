@@ -6,44 +6,10 @@
 ;; Adds custom non-DOOM-module lisp files to load path
 (add-to-list 'load-path (f-join doom-user-dir "lisp"))
 
-;; Some functionality uses this to identify you, e.g. GPG configuration, email
-;; clients, file templates and snippets.
+(require 'schmo-lib)
+
 (setq user-full-name "Jacob"
       user-mail-address "")
-
-;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
-;; are the three important ones:
-;;
-;; + `doom-font'
-;; + `doom-variable-pitch-font'
-;; + `doom-big-font' -- used for `doom-big-font-mode'; use this for
-;;   presentations or streaming.
-;;
-;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
-;; font string. You generally only need these two:
-;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
-;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
-
-(defmacro doom-set-font! (font-var &rest specs)
-  "Sets FONT-VAR to the first available font defined in SPECS."
-  (let* ((specs (mapcar (lambda (spec-form)
-                          (if (and (listp spec-form)
-                                   (not (eql 'font-spec (car spec-form))))
-                              (cons #'font-spec spec-form)
-                            spec-form))
-                        specs))
-         (spec (cl-find-if (lambda (spec-form)
-                             (doom-font-exists-p (eval spec-form)))
-                           specs)))
-    `(setq ,font-var ,spec)))
-
-(defmacro doom-font! (&rest specs)
-  "Sets `doom-font' to the first available font in SPECS."
-  `(doom-set-font! doom-font ,@specs))
-
-(defmacro doom-variable-pitch-font! (&rest specs)
-  "Sets `doom-variable-pitch-font' to the first available font in SPECS."
-  `(doom-set-font! doom-variable-pitch-font ,@specs))
 
 (doom-font!
   (:family "MonoLisa Nerd Font" :size 13)
@@ -56,6 +22,9 @@
   (:family "Futura" :size 16)
   (:family "Helvetica" :size 16))
 
+;; Calls to custom-set-faces! after init were causing extra custom file writes.
+;; This just dumps them into a temp file (handy in case I _do_ need to look at
+;; any customizations)
 (setq custom-file (make-temp-file "custom"))
 
 ;; prevent janky line numbers in variable-pitch-mode
@@ -73,34 +42,7 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-;; (setq doom-theme 'spacemacs-light)
 (setq doom-theme 'doom-rose-pine-moon)
-;; (setq doom-gruvbox-light-variant "hard")
-;; (load-theme 'monokai-pro-spectrum t)
-
-;; If you use `org' and don't want your org files in the default location below,
-;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
-
-;; This determines the style of line numbers in effect. If set to `nil', line
-;; numbers are disabled. For relative line numbers, set this to `relative'.
-
-;; Here are some additional functions/macros that could help you configure Doom:
-;;
-;; - `load!' for loading external *.el files relative to this one
-;; - `use-package!' for configuring packages
-;; - `after!' for running code after a package has loaded
-;; - `add-load-path!' for adding directories to the `load-path', relative to
-;;   this file. Emacs searches the `load-path' when you load packages with
-;;   `require' or `use-package'.
-;; - `map!' for binding new keys
-;;
-;; To get information about any of these functions/macros, move the cursor over
-;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
-;; This will open documentation for it, including demos of how they are used.
-;;
-;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
-;; they are implemented.
 
 ;;; Editor
 (setq scroll-margin 8)
@@ -114,21 +56,20 @@
 
 (use-package! evil
   :init
-  (setq evil-respect-visual-line-mode t) ;; sane j and k behavior
+  (setq evil-respect-visual-line-mode t)
   t)
-
-(defun schmo/with-evil-cross-lines (fun &rest args)
-  "Call FUN with `evil-cross-lines' bound to `t'"
-  (dlet ((evil-cross-lines t))
-    (apply fun args)))
 
 ;; movement with f and t not restricted to current line.
 ;; I prefer the normal behavior for other commands affected by
 ;; `evil-cross-lines', so this advice only overrides it for `evil-find-char' and
 ;; its variants
-(advice-add 'evil-find-char :around #'schmo/with-evil-cross-lines)
+(defadvice! schmo/with-evil-cross-lines (fun &rest args)
+  "Call FUN with `evil-cross-lines' bound to `t'"
+  :around #'evil-find-char
+  (dlet ((evil-cross-lines t))
+    (apply fun args)))
 
-;;; Normal mode mappings
+;;; Normal mode / leader mappings
 
 ;; Remap s and S to avy-goto-char-2
 (map! (:n "s" 'avy-goto-char-2))
@@ -201,6 +142,11 @@
   :mode (diff-mode magit-diff-mode)
   :desc "Show side-by-side diff" "d" #'diffview-current))
 
+;; Make maps like q and l work in diffview-mode
+(add-hook 'diffview-mode-hook (lambda (&rest _)
+                                (evil-make-overriding-map diffview--mode-map 'normal t)
+                                (evil-normalize-keymaps)))
+
 (map! :after company
       :map company-active-map
       ("C-y" #'company-complete-selection)
@@ -239,36 +185,29 @@
   (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html"))
   (setq lsp-eldoc-enable-hover nil))
 
+;; Register plugins with lsp-ts-plugin-manager
+(after! lsp-mode
+  (require 'lsp-javascript)
+  (require 'lsp-ts-plugin-manager)
+  (lsp-ts-plugin-manager-register
+   (lsp-ts-plugin-manager-plugin
+    :name 'typescript-styled-plugin
+    :activation-fn #'schmo/project-has-styled-components-p
+    :package (lsp-ts-plugin-manager-npm-package :package-name "typescript-styled-plugin")))
+
+  (lsp-ts-plugin-manager-register
+   (lsp-ts-plugin-manager-plugin
+    :name 'typescript-svelte-plugin
+    :activation-fn #'schmo/svelte-project-p
+    :package (lsp-ts-plugin-manager-npm-package :package-name "typescript-svelte-plugin")
+    :dependency-of 'svelte-language-server)))
+
 (after! lsp-ui
   (setq lsp-ui-doc-max-width 100
         lsp-ui-doc-max-height 13
         lsp-ui-doc-delay 0
         lsp-signature-render-documentation nil
         lsp-ui-doc-include-signature t))
-
-;; Not sure why lsp-mode doesn't respect this variable
-(setq lsp-eslint-auto-fix-on-save t)
-(advice-add 'lsp--before-save :before (lambda ()
-                                        (when lsp-eslint-auto-fix-on-save
-                                          (lsp-eslint-fix-all))))
-
-;; Copied from lsp-mode docs to fix some workspace folder weirdness
-(advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
-
-(defun schmo/lsp-volar-vue-project-p (workspace-root)
-  "Check if the 'vue' package is present in the package.json file
-in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
-  (if-let ((package-json (f-join workspace-root "package.json"))
-           (exist (f-file-p package-json))
-           (config (json-read-file package-json)))
-      (let ((dependencies (alist-get 'dependencies config))
-            (dev-dependencies (alist-get 'devDependencies config)))
-        (or (alist-get 'vue dependencies)
-            (alist-get 'vue dev-dependencies)))
-    nil))
-
-;; I work on a project that has vue in the devDependencies... for reasons. This ensures that volar gets initialized in that workspace
-(advice-add 'lsp-volar--vue-project-p :override 'schmo/lsp-volar-vue-project-p)
 
 (map! (:n "gh" 'schmo/lsp-glance-or-lookup))
 (defun schmo/lsp-glance-or-lookup ()
@@ -283,44 +222,17 @@ in the WORKSPACE-ROOT. Checks dependencies and devDependencies."
         (lsp-ui-doc-glance))
     (call-interactively #'+lookup/documentation)))
 
-(defun schmo/project-has-styled-components-p (workspace-root)
-  "Check if the `styled-components' package is present in the package.json file
-in the WORKSPACE-ROOT."
-  (if-let ((package-json (f-join workspace-root "package.json"))
-           (exist (f-file-p package-json))
-           (config (json-read-file package-json)))
-      (let ((dependencies (alist-get 'dependencies config))
-            (dev-dependencies (alist-get 'devDependencies config)))
-        (or (alist-get 'styled-components dependencies)
-            (alist-get 'styled-components dev-dependencies)))
-    nil))
+;; Not sure why lsp-mode doesn't respect this variable
+(setq lsp-eslint-auto-fix-on-save t)
+(advice-add 'lsp--before-save :before (lambda ()
+                                        (when lsp-eslint-auto-fix-on-save
+                                          (lsp-eslint-fix-all))))
 
-(defun lsp-svelte--svelte-project-p (workspace-root)
-  "Check if the `Svelte' package is present in the package.json file in the
-WORKSPACE-ROOT."
-  (if-let ((package-json (f-join workspace-root "package.json"))
-           (exist (f-file-p package-json))
-           (config (json-read-file package-json))
-           (dev-dependencies (alist-get 'devDependencies config)))
-      (alist-get 'svelte dev-dependencies)
-    nil))
+;; Copied from lsp-mode docs to fix some workspace folder weirdness
+(advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
 
-
-(after! lsp-mode
-  (require 'lsp-javascript)
-  (require 'lsp-ts-plugin-manager)
-  (lsp-ts-plugin-manager-register
-   (lsp-ts-plugin-manager-plugin
-    :name 'typescript-styled-plugin
-    :activation-fn #'schmo/project-has-styled-components-p
-    :package (lsp-ts-plugin-manager-npm-package :package-name "typescript-styled-plugin")))
-
-  (lsp-ts-plugin-manager-register
-   (lsp-ts-plugin-manager-plugin
-    :name 'typescript-svelte-plugin
-    :activation-fn #'lsp-svelte--svelte-project-p
-    :package (lsp-ts-plugin-manager-npm-package :package-name "typescript-svelte-plugin")
-    :dependency-of 'svelte-language-server)))
+;; I work on a project that has vue in the devDependencies... for reasons. This ensures that volar gets initialized in that workspace
+(advice-add 'lsp-volar--vue-project-p :override #'schmo/vue-project-p)
 
 ;;; Which key
 (setq which-key-idle-delay 0.25)
@@ -331,7 +243,7 @@ WORKSPACE-ROOT."
 
 (use-package! fussy
   :config
-  ;; use fussy for company instead of orderless
+  ;; use fussy by default for company instead of orderless
   (defadvice! schmo/company-capf-candidates (fn &rest args)
     :around #'company-capf--candidates
     (let ((completion-styles '(fussy flex orderless basic partial-completion emacs22)))
@@ -359,6 +271,8 @@ want it on a key that's easier to hit"
 (add-hook 'after-init-hook 'company-tng-mode)
 
 (add-hook! 'org-mode-hook
+  ;; dictionary completion was causing some lag when typing. Bumping up the
+  ;; delay here makes things feel a bit more smooth for how I type.
   (setq-local company-idle-delay 0.3))
 
 (setq company-selection-wrap-around t)
@@ -374,7 +288,8 @@ want it on a key that's easier to hit"
   ;; just disabling web-modes auto-pairing altogether for now; smartparens covers
   ;; most of my needs
   (setq web-mode-enable-auto-pairing nil)
-  ;; move company-web-html to the end so it doesn't shadow other backends (specifically company-yasnippet)
+  ;; move company-web-html to the end so it doesn't shadow other backends
+  ;; (specifically company-yasnippet)
   (set-company-backend! 'web-mode
     '(:separate company-yasnippet company-web-html)))
 
@@ -399,6 +314,17 @@ want it on a key that's easier to hit"
 ;; Maximize window on startup
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
+(defhydra schmo/window-resize nil
+  "Window Resize"
+  ("h" #'evil-window-decrease-width "Decrease Width")
+  ("j" #'evil-window-increase-height "Increase Height")
+  ("k" #'evil-window-decrease-height "Decrease Height")
+  ("l" #'evil-window-increase-width "Increase Width")
+  ("=" #'balance-windows "Balance"))
+
+;; Prevent package pins and other properties from being truncated
+(advice-add '+emacs-lisp-truncate-pin :override (-const nil))
+
 ;;; Popups
 ;; I have a habit of pressing escape too many times... meaning I keep losing popup buffers.
 ;; This should make "q" the primary way to close some of them
@@ -409,13 +335,6 @@ want it on a key that's easier to hit"
 (plist-put +popup-defaults :modeline t)
 
 ;; CSS
-(defun schmo/print-float-with-max-places (num max-places)
-  "Truncates decimal places of `num' to `max-places' without trailing 0s"
-  (number-to-string
-   (string-to-number
-    (format (concat "%0." (number-to-string max-places) "f")
-            num))))
-
 (defun schmo/insert-relative-units (val &optional arg)
   "Inserts `val' relative to some base number for use with relative units in
 CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
@@ -446,6 +365,7 @@ CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
                 res)))))
 
 ;;; org
+(setq org-directory "~/org/")
 (add-to-list 'org-modules 'ol-info)
 
 (defalias 'run-geiser 'geiser
@@ -468,18 +388,3 @@ no longer exists")
       (newline)
       (insert "- "))))
 
-(defhydra schmo/window-resize nil
-  "Window Resize"
-  ("h" #'evil-window-decrease-width "Decrease Width")
-  ("j" #'evil-window-increase-height "Increase Height")
-  ("k" #'evil-window-decrease-height "Decrease Height")
-  ("l" #'evil-window-increase-width "Increase Width")
-  ("=" #'balance-windows "Balance"))
-
-;; Prevent package pins and other properties from being truncated
-(advice-add '+emacs-lisp-truncate-pin :override (-const nil))
-
-;; Make maps like q and l work in diffview-mode
-(add-hook 'diffview-mode-hook (lambda (&rest _)
-                                (evil-make-overriding-map diffview--mode-map 'normal t)
-                                (evil-normalize-keymaps)))
