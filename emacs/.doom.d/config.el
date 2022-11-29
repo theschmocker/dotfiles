@@ -24,8 +24,8 @@
 ;; (setq doom-font (font-spec :family "monospace" :size 12 :weight 'semi-light)
 ;;       doom-variable-pitch-font (font-spec :family "sans" :size 13))
 
-(defmacro doom-font! (&rest specs)
-  "Sets `doom-font' to the first available font in `SPECS'"
+(defmacro doom-set-font! (font-var &rest specs)
+  "Sets FONT-VAR to the first available font defined in SPECS."
   (let* ((specs (mapcar (lambda (spec-form)
                           (if (and (listp spec-form)
                                    (not (eql 'font-spec (car spec-form))))
@@ -35,9 +35,26 @@
          (spec (cl-find-if (lambda (spec-form)
                              (doom-font-exists-p (eval spec-form)))
                            specs)))
-    `(setq doom-font ,spec)))
+    `(setq ,font-var ,spec)))
 
-(setq doom-variable-pitch-font (font-spec :family "ETBembo" :size 16))
+(defmacro doom-font! (&rest specs)
+  "Sets `doom-font' to the first available font in SPECS."
+  `(doom-set-font! doom-font ,@specs))
+
+(defmacro doom-variable-pitch-font! (&rest specs)
+  "Sets `doom-variable-pitch-font' to the first available font in SPECS."
+  `(doom-set-font! doom-variable-pitch-font ,@specs))
+
+(doom-font!
+  (:family "MonoLisa Nerd Font" :size 13)
+  (:family "MonoLisa" :size 13)
+  (:family "Dank Mono" :size 14))
+
+(doom-variable-pitch-font!
+  (:family "ETBembo" :size 16)
+  (:family "Optima" :size 16)
+  (:family "Futura" :size 16)
+  (:family "Helvetica" :size 16))
 
 (setq custom-file (make-temp-file "custom"))
 
@@ -45,7 +62,6 @@
 (custom-set-faces!
   '(line-number-current-line :inherit fixed-pitch)
   '(line-number :inherit fixed-pitch))
-
 
 (after! org
   (dolist (face '(org-code
@@ -90,11 +106,6 @@
     (dolist (additional-face '(fixed-pitch fixed-pitch-serif variable-pitch))
       (funcall fn additional-face)))
   (funcall fn face))
-
-(doom-font!
- (:family "MonoLisa Nerd Font" :size 13)
- (:family "MonoLisa" :size 13)
- (:family "Dank Mono" :size 14))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
