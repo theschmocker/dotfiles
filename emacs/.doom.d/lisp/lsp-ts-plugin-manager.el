@@ -38,10 +38,10 @@
          :type symbol
          :documentation "Symbolic name of the plugin. Should be unique.")
    (package :initarg :package
-            :type lsp-ts-plugin-manager-package
+            :type (or lsp-ts-plugin-manager-package string)
             :documentation "An instance of some subclass of
-            `lsp-ts-plugin-manager-package'. Determines how/where the plugin
-            will be installed.")
+            `lsp-ts-plugin-manager-package' or a string naming an npm package.
+            Determines how/where the plugin will be installed.")
    (activation-fn :initarg :activation-fn
                   :initform #'always
                   :documentation "A function of one argument that returns a
@@ -70,7 +70,6 @@
 (defclass lsp-ts-plugin-manager-package ()
   ((package-name :initarg :package-name
                  :type string
-                 :reader lsp-ts-plugin-manager-package-name
                  :documentation "String name of the package definition."))
   :documentation "Base class for TypeScript plugin package definitions, ie. recipes for how to install and/or where to find TS plugins."
   :abstract t)
@@ -80,6 +79,17 @@
 
 (cl-defgeneric lsp-ts-plugin-manager-package--get-lsp-dependency (package)
   "Return the `lsp-dependency' dependency recipe for PACKAGE.")
+
+(cl-defgeneric lsp-ts-plugin-manager-package-name (package)
+  "Return the name of PACKAGE.")
+
+(cl-defmethod lsp-ts-plugin-manager-package-name ((package lsp-ts-plugin-manager-package))
+  "Return the name of PACKAGE."
+  (oref package package-name))
+
+(cl-defmethod lsp-ts-plugin-manager-package-name ((package string))
+  "Return the name of PACKAGE."
+  package)
 
 (defclass lsp-ts-plugin-manager-npm-package (lsp-ts-plugin-manager-package)
   ((package-name :initarg :package-name
@@ -102,6 +112,14 @@
     `(:npm
       :package ,package-name
       :path ,package-name)))
+
+(cl-defmethod lsp-ts-plugin-manager-package-install-location ((package string))
+  "Return the install location of npm PACKAGE."
+  (lsp-ts-plugin-manager-package-install-location (lsp-ts-plugin-manager-npm-package :package-name package)))
+
+(cl-defmethod lsp-ts-plugin-manager-package--get-lsp-dependency ((package string))
+  "Return the `lsp-dependency' dependency recipe for npm PACKAGE."
+  (lsp-ts-plugin-manager-package--get-lsp-dependency (lsp-ts-plugin-manager-npm-package :package-name package)))
 
 (defclass lsp-ts-plugin-manager-downloaded-package (lsp-ts-plugin-manager-package)
   ((url :initarg :url

@@ -193,13 +193,13 @@
    (lsp-ts-plugin-manager-plugin
     :name 'typescript-styled-plugin
     :activation-fn #'schmo/project-has-styled-components-p
-    :package (lsp-ts-plugin-manager-npm-package :package-name "typescript-styled-plugin")))
+    :package "typescript-styled-plugin"))
 
   (lsp-ts-plugin-manager-register
    (lsp-ts-plugin-manager-plugin
     :name 'typescript-svelte-plugin
     :activation-fn #'schmo/svelte-project-p
-    :package (lsp-ts-plugin-manager-npm-package :package-name "typescript-svelte-plugin")
+    :package "typescript-svelte-plugin"
     :dependency-of 'svelte-language-server)))
 
 (after! lsp-ui
