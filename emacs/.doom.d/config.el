@@ -184,6 +184,8 @@
 (after! lsp-mode
   (setq lsp-warn-no-matched-clients nil)
   (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html"))
+  (add-to-list 'lsp-file-watch-ignored-directories
+               "[/\\\\]\\.vs\\'")
   (setq lsp-eldoc-enable-hover nil))
 
 ;; Register plugins with lsp-ts-plugin-manager
