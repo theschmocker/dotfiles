@@ -182,6 +182,7 @@
 
 ;;; LSP
 (after! lsp-mode
+  (setq lsp-warn-no-matched-clients nil)
   (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html"))
   (setq lsp-eldoc-enable-hover nil))
 
@@ -201,6 +202,7 @@
     :activation-fn #'schmo/svelte-project-p
     :package "typescript-svelte-plugin"
     :dependency-of 'svelte-language-server)))
+
 
 (after! lsp-ui
   (setq lsp-ui-doc-max-width 100
@@ -291,7 +293,9 @@ want it on a key that's easier to hit"
   ;; move company-web-html to the end so it doesn't shadow other backends
   ;; (specifically company-yasnippet)
   (set-company-backend! 'web-mode
-    '(:separate company-yasnippet company-web-html)))
+    '(:separate company-yasnippet company-web-html))
+
+  (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode)))
 
 (setq emmet-indent-after-insert nil)
 ;; Something about emmet-expand-yas breaks undo... just use emmet-expand-line instead
@@ -387,4 +391,3 @@ no longer exists")
       (insert (concat "** " day))
       (newline)
       (insert "- "))))
-
