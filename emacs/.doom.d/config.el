@@ -7,6 +7,7 @@
 (add-to-list 'load-path (f-join doom-user-dir "lisp"))
 
 (require 'schmo-lib)
+(require 'prlctl)
 
 (setq user-full-name "Jacob"
       user-mail-address "")
