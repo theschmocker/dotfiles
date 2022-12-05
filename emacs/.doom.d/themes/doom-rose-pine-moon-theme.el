@@ -107,7 +107,7 @@
     (methods         foam)
     (numbers         rose)
     (operators       gold)
-    (strings         gold)
+    (strings         (doom-blend highlightH gold 0.175))
     (type            rose)
     (variables       iris)
 
@@ -239,6 +239,8 @@
     ;; Completion
     (completions-common-part :foreground (doom-lighten pine 0.2)
                              :background base
-                             :weight 'bold)))
+                             :weight 'bold)
+    ;; web-mode
+    (web-mode-html-tag-bracket-face :foreground (doom-darken muted 0.1))))
 
 ;;; doom-rose-pine-moon-theme.el ends here
