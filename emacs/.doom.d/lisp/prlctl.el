@@ -146,6 +146,15 @@
                           (map-elt vm 'ip_configured)))))
           vms))
 
+(defvar prlctl-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map tabulated-list-mode-map)
+    (define-key map "e" #'prlctl-mode--exec)
+    (define-key map "E" #'prlctl-mode--enter)
+    (define-key map "i" #'prlctl-mode--info)
+    map)
+  "Local keymap for `prlctl-mode' buffers.")
+
 (define-derived-mode prlctl-mode tabulated-list-mode "Parallels Control"
   (let ((data (json-read-from-string (buffer-substring-no-properties (point-min) (point-max)))))
     (setq tabulated-list-format (prlctl-mode--table-format data))
@@ -196,14 +205,7 @@
       (prlctl-info-mode))
     (pop-to-buffer buffer prlctl-info-display-buffer-func)))
 
-(defvar prlctl-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map tabulated-list-mode-map)
-    (define-key map "e" #'prlctl-mode--exec)
-    (define-key map "E" #'prlctl-mode--enter)
-    (define-key map "i" #'prlctl-mode--info)
-    map)
-  "Local keymap for `prlctl-mode' buffers.")
+
 
 (defvar prlctl-info-display-buffer-func #'display-buffer-same-window
   "")
