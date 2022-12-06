@@ -16,26 +16,25 @@
       (read-only-mode -1)
       (fundamental-mode)
       (erase-buffer)
-      (insert (prlctl--run-command "list" "-a"))
-      (prlctl-mode))
+      (save-excursion
+        (insert (prlctl--run-command "list" "--all" "--full" "--json"))
+        (prlctl-mode)))
     (pop-to-buffer buffer)))
 
 (defun prlctl--virtual-machines ()
-  (map-elt
-   (prlctl-mode--parse-table (prlctl--run-command "list" "-a"))
-   :entries))
+  (json-read-from-string (prlctl--run-command "list" "--all" "--full" "--json")))
 
 (defun prlctl-get-virtual-machine (name-or-uuid)
   (cl-find-if (lambda (vm)
-                (or (string-equal (map-elt vm :uuid) name-or-uuid)
-                    (string-equal (map-elt vm :name) name-or-uuid)))
+                (or (string-equal (map-elt vm 'uuid) name-or-uuid)
+                    (string-equal (map-elt vm 'name) name-or-uuid)))
               (prlctl--virtual-machines)))
 
 (defun prlctl--virtual-machine-completing-read (&optional predicate)
   (let ((options (mapcar (lambda (vm)
-                           (cons (concat (map-elt vm :name)
+                           (cons (concat (map-elt vm 'name)
                                          " ("
-                                         (map-elt vm :uuid)
+                                         (map-elt vm 'uuid)
                                          ")")
                                  vm))
                          (prlctl--virtual-machines))))
@@ -50,7 +49,7 @@
                               t))))
 
 (defun prlctl--vm-info-string (vm)
-  (prlctl--run-command "list" "-i" (map-elt vm :uuid)))
+  (prlctl--run-command "list" "-i" (map-elt vm 'uuid)))
 
 (defun prlctl--vm-info-alist (vm)
   (let* ((cmd-output (prlctl--vm-info-string vm))
@@ -81,73 +80,76 @@
                   (seq-drop-while child-item-p
                                   (cdr items)))))))))
 
+(defun prlctl-windows-vm-p (vm)
+  (string-prefix-p "win" (map-elt (prlctl--vm-info-alist vm) "OS")))
+
 (defun prlctl-exec (&optional vm-or-name-or-uuid cmd)
   (interactive)
   (let ((vm (cond ((null vm-or-name-or-uuid) (prlctl--virtual-machine-completing-read
                                               (lambda (vm)
                                                 (string-equal "running"
-                                                              (map-elt vm :status)))))
+                                                              (map-elt vm 'status)))))
                   ((listp vm-or-name-or-uuid) vm-or-name-or-uuid)
                   ((stringp vm-or-name-or-uuid ) (cl-find-if (lambda (vm)
-                                                               (and (string-equal "running" (map-elt vm :status))
-                                                                    (or (string-equal (map-elt vm :uuid) vm-or-name-or-uuid)
-                                                                        (string-equal (map-elt vm :name) vm-or-name-or-uuid))))
+                                                               (and (string-equal "running" (map-elt vm 'status))
+                                                                    (or (string-equal (map-elt vm 'uuid) vm-or-name-or-uuid)
+                                                                        (string-equal (map-elt vm 'name) vm-or-name-or-uuid))))
                                                              (prlctl--virtual-machines)))
                   (t (user-error "Wrong type of VM-OR-NAME-OR-UUID"))))
         (cmd (or cmd (read-string "Enter a command: "))))
     (if (not vm)
         (user-error "VM \"%s\" either not running or does not exist" vm-or-name-or-uuid)
-      (if (string-prefix-p "win" (map-elt (prlctl--vm-info-alist vm) "OS"))
-          (compile (format "prlctl exec %s cmd /S /C \"%s\"" (map-elt vm :uuid) (string-replace "\"" "\\\"" cmd)) t)
-        (compile (format "prlctl exec %s %s" (map-elt vm :uuid) cmd) t)))))
+      (if (prlctl-windows-vm-p vm)
+          (prlctl-exec--run-windows vm cmd)
+        (prlctl-exec--run vm cmd)))))
 
-(defun prlctl-mode--parse-table-format (header-line longest-line-length)
-  (let* ((uuid-start 0)
-         (uuid-end (string-match "STATUS" header-line))
-         (status-start uuid-end)
-         (status-end (string-match "IP_ADDR" header-line))
-         (ip-start status-end)
-         (ip-end (string-match "NAME" header-line))
-         (name-start ip-end))
-    (vector (list (string-trim (substring header-line name-start)) (+ 4 (- longest-line-length name-start)) t)
-            (list (string-trim (substring header-line status-start status-end)) (- status-end status-start) t)
-            (list (string-trim (substring header-line uuid-start uuid-end)) uuid-end nil)
-            (list (string-trim (substring header-line ip-start ip-end)) -1 t))))
+(defun prlctl-exec--run-windows (vm cmd)
+  (compile (format "prlctl exec %s %s cmd /S /C \"%s\""
+                   (map-elt vm 'uuid)
+                   (if prlctl-run-with-current-user
+                       "--current-user"
+                     "")
+                   (string-replace "\"" "\\\"" cmd))
+           t))
 
-(defun prlctl-mode--parse-table (input)
-  (let* ((lines (string-lines (string-trim input)))
-         (header-line (car lines))
-         (entry-lines (cdr lines)))
-    (let* ((uuid-start 0)
-           (uuid-end (string-match "STATUS" header-line))
-           (status-start uuid-end)
-           (status-end (string-match "IP_ADDR" header-line))
-           (ip-start status-end)
-           (ip-end (string-match "NAME" header-line))
-           (name-start ip-end)
-           (entries (mapcar (lambda (line)
-                              (let ((uuid (thread-last (substring line uuid-start uuid-end)
-                                                       (string-trim)
-                                                       (string-replace "{" "")
-                                                       (string-replace "}" "")))
-                                    (status (string-trim (substring line status-start status-end)))
-                                    (ip (string-trim (substring line ip-start ip-end)))
-                                    (name (string-trim (substring line name-start))))
-                                (list :name name
-                                      :status status
-                                      :uuid uuid
-                                      :ip ip)))
-                            entry-lines)))
-      (list :table-format (prlctl-mode--parse-table-format header-line (apply #'max (mapcar #'length entry-lines)))
-            :entries entries))))
+(defun prlctl-exec--run (vm cmd)
+  (compile (format "prlctl exec %s %s %s"
+                   (map-elt vm 'uuid)
+                   (if prlctl-run-with-current-user
+                       "--current-user"
+                     "")
+                   cmd)
+           t))
+
+(defun prlctl-mode--table-format (vms)
+  (let ((column-name-alist '((name . "Name")
+                             (status . "Status")
+                             (uuid . "UUID")
+                             (ip_configured . "IP Address"))))
+    (apply #'vector (mapcar (lambda (col)
+                              (let ((key (car col))
+                                    (name (cdr col)))
+                                (let ((longest-value (apply #'max (mapcar (lambda (item)
+                                                                            (length
+                                                                             (map-elt item key)))
+                                                                          vms))))
+                                  (list name (+ 4 longest-value) t))))
+                            column-name-alist))))
+
+(defun prlctl-mode--table-entries (vms)
+  (mapcar (lambda (vm)
+            (let ((uuid (map-elt vm 'uuid)))
+              (list uuid (vector
+                          (map-elt vm 'name)
+                          (map-elt vm 'status)
+                          uuid
+                          (map-elt vm 'ip_configured)))))
+          vms))
 
 (define-derived-mode prlctl-mode tabulated-list-mode "Parallels Control"
-  (let ((data (prlctl-mode--parse-table (buffer-string))))
-    (setq tabulated-list-format (map-elt data :table-format))
-    (setq tabulated-list-entries (mapcar (lambda (entry)
-                                           (let ((uuid (map-elt entry :uuid)))
-                                             (list uuid (apply #'vector (map-values entry)))))
-                                         (map-elt data :entries)))
+  (let ((data (json-read-from-string (buffer-substring-no-properties (point-min) (point-max)))))
+    (setq tabulated-list-format (prlctl-mode--table-format data))
+    (setq tabulated-list-entries (prlctl-mode--table-entries data))
     (tabulated-list-init-header)
     (tabulated-list-print t)))
 
@@ -158,6 +160,20 @@
   (interactive)
   (prlctl-exec (prlctl-mode--vm-uuid-at-point)))
 
+(defun prlctl-mode--enter ()
+  (interactive)
+  (let* ((vm (prlctl-get-virtual-machine (prlctl-mode--vm-uuid-at-point)))
+         (uuid (map-elt vm 'uuid))
+         (name (map-elt vm 'name))
+         (flags `("enter" ,uuid ,@(if prlctl-run-with-current-user
+                                      (list "--current-user")
+                                    nil))))
+    (pop-to-buffer
+     (apply #'make-comint (append `(,(format "prlctl shell (%s)" name)
+                                    "prlctl"
+                                    nil)
+                                  flags)))))
+
 (defun prlctl-mode--statistics ()
   (interactive)
   (compile (concat "prlctl statistics " (prlctl-mode--vm-uuid-at-point))))
@@ -165,18 +181,18 @@
 (defun prlctl-mode--info ()
   (interactive)
   (let* ((vm (prlctl-get-virtual-machine (prlctl-mode--vm-uuid-at-point)))
-         (uuid (map-elt vm :uuid))
+         (uuid (map-elt vm 'uuid))
          (buffer (get-buffer-create (format "*prlctl info (%s)*" uuid) t)))
     (with-current-buffer buffer
       (setq-local require-final-newline nil)
       (read-only-mode -1)
       (fundamental-mode)
       (erase-buffer)
-      (insert (prlctl--run-command "list" "--info" uuid))
-      ;; TODO prlctl-related name for vm uuids instead of using tabulated-list-mode default
-      (set-text-properties (point-min) (point-max) `(tabulated-list-id ,uuid))
-      (delete-trailing-whitespace)
-      (goto-line 1)
+      (save-excursion
+        (insert (prlctl--run-command "list" "--info" uuid))
+        ;; TODO prlctl-related name for vm uuids instead of using tabulated-list-mode default
+        (set-text-properties (point-min) (point-max) `(tabulated-list-id ,uuid))
+        (delete-trailing-whitespace))
       (prlctl-info-mode))
     (pop-to-buffer buffer prlctl-info-display-buffer-func)))
 
@@ -184,6 +200,7 @@
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
     (define-key map "e" #'prlctl-mode--exec)
+    (define-key map "E" #'prlctl-mode--enter)
     (define-key map "i" #'prlctl-mode--info)
     map)
   "Local keymap for `prlctl-mode' buffers.")
@@ -193,6 +210,10 @@
 
 (define-derived-mode prlctl-info-mode special-mode "Parallels VM Info"
   "")
+
+(defvar prlctl-run-with-current-user t
+  "Whether commands sent or shells started in virtual machines should be run
+  under the currrent VM user.")
 
 (provide 'prlctl)
 ;;; prlctl.el ends here
