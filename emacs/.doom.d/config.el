@@ -286,12 +286,12 @@
 
 (use-package! fussy
   :config
-  ;; use fussy by default for company instead of orderless
-  (defadvice! schmo/company-capf-candidates (fn &rest args)
-    :around #'company-capf--candidates
-    (let ((completion-styles '(fussy flex orderless basic partial-completion emacs22)))
-      (apply fn args)))
   (setq fussy-filter-fn 'fussy-filter-flex))
+
+(defadvice! schmo/company-capf-candidates (fn &rest args)
+    :around #'company-capf--candidates
+    (let ((completion-styles '(flex orderless basic partial-completion emacs22)))
+      (apply fn args)))
 
 (defun schmo/+vertico-orderless-dispatch (pattern _index _total)
   "Orderless dispatch which swaps % and ~ from DOOM's
