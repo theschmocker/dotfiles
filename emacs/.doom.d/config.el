@@ -185,8 +185,31 @@
 (after! lsp-mode
   (setq lsp-warn-no-matched-clients nil)
   (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html"))
-  (add-to-list 'lsp-file-watch-ignored-directories
-               "[/\\\\]\\.vs\\'")
+
+  (dolist (ignored-dir '("[/\\\\]\\.vs\\'"
+                         ;; Not sure why this isn't ignored by default
+                         "[/\\\\]\\.log\\'"
+                         ;; Some nuxt specific dirs to ignore.
+                         ;; Don't want to ignore .nuxt root or .nuxt/types
+                         "[/\\\\]\\.output\\'"
+                         "[/\\\\]\\.output\\'"
+                         "[/\\\\]\\.nuxt/content-cache\\'"
+                         "[/\\\\]\\.nuxt/content-cache/parsed\\'"
+                         "[/\\\\]\\.nuxt/content-cache/parsed/content\\'"
+                         "[/\\\\]\\.nuxt/content-cache/parsed/content/articles\\'"
+                         "[/\\\\]\\.nuxt/prerender\\'"
+                         "[/\\\\]\\.nuxt/prerender/chunks\\'"
+                         "[/\\\\]\\.nuxt/prerender/chunks/app\\'"
+                         "[/\\\\]\\.nuxt/prerender/chunks/app/_nuxt\\'"
+                         "[/\\\\]\\.nuxt/prerender/chunks/nitro\\'"
+                         "[/\\\\]\\.nuxt/prerender/chunks/rollup\\'"
+                         "[/\\\\]\\.nuxt/snapshot\\'"
+                         "[/\\\\]\\.nuxt/snapshot/cache\\'"
+                         "[/\\\\]\\.nuxt/snapshot/cache/content\\'"
+                         "[/\\\\]\\.nuxt/snapshot/cache/content/parsed\\'"
+                         "[/\\\\]\\.nuxt/snapshot/cache/content/parsed/content\\'"
+                         "[/\\\\]\\.nuxt/snapshot/cache/content/parsed/content/articles\\'"))
+    (add-to-list 'lsp-file-watch-ignored-directories ignored-dir))
   (setq lsp-eldoc-enable-hover nil))
 
 ;; Register plugins with lsp-ts-plugin-manager
