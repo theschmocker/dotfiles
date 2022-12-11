@@ -320,6 +320,17 @@ want it on a key that's easier to hit"
 
 (setq company-selection-wrap-around t)
 
+;; Prevents company yasnippet completion when there's no symbol prefix
+(defadvice! schmo/company-yas (fn &rest args)
+  :around #'company-yasnippet
+  (cl-letf ((original-company-grab-symbol (symbol-function 'company-grab-symbol)))
+    (cl-letf (((symbol-function 'company-grab-symbol) (lambda ()
+                                                        (let ((res (funcall original-company-grab-symbol)))
+                                                          (if (string-empty-p res)
+                                                              nil
+                                                            res)))))
+      (apply fn args))))
+
 ;;; Web Mode
 (after! web-mode
   (setq web-mode-part-padding 0)
