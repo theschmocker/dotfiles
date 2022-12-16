@@ -54,6 +54,9 @@
 (unpin! lsp-mode)
 (unpin! lsp-ui)
 
+(package! lsp-ts-plugin-manager
+  :recipe (:host github :repo "theschmocker/lsp-ts-plugin-manager.el"))
+
 (package! fussy
   :recipe (:host github :repo "jojojames/fussy")
   :pin "27baf4c5bd...")
