@@ -356,6 +356,8 @@ want it on a key that's easier to hit"
 ;;; Misc
 (setq whitespace-global-modes nil)
 
+(add-to-list 'auto-mode-alist '("\\.pl\\'" . prolog-mode))
+
 ;; consider these symbols to be parts of words in lisp modes
 (let ((word-characters (list ?- ?: ?? ?/ ?+))
       (modes '(emacs-lisp-mode lisp-mode clojure-mode scheme-mode)))
