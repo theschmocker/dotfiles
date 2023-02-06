@@ -16,14 +16,16 @@
 
 (plugins!
   ;; LSP
-  (use :neovim/nvim-lspconfig {:commit :c107a0f})
-  (use :williamboman/nvim-lsp-installer {:commit :9887370})
+  (use :williamboman/mason.nvim {:commit :c609775d1
+                                 :config #(setup! :mason)})
+  (use :williamboman/mason-lspconfig.nvim {:commit :3751eb5c})
+  (use :neovim/nvim-lspconfig {:commit :f0221821})
 
   ;; Colorscheme
   (use :folke/tokyonight.nvim {:commit :8223c97})
   (use :rose-pine/neovim
        {:as :rose-pine
-        :tag :v1.1.0
+        :commit :8e800a9
         :config #(setup! :rose-pine {:dark_variant :moon})})
   (use :catppuccin/nvim
        {:as :catppuccin
@@ -41,10 +43,12 @@
   (use :rust-lang/rust.vim {:commit :4aa69b8})
 
   ;; Snippets
+  ;; TODO: check compat with 0.8.0
   (use :L3MON4D3/LuaSnip
        {:commit :a12441e :config #(require :user.snippets)})
 
   ;; Completion
+  ;; TODO: check compat with 0.8.0
   (use :hrsh7th/cmp-nvim-lsp {:commit :affe808})
   (use :hrsh7th/cmp-buffer {:commit :62fc67a})
   (use :hrsh7th/cmp-path {:commit :466b6b8})
@@ -54,13 +58,15 @@
   (use :saadparwaiz1/cmp_luasnip {:commit :a9de941})
 
   ;; Tools
+  ;; TODO: check compat with 0.8.0; consider swap to hop or leap. would like to match behavior to emacs' avy goto-char-2 as close as possible
   (use :ggandor/lightspeed.nvim
        {:commit :79519bfae95741bc99872582ef0f268fd842115b
         :config #(setup! :lightspeed
                          {:exit_after_idle_msecs {:labeled 1500
                                                   :unlabeled 1000}})})
+  ;; TODO: check compat with 0.8.0
   (use :nvim-telescope/telescope.nvim
-       {:commit :0.1.0
+       {:commit :1ba7278cf08
         :requires [[:nvim-lua/plenary.nvim]]
         :config #(setup! :telescope
                          {:defaults {:path_display {:truncate true}}
@@ -71,7 +77,7 @@
                                                                 :!.git
                                                                 :--hidden]}}})})
   (use :windwp/nvim-autopairs
-       {:commit :4a95b3982be7397cd8e1370d1a09503f9b002dbf
+       {:commit :f00eb3b7
         :config #(setup! :nvim-autopairs
                          {:enable_check_bracket_line false})})
   (use :tpope/vim-surround {:commit :bf3480d})
@@ -90,20 +96,20 @@
 
   ;; Which Key
   (use :folke/which-key.nvim
-       {:commit :bd4411a :config #(setup! :which-key)})
+       {:commit :98321b6 :config #(setup! :which-key)})
 
   ;; Icons
   (use :kyazdani42/nvim-web-devicons
-       {:commit :344331467509802e1af200f08ec3da278be5cbba})
+       {:commit :6c389263})
 
   ;; Status line
   (use :nvim-lualine/lualine.nvim
-       {:commit :b656978
+       {:commit :0050b308
         :config #(setup! :lualine {:options {:icons_enabled true}})})
 
   ;; Treesitter
   (use :nvim-treesitter/nvim-treesitter
-       {:commit :8eccd82
+       {:commit :bf5be49d
         :run ":TSUpdate"
         :config #(setup! :nvim-treesitter.configs
                          {:highlight {:enable true}

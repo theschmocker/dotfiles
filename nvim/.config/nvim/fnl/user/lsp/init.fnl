@@ -1,15 +1,15 @@
 (module user.lsp.init
   {autoload {ts-lsp user.lsp.typescript
              : lspconfig
+             : mason-lspconfig
              cmp-lsp cmp_nvim_lsp
-             : nvim-lsp-installer
              a aniseed.core
              {:default-capabilities default-capabilities
               :default-on-attach default-on-attach
               :setup-server setup-server} user.lsp.util}
    require-macros user.macros})
 
-(nvim-lsp-installer.setup)
+(mason-lspconfig.setup)
 
 (require :user.lsp.svelte-ts-plugin)
 

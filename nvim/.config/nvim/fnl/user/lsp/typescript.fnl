@@ -21,6 +21,13 @@
       "In Vue projects, I want to use Volar's Takeover mode for JS/TS files. Otherwise, I want to use tsserver.
   This will set up the relevant server based on the presence of vue in package.json. There may be a better way to handle this.
   config table should have the `capabilities` and `on_attach` keys to pass to lspconfig's setup"
+
+      ;; disables single file support for tsserver, which otherwise overrides root_dir
+      (tset lsputil :on_setup
+            (lsputil.add_hook_before lsputil.on_setup (fn [config]
+                                                         (when (= "tsserver" (?. config :name))
+                                                           (tset config :single_file_support false)))))
+
       (let [default_root_dir (lsputil.root_pattern :package.json)]
         ;; temporary fix for volar's document version issue
         (tset vim.lsp.util :apply_text_document_edit

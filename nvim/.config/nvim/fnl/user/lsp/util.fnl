@@ -2,7 +2,6 @@
                                  : lspconfig
                                  lsputil lspconfig.util
                                  cmp-lsp cmp_nvim_lsp
-                                 : nvim-lsp-installer
                                  a aniseed.core}
                        require-macros [user.macros]})
 
@@ -10,7 +9,7 @@
   (cmp-lsp.update_capabilities (vim.lsp.protocol.make_client_capabilities)))
 
 (defn default-on-attach [client bufnr]
-  (when client.resolved_capabilities.document_highlight
+  (when client.server_capabilities.document_highlight
     (augroup! ["lsp_document_highlight" {:clear false}]
               (vim.api.nvim_clear_autocmds {:buffer bufnr
                                             :group "lsp_document_highlight"})

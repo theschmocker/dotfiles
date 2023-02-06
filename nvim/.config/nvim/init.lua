@@ -36,6 +36,7 @@ vim.g["aniseed#env"] = {
 }
 
 if installed_packer then
+	require('user.plugins')
 	require('packer').sync()
 end
 -- require('user.plugins')

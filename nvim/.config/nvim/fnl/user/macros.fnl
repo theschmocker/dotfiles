@@ -1,5 +1,3 @@
-(local util (require :user.util))
-
 (fn noremap! [modes lhs rhs opts]
   (let [opts (or opts {})]
     (tset opts :remap nil)
@@ -25,10 +23,19 @@
 (fn cnoremap! [lhs rhs opts]
   `,(noremap! :c lhs rhs opts))
 
+(fn chunks [n t]
+  "Splits a sequential table `t` into a new table of `n`-length chunks"
+  (let [out []]
+    (for [i 1 (length t) n]
+      (let [chunk []]
+        (for [j i (+ i (- n 1)) 1]
+          (table.insert chunk (. t j)))
+        (table.insert out chunk)))
+    out))
 
 (fn table-set [t ...]
   (let [opts [...]
-        opt-pairs (util.chunks 2 opts)]
+        opt-pairs (chunks 2 opts)]
     (assert-compile (= 0 (% (length opts) 2)) "")
     `(do
        ,(unpack (icollect [_ [setting value] (ipairs opt-pairs)]
