@@ -27,6 +27,10 @@
     (nnoremap! :K vim.lsp.buf.hover bufopts)
     (nnoremap! :gh vim.lsp.buf.hover bufopts)
     (nnoremap! :gd #(vim.diagnostic.open_float nil {:focus false}) bufopts)
+    (leader-map! ["+diagnostics" :d bufopts]
+                 (:l vim.diagnostic.setqflist "list (quickfix)")
+                 (:p vim.diagnostic.goto_prev "previous error")
+                 (:n vim.diagnostic.goto_next "next error"))
     (nnoremap! :<C-k> vim.lsp.buf.signature_help bufopts)
     (leader-map! ["+code-actions (lsp)" :c bufopts]
                  (:a vim.lsp.buf.code_action "lsp code actions")
