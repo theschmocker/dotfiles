@@ -192,7 +192,6 @@
                          ;; Some nuxt specific dirs to ignore.
                          ;; Don't want to ignore .nuxt root or .nuxt/types
                          "[/\\\\]\\.output\\'"
-                         "[/\\\\]\\.output\\'"
                          "[/\\\\]\\.nuxt/content-cache\\'"
                          "[/\\\\]\\.nuxt/content-cache/parsed\\'"
                          "[/\\\\]\\.nuxt/content-cache/parsed/content\\'"
