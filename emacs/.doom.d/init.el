@@ -190,6 +190,7 @@
 
        :personal
        go
+       haskell
        twig
        sql
        org-visual-tweaks)
