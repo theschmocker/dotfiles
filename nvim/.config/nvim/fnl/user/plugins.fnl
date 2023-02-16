@@ -48,14 +48,13 @@
        {:commit :a12441e :config #(require :user.snippets)})
 
   ;; Completion
-  ;; TODO: check compat with 0.8.0
-  (use :hrsh7th/cmp-nvim-lsp {:commit :affe808})
-  (use :hrsh7th/cmp-buffer {:commit :62fc67a})
-  (use :hrsh7th/cmp-path {:commit :466b6b8})
-  (use :hrsh7th/cmp-cmdline {:commit :c36ca4b})
-  (use :hrsh7th/nvim-cmp {:commit :df6734a})
+  (use :hrsh7th/cmp-nvim-lsp {:commit :0e6b2ed})
+  (use :hrsh7th/cmp-buffer {:commit :3022dbc})
+  (use :hrsh7th/cmp-path {:commit :91ff86c})
+  (use :hrsh7th/cmp-cmdline {:commit :23c51b2})
+  (use :hrsh7th/nvim-cmp {:commit :208d69f})
 
-  (use :saadparwaiz1/cmp_luasnip {:commit :a9de941})
+  (use :saadparwaiz1/cmp_luasnip {:commit :1809552})
 
   ;; Tools
   ;; TODO: check compat with 0.8.0; consider swap to hop or leap. would like to match behavior to emacs' avy goto-char-2 as close as possible

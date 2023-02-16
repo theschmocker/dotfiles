@@ -6,7 +6,7 @@
                        require-macros [user.macros]})
 
 (local default-capabilities
-  (cmp-lsp.update_capabilities (vim.lsp.protocol.make_client_capabilities)))
+  (cmp-lsp.default_capabilities))
 
 (defn default-on-attach [client bufnr]
   (when client.server_capabilities.document_highlight
