@@ -65,7 +65,10 @@
        {:commit :1ba7278cf08
         :requires [[:nvim-lua/plenary.nvim]]
         :config #(setup! :telescope
-                         {:defaults {:path_display {:truncate true}}
+                         {:defaults {;:path_display {:truncate true}
+                                     :layout_strategy "vertical"
+                                     :layout_config {:width 0.99999
+                                                     :height 0.99999}}
                           :pickers {:find_files {:hidden true
                                                  :find_command [:rg
                                                                 :--files
