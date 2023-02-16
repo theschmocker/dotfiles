@@ -6,6 +6,12 @@
 (nmap! "s" "<cmd>HopChar2<cr>")
 (nmap! "S" "<cmd>HopChar2MW<cr>")
 
+(augroup! ["fugitive_map" {:clear true}]
+          (au! :FileType {:pattern "fugitive"
+                          :command "nmap <buffer> <tab> ="})
+          (au! :FileType {:pattern ["fugitive" "fugitiveblain"]
+                          :command "nmap <buffer> q gq"}))
+
 ;; This is now a neovim default, but keeping here for clarity
 (nnoremap! "Y" :y$)
 
