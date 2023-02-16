@@ -3,13 +3,8 @@
              telescope telescope.builtin}
    require-macros [user.macros]})
 
-;; remap to Lightspeed's multiline versions
-(nmap! ";" "<Plug>Lightspeed_;_ft")
-(nmap! "," "<Plug>Lightspeed_,_ft")
-
-;; Omnidirectional Lightspeed mappings
-(nmap! "s" "<Plug>Lightspeed_omni_s")
-(nmap! "gs" "<Plug>Lightspeed_omni_gs")
+(nmap! "s" "<cmd>HopChar2<cr>")
+(nmap! "S" "<cmd>HopChar2MW<cr>")
 
 ;; This is now a neovim default, but keeping here for clarity
 (nnoremap! "Y" :y$)

@@ -57,13 +57,10 @@
   (use :saadparwaiz1/cmp_luasnip {:commit :1809552})
 
   ;; Tools
-  ;; TODO: check compat with 0.8.0; consider swap to hop or leap. would like to match behavior to emacs' avy goto-char-2 as close as possible
-  (use :ggandor/lightspeed.nvim
-       {:commit :79519bfae95741bc99872582ef0f268fd842115b
-        :config #(setup! :lightspeed
-                         {:exit_after_idle_msecs {:labeled 1500
-                                                  :unlabeled 1000}})})
-  ;; TODO: check compat with 0.8.0
+  (use :phaazon/hop.nvim
+       {:commit :90db1b2
+        :config #(setup! :hop {:keys "asdfhjkl"})})
+
   (use :nvim-telescope/telescope.nvim
        {:commit :1ba7278cf08
         :requires [[:nvim-lua/plenary.nvim]]
