@@ -178,7 +178,8 @@
 (add-hook! '(emacs-lisp-mode-hook
              lisp-mode-hook
              clojure-mode-hook
-             scheme-mode-hook)
+             scheme-mode-hook
+             fennel-mode-hook)
            #'evil-cleverparens-mode)
 
 ;;; LSP
