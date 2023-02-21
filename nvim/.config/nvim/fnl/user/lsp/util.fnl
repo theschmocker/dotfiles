@@ -9,7 +9,7 @@
   (cmp-lsp.default_capabilities))
 
 (defn default-on-attach [client bufnr]
-  (when client.server_capabilities.document_highlight
+  (when client.server_capabilities.documentHighlightProvider
     (augroup! ["lsp_document_highlight" {:clear false}]
               (vim.api.nvim_clear_autocmds {:buffer bufnr
                                             :group "lsp_document_highlight"})
@@ -20,8 +20,7 @@
 
               (au! "CursorMoved"
                    {:buffer bufnr
-                    :callback vim.lsp.buf.clear_references}))
-    )
+                    :callback vim.lsp.buf.clear_references})))
 
   (let [bufopts {:silent true :buffer bufnr}]
     (nnoremap! :K vim.lsp.buf.hover bufopts)
