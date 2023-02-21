@@ -27,8 +27,7 @@
     updatetime 250 ; decrease time for CursorHold
     splitright true
     splitbelow true
-    inccommand "split"
-    )
+    inccommand "split")
 
 ;; fnlfmt: skip
 (let-g!
@@ -37,7 +36,7 @@
 	vue_disable_pre_processors 1
 	jsx_ext_required 0
 	mapleader " "
-	maplocalleader "\\"
+	maplocalleader " m"
     conjure#client#scheme#stdio#command "csi -quiet -:c"
     conjure#client#scheme#stdio#prompt_pattern "\n-#;%d-> ")
 
