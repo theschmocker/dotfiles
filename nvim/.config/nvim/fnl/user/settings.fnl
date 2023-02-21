@@ -27,6 +27,7 @@
     updatetime 250 ; decrease time for CursorHold
     splitright true
     splitbelow true
+    inccommand "split"
     )
 
 ;; fnlfmt: skip
