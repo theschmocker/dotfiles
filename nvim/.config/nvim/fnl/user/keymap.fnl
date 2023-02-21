@@ -36,7 +36,8 @@
              (";" #(telescope.commands (telescope-themes.get_ivy)) "M-x (let's pretend)")
              ("/" "<cmd>Telescope live_grep<cr>" :Grep)
              ("." "<cmd>Explore<cr>" "Explore current directory")
-             ("'" "<cmd>Telescope resume<cr>" "Resume last search"))
+             ("'" "<cmd>Telescope resume<cr>" "Resume last search")
+             ("h" "<cmd>Telescope help_tags<cr>" "help"))
 
 (leader-map! [:+window :w]
              (:w :<C-W>w :other-window)
@@ -76,7 +77,8 @@
 (leader-map! [:+buffers :b]
              (:d :<cmd>bd<cr> "delete buffer")
              (:n :<cmd>bn<cr> "next buffer")
-             (:p :<cmd>bp<cr> "previous buffer"))
+             (:p :<cmd>bp<cr> "previous buffer")
+             (:b "<cmd>Telescope buffers<cr>" "Switch to buffer"))
 
 (leader-map! [:+git :g] 
              (:g (fn []
