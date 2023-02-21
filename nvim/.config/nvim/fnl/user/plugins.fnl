@@ -29,7 +29,7 @@
         :config #(setup! :rose-pine {:dark_variant :moon})})
   (use :catppuccin/nvim
        {:as :catppuccin
-        :commit :d46425163dad4cc74910c0c81eeedb00cadf8a61
+        :commit :c5ed881
         :config #(setup! :catppuccin
                          {:integrations {:cmp true
                                          :which_key true
