@@ -1,6 +1,7 @@
 (module user.keymap
   {autoload {a aniseed.core
-             telescope telescope.builtin}
+             telescope telescope.builtin
+             telescope-themes telescope.themes}
    require-macros [user.macros]})
 
 (nmap! "s" "<cmd>HopChar2<cr>")
@@ -12,6 +13,9 @@
           (au! :FileType {:pattern ["fugitive" "fugitiveblain"]
                           :command "nmap <buffer> q gq"}))
 
+(augroup! ["netrw" {:clear true}]
+          (au! :FileType {:pattern "netrw"
+                          :command "nnoremap <buffer> q <cmd>Rexplore<cr>"}))
 ;; This is now a neovim default, but keeping here for clarity
 (nnoremap! "Y" :y$)
 
@@ -29,8 +33,10 @@
 
 (leader-map! ["" ""]
              (:<leader> #(telescope.find_files) "Find File")
-             (";" #(telescope.command_history) "Fuzzy Command History")
-             ("/" "<cmd>Telescope live_grep<cr>" :Grep))
+             (";" #(telescope.commands (telescope-themes.get_ivy)) "M-x (let's pretend)")
+             ("/" "<cmd>Telescope live_grep<cr>" :Grep)
+             ("." "<cmd>Explore<cr>" "Explore current directory")
+             ("'" "<cmd>Telescope resume<cr>" "Resume last search"))
 
 (leader-map! [:+window :w]
              (:w :<C-W>w :other-window)
@@ -82,7 +88,8 @@
              (:b "<cmd>Git blame<cr>" "git blame")
              (:c ":Git checkout " "git checkout")
              (:p "<cmd>Git pull<cr>" "git pull")
-             (:f "<cmd>Git fetch<cr>" "git fetch"))
+             (:f "<cmd>Git fetch<cr>" "git fetch")
+             (:t "<cmd>%Gclog<cr>" "git time machine (file history)"))
 
 (leader-map! ["+git pull" :gp]
              (:p "<cmd>Git pull<cr>" "git pull")
