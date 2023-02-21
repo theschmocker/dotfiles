@@ -71,8 +71,13 @@
                     form))))
      group#))
 
-(fn au! [name opts]
-  `(vim.api.nvim_create_autocmd ,name ,opts))
+(fn au! [name opts ...]
+  (let [body [...]
+        mod-opts (if (< 0 (length body))
+                     `((. (require :aniseed.core) :merge) ,opts {:callback (fn []
+                                                                             ,(unpack body))})
+                     opts)]
+    `(vim.api.nvim_create_autocmd ,name ,mod-opts)))
 
 {: noremap!
  : remap!

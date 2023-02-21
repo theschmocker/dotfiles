@@ -8,14 +8,13 @@
 (nmap! "S" "<cmd>HopChar2MW<cr>")
 
 (augroup! ["fugitive_map" {:clear true}]
-          (au! :FileType {:pattern "fugitive"
-                          :command "nmap <buffer> <tab> ="})
-          (au! :FileType {:pattern ["fugitive" "fugitiveblain"]
-                          :command "nmap <buffer> q gq"}))
+          (au! :FileType {:pattern "fugitive"}
+               (nmap! "<tab>" "=" {:buffer true})
+               (nmap! "q" "gq" {:buffer true})))
 
 (augroup! ["netrw" {:clear true}]
-          (au! :FileType {:pattern "netrw"
-                          :command "nnoremap <buffer> q <cmd>Rexplore<cr>"}))
+          (au! :FileType {:pattern "netrw"}
+               (nnoremap! "q" "<cmd>Rexplore<cr>" {:buffer true})))
 ;; This is now a neovim default, but keeping here for clarity
 (nnoremap! "Y" :y$)
 
