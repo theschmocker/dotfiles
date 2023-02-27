@@ -183,6 +183,7 @@
     (doom-modeline-evil-normal-state :foreground green)    ; The dot color when in normal mode
     (doom-modeline-evil-visual-state :foreground magenta)  ; The dot color when in visual mode
     (doom-modeline-evil-insert-state :foreground orange)   ; The dot color when in insert mode
+    (doom-modeline-buffer-modified :foreground red :weight 'bold)
 
     ;; Helm
     (helm-selection :foreground base :weight 'bold :background blue)
