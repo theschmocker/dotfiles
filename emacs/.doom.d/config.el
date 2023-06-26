@@ -289,9 +289,16 @@
   (setq fussy-filter-fn 'fussy-filter-flex))
 
 (defadvice! schmo/company-capf-candidates (fn &rest args)
-    :around #'company-capf--candidates
-    (let ((completion-styles '(flex orderless basic partial-completion emacs22)))
-      (apply fn args)))
+  "Wraps `company-capf--candidates' to prioritize fuzzy matching over orderless
+for filtering company completion candidates"
+  :around #'company-capf--candidates
+  (let ((completion-styles '(fussy orderless basic partial-completion emacs22)))
+    (apply fn args)))
+
+(defadvice! schmo/company-calculate-candidates (c)
+  "Limits the number of candidates that show up in the company completion UI."
+  :filter-return #'company-calculate-candidates
+  (take 20 c))
 
 (defun schmo/+vertico-orderless-dispatch (pattern _index _total)
   "Orderless dispatch which swaps % and ~ from DOOM's
@@ -318,7 +325,8 @@ want it on a key that's easier to hit"
   ;; delay here makes things feel a bit more smooth for how I type.
   (setq-local company-idle-delay 0.3))
 
-(setq company-selection-wrap-around t)
+(setq company-selection-wrap-around t
+      company-tooltip-width-grow-only t)
 
 ;; Prevents company yasnippet completion when there's no symbol prefix
 (defadvice! schmo/company-yas (fn &rest args)
