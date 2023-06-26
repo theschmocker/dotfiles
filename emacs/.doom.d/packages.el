@@ -63,3 +63,8 @@
 
 (package! diffview)
 (package! spacemacs-theme)
+
+(package! cycle-quotes)
+(package! deadgrep
+  :recipe (:host github :repo "Wilfred/deadgrep")
+  :pin "0313e17a4df7bc8a344b2bc23a319c45d14f9689")
