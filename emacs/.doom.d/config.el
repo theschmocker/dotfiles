@@ -45,6 +45,8 @@
 ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-rose-pine-moon)
 
+(setq doom-themes-treemacs-enable-variable-pitch nil)
+
 ;;; Editor
 (setq scroll-margin 8)
 (setq hscroll-margin 16)
@@ -54,11 +56,6 @@
 ;; disable evil-snipe
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
 (remove-hook 'doom-first-input-hook #'evil-snipe-override-mode) ; fixes stuff like df<Space>
-
-(use-package! evil
-  :init
-  (setq evil-respect-visual-line-mode t)
-  t)
 
 ;; movement with f and t not restricted to current line.
 ;; I prefer the normal behavior for other commands affected by
@@ -453,3 +450,51 @@ no longer exists")
       (insert (concat "** " day))
       (newline)
       (insert "- "))))
+
+(defun schmo/restart-windows-parallels-network-device ()
+  "Restarts the Parallels network adapter over in the Windows VM.
+Sometimes upload speeds get borked and local dev is slow; restarting the network
+device helps"
+  (interactive)
+  (dlet ((prlctl-run-with-current-user nil))
+    (prlctl-exec-shell-command
+     (prlctl-find-vm-by-name-or-uuid "Windows 11")
+     "netsh interface set interface Ethernet disable && netsh interface set interface Ethernet enable"
+     t)))
+
+(defun schmo/parse-minutes-org (org-line)
+  (let* ((parts (thread-first org-line
+                             (split-string " ")
+                             (last)
+                             (car)
+                             (split-string ":")))
+         (hours-in-minutes (if (string-empty-p (car parts))
+                               0
+                             (floor (* 60 (string-to-number (car parts))))))
+         (minutes (if (or (null (cdr parts))
+                          (string-empty-p (cadr parts)))
+                      0
+                    (string-to-number (cadr parts)))))
+    (+ hours-in-minutes minutes)))
+
+(defun schmo/tally-region-org (start end)
+  (interactive "r")
+  (let ((time-in-mins (apply #'+ (mapcar 'schmo/parse-minutes-org
+                                         (split-string (buffer-substring-no-properties start end)
+                                                       "\n")))))
+    (deactivate-mark)
+    (goto-line (line-number-at-pos (if (> start end)
+                                       start
+                                     end)))
+    (open-line 1)
+    (newline)
+    (insert "- TOTAL: ")
+    (let ((hours (/ time-in-mins 60))
+          (mins (% time-in-mins 60)))
+      (when (< 0 hours)
+        (insert (number-to-string hours)))
+      (when (< 0 mins)
+        (insert ":")
+        (when (< mins 10)
+          (insert "0"))
+        (insert (number-to-string mins))))))

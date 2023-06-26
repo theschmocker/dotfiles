@@ -83,6 +83,12 @@
 (defun prlctl-windows-vm-p (vm)
   (string-prefix-p "win" (map-elt (prlctl--vm-info-alist vm) "OS")))
 
+(defun prlctl-find-vm-by-name-or-uuid (name-or-uuid)
+  (cl-find-if (lambda (vm)
+                (or (string-equal (map-elt vm 'uuid) name-or-uuid)
+                    (string-equal (map-elt vm 'name) name-or-uuid)))
+              (prlctl--virtual-machines)))
+
 (defun prlctl-exec (&optional vm-or-name-or-uuid cmd)
   (interactive)
   (let ((vm (cond ((null vm-or-name-or-uuid) (prlctl--virtual-machine-completing-read
@@ -103,23 +109,28 @@
           (prlctl-exec--run-windows vm cmd)
         (prlctl-exec--run vm cmd)))))
 
-(defun prlctl-exec--run-windows (vm cmd)
-  (compile (format "prlctl exec %s %s cmd /S /C \"%s\""
+(defun prlctl--format-windows-command (cmd)
+  (format "cmd /S /C \"%s\""
+          (string-replace "\"" "\\\"" cmd)))
+
+(defun prlctl--format-exec-command (vm cmd)
+  (format "prlctl exec %s %s %s"
                    (map-elt vm 'uuid)
                    (if prlctl-run-with-current-user
                        "--current-user"
                      "")
-                   (string-replace "\"" "\\\"" cmd))
-           t))
+                   cmd))
+
+(defun prlctl-exec--run-windows (vm cmd)
+  (prlctl-exec--run vm (prlctl--format-windows-command cmd)))
+
+(defun prlctl-exec-shell-command (vm cmd &optional windows)
+  (shell-command (prlctl--format-exec-command vm (if windows
+                                                  (prlctl--format-windows-command cmd)
+                                                cmd))))
 
 (defun prlctl-exec--run (vm cmd)
-  (compile (format "prlctl exec %s %s %s"
-                   (map-elt vm 'uuid)
-                   (if prlctl-run-with-current-user
-                       "--current-user"
-                     "")
-                   cmd)
-           t))
+  (compile (prlctl--format-exec-command vm cmd) t))
 
 (defun prlctl-mode--table-format (vms)
   (let ((column-name-alist '((name . "Name")
