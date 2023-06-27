@@ -507,9 +507,7 @@ device helps"
         (insert (number-to-string hours)))
       (when (< 0 mins)
         (insert ":")
-        (when (< mins 10)
-          (insert "0"))
-        (insert (number-to-string mins))))))
+        (insert (s-pad-left 2 "0" (number-to-string mins)))))))
 
 (defmacro schmo/debounce (seconds lambda-list &rest body)
   (declare (indent defun))

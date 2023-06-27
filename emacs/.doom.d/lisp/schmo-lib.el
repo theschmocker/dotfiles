@@ -1,5 +1,9 @@
 ;;; $DOOMDIR/lisp/lib.el -*- lexical-binding: t; -*-
 
+(require 'cl-lib)
+(require 'f)
+(require 'json)
+
 ;;; Project/Workspace Utilities
 (cl-defun schmo/package-json-has-dependency-p (workspace-root dep &key (in 'dependencies))
   (if-let ((package-json (f-join workspace-root "package.json"))
