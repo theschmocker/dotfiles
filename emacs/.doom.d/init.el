@@ -193,4 +193,5 @@
        haskell
        twig
        sql
-       org-visual-tweaks)
+       org-visual-tweaks
+       rg)

@@ -127,9 +127,7 @@
       (:prefix "i"
                (:desc "UUID" "U" #'schmo/insert-uuid)
                (:prefix ("n" . "number")
-                        (:desc "Relative units" "r" 'schmo/insert-relative-units)))
-      (:prefix "s"
-               ("g" 'deadgrep)))
+                        (:desc "Relative units" "r" 'schmo/insert-relative-units))))
 
 ;; Version Control Mappings
 (map!
@@ -174,13 +172,6 @@
 
 (map! :after cycle-quotes
       :n "gq" 'cycle-quotes)
-
-(map!
- :map deadgrep-mode-map
- (:localleader
-  ("i" :desc "Incremental Search" 'schmo/deadgrep-incremental)
-  (:prefix ("o" "+options")
-           ("t" :desc "Cycle type" 'deadgrep-cycle-search-type))))
 
 ;;; Cleverparens
 (setq evil-cleverparens-use-s-and-S nil)
@@ -509,54 +500,3 @@ device helps"
         (insert ":")
         (insert (s-pad-left 2 "0" (number-to-string mins)))))))
 
-(defmacro schmo/debounce (seconds lambda-list &rest body)
-  (declare (indent defun))
-  (let ((timer (gensym)))
-    `(let (,timer)
-       (lambda ,lambda-list
-         (when ,timer
-           (cancel-timer ,timer)
-           (setq ,timer nil))
-         (setq ,timer (run-with-idle-timer ,seconds nil (lambda ()
-                                                          ,@body)))))))
-
-(defun schmo/deadgrep-incremental ()
-  "Alternative to `deadgrep-incremental' that uses the minibuffer instead of a
-read-char loop"
-  (interactive)
-  (when (not (derived-mode-p 'deadgrep-mode))
-    (error "Not a deadgrep buffer"))
-  (let ((deadgrep-buffer (current-buffer)))
-    (progn
-      (cl-letf (((symbol-function 'update-deadgrep-search)
-                 (schmo/debounce 0.25 (search-term)
-                   (message search-term)
-                   (with-current-buffer deadgrep-buffer
-                     (setq deadgrep--search-term search-term)
-                     (deadgrep-restart)))))
-        (cl-labels ((handle-mb-change (&rest)
-                                      (let ((search-term (minibuffer-contents)))
-                                        (with-current-buffer deadgrep-buffer
-                                          (dlet ((deadgrep--incremental-active t))
-                                            (update-deadgrep-search search-term)))))
-                    (mb-setup ()
-                              (remove-hook 'minibuffer-setup-hook #'mb-setup)
-                              (add-hook 'after-change-functions #'handle-mb-change nil t)))
-          (add-hook 'minibuffer-setup-hook #'mb-setup)
-          (let ((last-search-term deadgrep--search-term))
-            (condition-case _
-                (update-deadgrep-search (read-from-minibuffer "Incremental Search: " last-search-term))
-              (quit
-               (update-deadgrep-search last-search-term)))))))))
-
-(defadvice! schmo/deadgrep--start (fn &rest args)
-  "This advice wraps `deadgrep--start' and prevents it from running when the
-search-term is empty. The point of this is to be able to show the deadgrep UI
-with no matches -- that UI is printed before this runs"
-  :around #'deadgrep--start
-  (let ((search-term (car args)))
-    (when (not (string-empty-p search-term))
-      (apply fn args))))
-
-(after! deadgrep
-  (setq-default deadgrep--search-type 'regexp))
