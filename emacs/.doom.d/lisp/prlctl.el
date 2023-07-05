@@ -1,7 +1,16 @@
-;;; ../Documents/dotfiles/emacs/.doom.d/lisp/prlctl.el -*- lexical-binding: t; -*-
+;;; prlctl.el -- Interact with Parallels VMs from Emacs using the prlctl CLI -*- lexical-binding: t -*-
+;;; Commentary:
+;;; A very much WIP package for managing Parallels VMs from Emacs. Includes interactive
+;;; commands with UI along with a shared elisp library.
+;;;
+;;; Incomplete and messy, but I've gotten some use out of it!
+;;;
+;;; Code:
 
 (require 'subr-x)
 (require 'map)
+(require 'json)
+(require 'cl-lib)
 
 (defun prlctl--run-command (&rest args)
   (with-temp-buffer
@@ -115,19 +124,19 @@
 
 (defun prlctl--format-exec-command (vm cmd)
   (format "prlctl exec %s %s %s"
-                   (map-elt vm 'uuid)
-                   (if prlctl-run-with-current-user
-                       "--current-user"
-                     "")
-                   cmd))
+          (map-elt vm 'uuid)
+          (if prlctl-run-with-current-user
+              "--current-user"
+            "")
+          cmd))
 
 (defun prlctl-exec--run-windows (vm cmd)
   (prlctl-exec--run vm (prlctl--format-windows-command cmd)))
 
 (defun prlctl-exec-shell-command (vm cmd &optional windows)
   (shell-command (prlctl--format-exec-command vm (if windows
-                                                  (prlctl--format-windows-command cmd)
-                                                cmd))))
+                                                     (prlctl--format-windows-command cmd)
+                                                   cmd))))
 
 (defun prlctl-exec--run (vm cmd)
   (compile (prlctl--format-exec-command vm cmd) t))
@@ -230,36 +239,3 @@
 
 (provide 'prlctl)
 ;;; prlctl.el ends here
-
-;;; code I was tinkering with that might come in handy when adding functionality to `prlctl-mode'
-;; (define-derived-mode echo-line-mode special-mode "Echo Line"
-;;   :syntax-table nil)
-
-;; (defun echo-line-mode-print-line (line index)
-;;   (let ((beg (point)))
-;;     (insert line)
-;;     (insert ?\n)
-;;     (add-text-properties beg (point)
-;;                          `(echo-line-index ,index
-;;                            echo-line-content ,line))))
-
-;; (defun echo-line-buffer-from-lines (lines)
-;;   (let ((buf (generate-new-buffer "*echo-line*")))
-;;     (with-current-buffer buf
-;;       (mapc (lambda (item)
-;;               (cl-destructuring-bind (index . line) item
-;;                 (echo-line-mode-print-line line index)))
-;;             (-zip (-iota (length lines))
-;;                   lines))
-;;       (echo-line-mode)
-;;       buf)))
-
-
-;; (defun echo-line-do-echo ()
-;;   (interactive)
-;;   (let ((index (get-text-property (point) 'echo-line-index))
-;;         (line (get-text-property (point) 'echo-line-content)))
-;;     (message (concat (number-to-string index) ": " line))))
-
-;; (map! :map 'echo-line-mode-map
-;;       :n "RET" #'echo-line-do-echo)
