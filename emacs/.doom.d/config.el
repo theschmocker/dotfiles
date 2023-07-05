@@ -148,10 +148,13 @@
 (map! :after company
       :map company-active-map
       ("C-y" #'company-complete-selection)
+      ("RET" nil)
+      ("<return>" nil)
+      :map (company-active-map company-tng-map)
       ("TAB" nil)
       ("<tab>" nil)
-      ("RET" nil)
-      ("<return>" nil))
+      ("<backtab>" nil)
+      ("S-TAB" nil))
 
 (map!
  :map sly-mrepl-mode-map
