@@ -8,6 +8,7 @@
 
 (require 'schmo-lib)
 (require 'prlctl)
+(require 'string-edit)
 
 (setq user-full-name "Jacob"
       user-mail-address "")
