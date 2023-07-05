@@ -1,4 +1,4 @@
-;;; personal/rg/config.el -*- lexical-binding: t; -*-
+;;; $DOOMDIR/rg/config.el -*- lexical-binding: t; -*-
 
 (defmacro without-eager-macroexpand (&rest body)
   "Prevents macros in BODY from being expanded eagerly and thus triggering load
@@ -27,4 +27,9 @@ See: https://www.reddit.com/r/emacs/comments/12l1n7c/comment/jg5on6w/"
      "Search project with rg.el"
      :files "*"
      :dir project
-     :flags ("--hidden" "--glob=!.git/"))))
+     :flags ("--hidden" "--glob=!.git/"))
+
+   (rg-define-search schmo/rg-doom
+     "Search DOOM files in .emacs.d"
+     :files "*"
+     :dir doom-emacs-dir)))
