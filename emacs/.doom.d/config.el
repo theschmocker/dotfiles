@@ -191,29 +191,18 @@
   (setq lsp-warn-no-matched-clients nil)
   (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html"))
 
-  (dolist (ignored-dir '("[/\\\\]\\.vs\\'"
-                         ;; Not sure why this isn't ignored by default
-                         "[/\\\\]\\.log\\'"
-                         ;; Some nuxt specific dirs to ignore.
-                         ;; Don't want to ignore .nuxt root or .nuxt/types
-                         "[/\\\\]\\.output\\'"
-                         "[/\\\\]\\.nuxt/content-cache\\'"
-                         "[/\\\\]\\.nuxt/content-cache/parsed\\'"
-                         "[/\\\\]\\.nuxt/content-cache/parsed/content\\'"
-                         "[/\\\\]\\.nuxt/content-cache/parsed/content/articles\\'"
-                         "[/\\\\]\\.nuxt/prerender\\'"
-                         "[/\\\\]\\.nuxt/prerender/chunks\\'"
-                         "[/\\\\]\\.nuxt/prerender/chunks/app\\'"
-                         "[/\\\\]\\.nuxt/prerender/chunks/app/_nuxt\\'"
-                         "[/\\\\]\\.nuxt/prerender/chunks/nitro\\'"
-                         "[/\\\\]\\.nuxt/prerender/chunks/rollup\\'"
-                         "[/\\\\]\\.nuxt/snapshot\\'"
-                         "[/\\\\]\\.nuxt/snapshot/cache\\'"
-                         "[/\\\\]\\.nuxt/snapshot/cache/content\\'"
-                         "[/\\\\]\\.nuxt/snapshot/cache/content/parsed\\'"
-                         "[/\\\\]\\.nuxt/snapshot/cache/content/parsed/content\\'"
-                         "[/\\\\]\\.nuxt/snapshot/cache/content/parsed/content/articles\\'"))
-    (add-to-list 'lsp-file-watch-ignored-directories ignored-dir))
+  ;; On macOS, the filenotify backend (kqueue) doesn't emit a change event
+  ;; when a file inside of a watched directory changes (unless some other
+  ;; change happens like create or delte). This caused some issues for me
+  ;; when working in Svelte projects: changes in TS files weren't reflected
+  ;; in Svelte components. svelte-language-server spins up its own watcher
+  ;; if the client doesn't claim the workspace.didChangeWatchedFiles capability,
+  ;; (which isn't sent to the server when this var is nil) and fixes my problem.
+  ;;
+  ;; Note to future self: revisit this if you run into servers that don't watch
+  ;; files themselves
+  (setq lsp-enable-file-watchers nil)
+
   (setq lsp-eldoc-enable-hover nil))
 
 ;; Register plugins with lsp-ts-plugin-manager
