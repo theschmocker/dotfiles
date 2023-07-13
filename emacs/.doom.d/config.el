@@ -204,7 +204,8 @@
   ;; files themselves
   (setq lsp-enable-file-watchers nil)
 
-  (setq lsp-eldoc-enable-hover nil))
+  (setq lsp-eldoc-enable-hover nil)
+  (setq lsp-auto-execute-action nil))
 
 ;; Register plugins with lsp-ts-plugin-manager
 (after! lsp-mode
@@ -248,9 +249,12 @@
 
 ;; Not sure why lsp-mode doesn't respect this variable
 (setq lsp-eslint-auto-fix-on-save t)
-(advice-add 'lsp--before-save :before (lambda ()
-                                        (when lsp-eslint-auto-fix-on-save
-                                          (lsp-eslint-fix-all))))
+(advice-add 'lsp--before-save :before
+            (lambda ()
+              (when lsp-eslint-auto-fix-on-save
+                (dlet ((lsp-auto-execute-action t))
+                  (lsp-eslint-fix-all)))))
+
 
 ;; Copied from lsp-mode docs to fix some workspace folder weirdness
 (advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
