@@ -14,9 +14,9 @@
       user-mail-address "")
 
 (doom-font!
-  (:family "MonoLisa Nerd Font" :size 13)
-  (:family "MonoLisa" :size 13)
-  (:family "Dank Mono" :size 14))
+ (:family "MonoLisa Nerd Font" :size 13)
+ (:family "MonoLisa" :size (if IS-WINDOWS 28 13))
+ (:family "Dank Mono" :size 14))
 
 (doom-variable-pitch-font!
   (:family "ETBembo" :size 16)
@@ -47,6 +47,7 @@
 (setq doom-theme 'doom-rose-pine-moon)
 
 (setq doom-themes-treemacs-enable-variable-pitch nil)
+
 
 ;;; Editor
 (setq scroll-margin 8)
@@ -222,13 +223,15 @@
     :package "typescript-svelte-plugin"
     :dependency-of 'svelte-language-server)))
 
-
 (after! lsp-ui
   (setq lsp-ui-doc-max-width 100
         lsp-ui-doc-max-height 13
         lsp-ui-doc-delay 0
         lsp-signature-render-documentation nil
-        lsp-ui-doc-include-signature t))
+        lsp-ui-doc-include-signature t)
+  (when IS-WINDOWS
+    ;; too slow on win with C#
+    (setq lsp-lens-enable nil)))
 
 (map! (:n "gh" 'schmo/lsp-glance-or-lookup))
 (defun schmo/lsp-glance-or-lookup ()
@@ -269,6 +272,21 @@
                 (while (search-forward "\\u0000" nil t)
                   (replace-match "" nil t)))
               (apply oldfn args)))
+
+(add-hook 'csharp-tree-sitter-mode-local-vars-hook #'lsp! 'append)
+
+(defadvice! schmo/lsp-find-session-folder (orig-lsp-find-session-folder session file-name)
+  "Advice around `lsp-find-session-folder'.
+
+Use the solution root for C# files instead of the closest project folder.
+Prevents spawning additional omnisharp processes inside of solution projects,
+especially those which DO need their own language server processes for frontend
+code"
+  :around 'lsp-find-session-folder
+  (if (and (string-match-p "\\.cs\\'" file-name)
+           lsp-csharp-solution-file)
+      (file-name-directory lsp-csharp-solution-file)
+    (funcall orig-lsp-find-session-folder session file-name)))
 
 ;;; Which key
 (setq which-key-idle-delay 0.25)
