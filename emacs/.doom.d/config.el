@@ -25,10 +25,7 @@
   (:family "Futura" :size 16)
   (:family "Helvetica" :size 16))
 
-;; Calls to custom-set-faces! after init were causing extra custom file writes.
-;; This just dumps them into a temp file (handy in case I _do_ need to look at
-;; any customizations)
-(setq custom-file (make-temp-file "custom"))
+(setq custom-file (concat doom-user-dir "custom-hidden.el"))
 
 ;; prevent janky line numbers in variable-pitch-mode
 (custom-set-faces!
