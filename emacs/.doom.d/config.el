@@ -9,6 +9,7 @@
 (require 'schmo-lib)
 (require 'prlctl)
 (require 'string-edit)
+(require 'msbuild)
 
 (setq user-full-name "Jacob"
       user-mail-address "")
@@ -515,3 +516,9 @@ device helps"
         (insert ":")
         (insert (s-pad-left 2 "0" (number-to-string mins)))))))
 
+(map!
+ (:localleader
+  :mode (csharp-mode sln-mode)
+  (:prefix ("b" . "build")
+   :desc "Build All" "a" #'msbuild-build-all
+   :desc "Build Project" "b" #'msbuild-build-project)))
