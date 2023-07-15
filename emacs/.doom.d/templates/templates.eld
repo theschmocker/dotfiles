@@ -120,6 +120,22 @@ fundamental-mode :when (+tempel/javascript-or-typescript-p)
      n> " * " p
      n> " */")
 
+csharp-mode csharp-tree-sitter-mode
+
+(doc "/// <summary>" n>
+     "/// " p n>
+     "/// </summary>")
+
+(if "if (" (p "cond" cond) ") {" n>
+    r n
+    "}" > n)
+
+(foreach "foreach (var " (p "item") " in " p ") {" n>
+         p n
+         "}" >)
+
+(prop "public " (p "Type") " " (p "Name") " { get; set; }")
+
 ;; Local Variables:
 ;; mode: lisp-data
 ;; outline-regexp: "[a-z]"
