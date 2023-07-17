@@ -79,9 +79,12 @@
 (defun schmo/insert-uuid ()
   "Shell out to uuidgen and insert the result"
   (interactive)
-  (thread-last (shell-command-to-string "uuidgen")
-               (string-replace "\n" "" )
-               insert))
+  (let ((command (if IS-WINDOWS
+                     "powershell -Command \"[guid]::NewGuid().ToString()\""
+                   "uuid")))
+    (thread-last (shell-command-to-string command)
+                 (string-replace "\n" "" )
+                 insert)))
 
 (map! :leader
       ;; Swapped from defaults
