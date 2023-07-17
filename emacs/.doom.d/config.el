@@ -81,7 +81,7 @@
   (interactive)
   (let ((command (if IS-WINDOWS
                      "powershell -Command \"[guid]::NewGuid().ToString()\""
-                   "uuid")))
+                   "uuidgen")))
     (thread-last (shell-command-to-string command)
                  (string-replace "\n" "" )
                  insert)))
