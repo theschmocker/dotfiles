@@ -522,3 +522,12 @@ device helps"
   (:prefix ("b" . "build")
    :desc "Build All" "a" #'msbuild-build-all
    :desc "Build Project" "b" #'msbuild-build-project)))
+
+(defun schmo/stringify-json (start end)
+  "Stringify JSON in region such that it can used as a string value in a JSON
+object."
+  (interactive "r")
+  (let ((command "node -e \"console.log(JSON.stringify(JSON.stringify(JSON.parse(require('fs').readFileSync(process.stdin.fd).toString()))))\"")
+        (stringified-buffer-name "*stringified json*"))
+    (shell-command-on-region start end command stringified-buffer-name)
+    (display-buffer stringified-buffer-name)))
