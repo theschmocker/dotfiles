@@ -42,6 +42,9 @@ the first argument and a list of command line arguments as the second")
   "Function used to name msbuild compilation buffers. Receives the target
 `msbuild-project' as an argument")
 
+(defvar msbuild-display-buffer-function #'display-buffer-at-bottom
+  "Set as `display-buffer-function' when running an msbuild compile command")
+
 (defvar msbuild-project-type-guid-label-alist
   '(("8BB2217D-0F2D-49D1-97BC-3654ED321F3B" . "ASP.NET 5")
     ("356CAE8B-CFD3-4221-B0A8-081A261C0C10" . "ASP.NET Core Empty")
@@ -158,8 +161,8 @@ https://github.com/JamesW75/visual-studio-project-type-guid")
       (when compile-p
         (dlet ((default-directory (file-name-directory msbuild-solution-file))
                (compilation-buffer-name-function (lambda (&rest _) compile-b-name))
-               (compilation-scroll-output t))
-          (message compile-b-name)
+               (compilation-scroll-output t)
+               (display-buffer-alist (cons (list compile-b-name (list msbuild-display-buffer-function)) display-buffer-alist)))
           (compile (funcall msbuild-format-command-function
                             msbuild-command
                             (list (msbuild--msbuild-project-name-for-command project)
