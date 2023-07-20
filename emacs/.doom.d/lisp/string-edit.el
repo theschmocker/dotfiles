@@ -108,6 +108,7 @@ newlines, and other characters which need to be escaped.")
         (with-current-buffer edit-buf
           (when (= (point-min) (point-max))
             (insert (string-replace (concat "\\" delim) delim contents))
+            (setq buffer-undo-list nil)
             (set-buffer-modified-p nil))
           ;; Moves point to same location in string in the string-edit buffer
           (let ((string-relative-point (- point (car bounds) 1))) ;; TODO account for replacements
