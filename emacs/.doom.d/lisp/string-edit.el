@@ -133,6 +133,9 @@ Kills the string-edit buffer and closes its window if one was created."
 
   (let* ((value (buffer-substring-no-properties (point-min) (point-max)))
          (target string-edit-mode--current-target)
+         (reformatted (funcall string-edit-mode-reformat-string-function
+                               target
+                               value))
          (target-buffer (string-edit-mode-target-buffer target))
          (bounds (string-edit-mode-target-inner-bounds target)))
     (cl-destructuring-bind (start . end) bounds
@@ -140,9 +143,7 @@ Kills the string-edit buffer and closes its window if one was created."
         (dlet ((inhibit-read-only t))
           (replace-region-contents start end
                                    (lambda (&rest _)
-                                     (funcall string-edit-mode-reformat-string-function
-                                              target
-                                              value))))))
+                                     reformatted)))))
 
     (set-buffer-modified-p nil)
     (string-edit-mode-quit)))
