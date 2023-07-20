@@ -523,11 +523,80 @@ device helps"
    :desc "Build All" "a" #'msbuild-build-all
    :desc "Build Project" "b" #'msbuild-build-project)))
 
-(defun schmo/stringify-json (start end)
+(defun schmo/format-node-command (js)
+  "Turn JS string into a one-liner node shell command.
+
+Replaces <<stdin>> or <<region>> in JS with a JavaScript expression that reads
+from stdin as a string, making this convenient for use with
+`shell-command-on-region'."
+  (let ((with-stdin-str (replace-regexp-in-string "<<\\(stdin\\|region\\)>>"
+                                                  "require('fs').readFileSync(process.stdin.fd).toString()"
+                                                  js)))
+    (format "node -e %s" (shell-quote-argument with-stdin-str))))
+
+(cl-defmacro schmo/define-json-region-format-command (name docstring &key js buffer-name (major-mode 'json-mode))
+  (declare (indent defun))
+  (let* ((basedoc "Arguments:
+START:   region start or `point-min'.
+END:     region end or `point-max'.
+REPLACE: when called interactively with a universal argument or called
+         non-interactively with a non-nil value, replace the contents of the
+         region or buffer with the modified value. Otherwise, open a dedicated
+         buffer.")
+         (doc (if (stringp docstring)
+                  (format "%s\n\n%s" docstring basedoc)
+                basedoc)))
+    `(defun ,name (start end &optional replace)
+       ,doc
+       (interactive (if (region-active-p)
+                        (list (region-beginning) (region-end) current-prefix-arg)
+                      (list (point-min) (point-max) current-prefix-arg)))
+       (let ((command (schmo/format-node-command ,js))
+             (buffer-name ,buffer-name))
+         (if replace
+             (shell-command-on-region start end command nil t)
+           (shell-command-on-region start end command buffer-name)
+           (with-current-buffer buffer-name
+             (,major-mode)
+             (set-buffer-modified-p nil)
+             (setq buffer-undo-list nil))
+           (pop-to-buffer buffer-name))))))
+
+(schmo/define-json-region-format-command schmo/stringify-json
   "Stringify JSON in region such that it can used as a string value in a JSON
 object."
-  (interactive "r")
-  (let ((command "node -e \"console.log(JSON.stringify(JSON.stringify(JSON.parse(require('fs').readFileSync(process.stdin.fd).toString()))))\"")
-        (stringified-buffer-name "*stringified json*"))
-    (shell-command-on-region start end command stringified-buffer-name)
-    (display-buffer stringified-buffer-name)))
+  :js "console.log(JSON.stringify(JSON.stringify(JSON.parse(<<region>>))))"
+  :buffer-name "*stringified json*"
+  :major-mode fundamental-mode)
+
+(schmo/define-json-region-format-command schmo/prettify-json
+  "Prettify JSON in region or buffer.
+Indented with tabs."
+  :js "console.log(JSON.stringify(JSON.parse(<<region>>), null, '\\t'))"
+  :buffer-name "*formatted json*")
+
+(schmo/define-json-region-format-command schmo/minify-json
+  "Minify JSON in region or buffer."
+  :js "console.log(JSON.stringify(JSON.parse(<<region>>)))"
+  :buffer-name "*minified json*")
+
+(defun schmo/edit-json-string-at-point ()
+  (interactive)
+  (call-interactively #'edit-string-at-point)
+  (schmo/prettify-json (point-min) (point-max) t)
+  (setq buffer-undo-list nil)
+  (set-buffer-modified-p nil)
+  (json-mode)
+  (deactivate-mark)
+  (setq-local string-edit-mode-reformat-string-function
+              (lambda (_ new-json)
+                (with-temp-buffer
+                  (insert new-json)
+                  (schmo/minify-json (point-min) (point-max) t)
+                  (schmo/stringify-json (point-min) (point-max) t)
+                  (print "hello")
+                  (goto-char (point-min))
+                  (cl-destructuring-bind (start . end) (thing-at-point-bounds-of-string-at-point)
+                    (buffer-substring-no-properties (1+ start) (1- end)))))))
+
+;; "^\\(\\[vue-tsc\\] ?\\)? \\(.*?\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\) - error"
