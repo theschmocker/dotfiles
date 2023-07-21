@@ -89,7 +89,11 @@
 (map! :leader
       ;; Swapped from defaults
       :desc "M-x" ";" 'execute-extended-command
-      :desc "Eval expression" ":" 'pp-eval-expression
+      :desc "Eval expression" ":" (lambda (arg)
+                                    (interactive (list current-prefix-arg))
+                                    (if arg
+                                        (eval-expression (read--expression "Eval: ") t)
+                                      (call-interactively #'pp-eval-expression)))
       :desc "Search History" "\"" (lambda ()
                                     (interactive)
                                     (vertico-repeat t))
