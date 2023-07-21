@@ -12,7 +12,8 @@
 
 ;;; Commentary:
 ;;
-;; `msbuild-solution-file' must be set to the absolute path of the .sln file in the target solution. .dir-locals.el is a good spot.
+;; By default, guess where to run the MSBuild command by searching up the directory tree for a .sln file.
+;; This can be overridden by setting the `msbuild-solution-file' variable.
 ;;
 ;; To select and build a project interactively, invoke the `msbuild-build-project' command.
 ;; To build the enter solution, invoke the `msbuild-build-all' command.
@@ -25,25 +26,68 @@
 (require 'map)
 
 (defvar msbuild-command "MSBuild.exe"
-  "Command used to shell out to MSBuild. Assumes Windows and defaults to
-  MSBuild.exe")
+  "Command used to shell out to MSBuild.
+Assumes Windows and defaults to MSBuild.exe")
 
 (defvar-local msbuild-solution-file nil
-  "Absolute path to the target solution's .sln file")
+  "Absolute path to the target solution's .sln file.")
 
 (defvar msbuild-format-command-function #'msbuild-format-command-default
-  "Function used to produce the full build command. Receives the command name as
-the first argument and a list of command line arguments as the second")
+  "Produce the full MSBuild command.
+Receives the command name as the first argument and a list of command line
+arguments as the second")
 
-(defvar msbuild--sln-project-regexp "^Project(\\\"{\\(.*?\\)}\\\".*= \\\"\\(.*?\\)\\\", \\\"\\(.*?\\)\\\""
-  "Regexp used to extract project information from `msbuild-solution-file'")
+(defconst msbuild--sln-project-regexp "^Project(\\\"{\\(.*?\\)}\\\".*= \\\"\\(.*?\\)\\\", \\\"\\(.*?\\)\\\""
+  "Regexp used to extract project information from `msbuild-solution-file'.")
 
 (defvar msbuild-buffer-name-function #'msbuild-buffer-name-function-default
-  "Function used to name msbuild compilation buffers. Receives the target
-`msbuild-project' as an argument")
+  "Set this function to change how MSBuild compilation buffers are named.
+
+Receives the target `msbuild-project' as an argument")
 
 (defvar msbuild-display-buffer-function #'display-buffer-at-bottom
-  "Set as `display-buffer-function' when running an msbuild compile command")
+  "Set as `display-buffer-function' when running an msbuild compile command.")
+
+(defvar msbuild-execute-shell-command-function #'msbuild--execute-shell-command-with-compile
+  "Set this to determine how to handle the MSBuild command.
+
+Called with the shell command string and the `msbuild-project' as arguments.")
+
+(defun msbuild--execute-shell-command-with-compile (command project)
+  "Execute msbuild COMMAND for PROJECT using `compile'.
+
+Sets appropriate `default-directory' and some opinionated values for various
+compilation buffer variables.
+
+This is the default value of `msbuild-execute-shell-command-function'."
+  (let ((compile-b-name (funcall msbuild-buffer-name-function project)))
+    (let ((compile-p (or (not (buffer-live-p compile-b-name))
+                         (kill-buffer-ask (get-buffer compile-b-name)))))
+      (when compile-p
+        (dlet ((default-directory (file-name-directory (msbuild-get-solution-file)))
+               (compilation-buffer-name-function (lambda (&rest _) compile-b-name))
+               (compilation-scroll-output t)
+               (display-buffer-alist (cons (list compile-b-name (list msbuild-display-buffer-function)) display-buffer-alist)))
+          (compile command t))
+        (with-current-buffer compile-b-name
+          ;; TODO: how can I a) make this call only if evil is installed and
+          ;; active and b) get flycheck to be quiet?
+          (evil-normal-state))))))
+
+(defun msbuild--execute-shell-command-debug (command project)
+  "Print COMMAND and PROJECT info.
+
+Set this as `msbuild-execute-shell-command-function' to see what command will be
+run without actually running it."
+  (message "Command: %s
+Project:
+  Name: %s
+  Type: %s
+  Path: %s"
+           command
+           (msbuild-project-name project)
+           (msbuild-project-type project)
+           (msbuild-project-path project)))
 
 (defvar msbuild-project-type-guid-label-alist
   '(("8BB2217D-0F2D-49D1-97BC-3654ED321F3B" . "ASP.NET 5")
@@ -143,7 +187,7 @@ the first argument and a list of command line arguments as the second")
 https://github.com/JamesW75/visual-studio-project-type-guid")
 
 (cl-defstruct msbuild-project
-  "Basic .NET project data"
+  "Basic .NET project data."
   name
   type
   path)
@@ -155,23 +199,11 @@ https://github.com/JamesW75/visual-studio-project-type-guid")
 (defun msbuild-build-project (project)
   "Build PROJECT with MSBuild."
   (interactive (list (msbuild--project-completing-read)))
-  (let ((compile-b-name (funcall msbuild-buffer-name-function project)))
-    (let ((compile-p (or (not (buffer-live-p compile-b-name))
-                         (kill-buffer-ask (get-buffer compile-b-name)))))
-      (when compile-p
-        (dlet ((default-directory (file-name-directory msbuild-solution-file))
-               (compilation-buffer-name-function (lambda (&rest _) compile-b-name))
-               (compilation-scroll-output t)
-               (display-buffer-alist (cons (list compile-b-name (list msbuild-display-buffer-function)) display-buffer-alist)))
-          (compile (funcall msbuild-format-command-function
-                            msbuild-command
-                            (list (msbuild--msbuild-project-name-for-command project)
-                                  "-verbosity:minimal"))
-                   t))
-        (with-current-buffer compile-b-name
-          ;; TODO: how can I a) make this call only if evil is installed and
-          ;; active and b) get flycheck to be quiet?
-          (evil-normal-state))))))
+  (let ((command (funcall msbuild-format-command-function
+                          msbuild-command
+                          (list (msbuild--msbuild-project-name-for-command project)
+                                "-verbosity:minimal"))))
+    (funcall msbuild-execute-shell-command-function command project)))
 
 ;;;###autoload
 (defun msbuild-build-all ()
@@ -184,15 +216,8 @@ https://github.com/JamesW75/visual-studio-project-type-guid")
 Any members of COMMAND-ARGS with spaces are wrapped in quotes."
   (format "%s %s"
           executable
-          (string-join (mapcar #'msbuild--windows-escape-arg command-args)
+          (string-join (mapcar #'shell-quote-argument command-args)
                        " ")))
-
-(defun msbuild--windows-escape-arg (arg)
-  "Escape cmd arguments.
-Simplistic. Just wraps args that have spaces with quotes."
-  (if (string-search " " arg)
-      (format "\"%s\"" arg)
-    arg))
 
 (defun msbuild-buffer-name-function-default (project &optional target)
   "Create the name of the msbuild buffer targeting PROJECT.
@@ -204,8 +229,9 @@ targets like rebuild, clean, etc."
           (msbuild-project-name project)))
 
 (defun msbuild--list-projects (&optional sln-file)
-  "Parse `msbuild-project's out of SLN-FILE (or `msbuild-solution-file' if not
-provided)"
+  "Parse `msbuild-project's out of SLN-FILE.
+Fall back to the return value of `msbuild-get-solution-file' if SLN file is not
+provided."
   (let ((sln (or sln-file msbuild-solution-file))
         projects)
     (with-temp-buffer
@@ -225,7 +251,9 @@ provided)"
 
 (defun msbuild--project-completing-read ()
   "Prompt the user to select an `msbuild-project' by name."
-  (let* ((items (msbuild--list-projects))
+  (let* ((items (cl-remove-if (lambda (p)
+                                (string= (msbuild-project-type p) "Solution Folder")) ;; Solution folder projects not currently support. Not sure how to get MSBuild to do this without manually specifying sub-projects
+                              (msbuild--list-projects)))
          (annotation-function (msbuild--make-project-annotation-function items))
          (project-name (completing-read
                         "Project: "
@@ -236,7 +264,8 @@ provided)"
     (msbuild--find-project-by-name items project-name)))
 
 (defun msbuild--make-project-annotation-function (projects)
-  "Return a function used to annotate `msbuild--project-completing-read' options."
+  "Return a function used to annotate `msbuild--project-completing-read' options.
+PROJECTS is a list of `msbuild-project's"
   (lambda (project-name)
     (let* ((project (msbuild--find-project-by-name projects project-name))
            (type (format " %s" (msbuild-project-type project))))
@@ -255,7 +284,8 @@ provided)"
     (thread-last project
                  (msbuild-project-path)
                  (msbuild--normalize-path)
-                 (file-name-directory)
+                 ((lambda (path)
+                    (or (file-name-directory path) path)))
                  (s-replace-regexp "\\(/\\|\\\\\\)$" ""))))
 
 (defun msbuild--normalize-path (path)
@@ -268,6 +298,22 @@ Anywhere else, replaces back slashes with forward slashes."
                                "\\")))
     (string-replace mismatched-path-sep (f-path-separator) path)))
 
+(defun msbuild-get-solution-file ()
+  "Return `msbuild-solution-file' or try to find one higher in the directory tree."
+  (or msbuild-solution-file
+      (msbuild-find-closest-sln-file)))
+
+(defun msbuild-find-closest-sln-file ()
+  "Try to find a solution file higher in the directory tree."
+  (let* ((sln-files-in-directory (lambda (directory)
+                                   (directory-files directory nil "\\.sln\\'")))
+         (closest-sln-dir (locate-dominating-file default-directory sln-files-in-directory))
+         (sln-files (funcall sln-files-in-directory closest-sln-dir)))
+    (when (consp (cdr sln-files))
+      (warn "Found multiple .sln files in the same directory: %s. Selecting the first."
+            (string-join sln-files ", ")))
+    (file-truename (concat closest-sln-dir
+                           (car sln-files)))))
 
 (provide 'msbuild)
 
