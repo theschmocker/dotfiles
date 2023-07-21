@@ -408,15 +408,12 @@ want it on a key that's easier to hit"
   ("l" #'evil-window-increase-width "Increase Width")
   ("=" #'balance-windows "Balance"))
 
-;; Prevent package pins and other properties from being truncated
-(advice-add '+emacs-lisp-truncate-pin :override (-const nil))
-
 ;;; Popups
 ;; I have a habit of pressing escape too many times... meaning I keep losing popup buffers.
 ;; This should make "q" the primary way to close some of them
 (set-popup-rules!
   '(("^\\*info" :quit nil :modeline t :size 0.35)
-    ("^\\*helpful" :quit nil :modeline t :size 0.35)))
+    ("^\\*helpful" :quit nil :modeline t :size 0.35 :ttl 30)))
 
 (plist-put +popup-defaults :modeline t)
 
