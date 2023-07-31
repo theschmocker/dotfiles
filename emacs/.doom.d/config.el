@@ -594,7 +594,6 @@ Indented with tabs."
                   (insert new-json)
                   (schmo/minify-json (point-min) (point-max) t)
                   (schmo/stringify-json (point-min) (point-max) t)
-                  (print "hello")
                   (goto-char (point-min))
                   (cl-destructuring-bind (start . end) (thing-at-point-bounds-of-string-at-point)
                     (buffer-substring-no-properties (1+ start) (1- end)))))))
