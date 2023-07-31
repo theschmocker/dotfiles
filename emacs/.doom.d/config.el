@@ -70,11 +70,10 @@
 ;;; Normal mode / leader mappings
 
 ;; Remap s and S to avy-goto-char-2
-(map! (:n "s" 'avy-goto-char-2))
-(map! (:n "S" (lambda ()
+(map! (:n "s" (lambda ()
                 (interactive)
                 (dlet ((avy-all-windows 't))
-                  (call-interactively #'avy-goto-char-2)))))
+                  (call-interactively #'avy-goto-char-timer)))))
 
 (defun schmo/insert-uuid ()
   "Shell out to uuidgen and insert the result"
