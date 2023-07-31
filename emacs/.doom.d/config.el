@@ -601,3 +601,11 @@ Indented with tabs."
                     (buffer-substring-no-properties (1+ start) (1- end)))))))
 
 ;; "^\\(\\[vue-tsc\\] ?\\)? \\(.*?\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\) - error"
+
+(defadvice! schmo/+eshell-default-prompt-fn (prompt)
+  :filter-return #'+eshell-default-prompt-fn
+  (string-replace "λ"
+                  (propertize "»" 'face (get-text-property (- (length prompt) 2) 'face prompt))
+                  prompt))
+
+(setq eshell-prompt-regexp "^.* » ")
