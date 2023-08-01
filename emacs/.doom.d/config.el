@@ -602,8 +602,7 @@ Indented with tabs."
 
 (defadvice! schmo/+eshell-default-prompt-fn (prompt)
   :filter-return #'+eshell-default-prompt-fn
+  (setq eshell-prompt-regexp "^.* » ")
   (string-replace "λ"
                   (propertize "»" 'face (get-text-property (- (length prompt) 2) 'face prompt))
                   prompt))
-
-(setq eshell-prompt-regexp "^.* » ")
