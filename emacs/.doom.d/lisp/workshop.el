@@ -1,5 +1,3 @@
-;;; ../Documents/dotfiles/emacs/.doom.d/lisp/workshop.el -*- lexical-binding: t; -*-
-
 ;;; workshop.el -- WIP/misc elisp that I'm tinkering with that doesn't have a better home yet. -*- lexical-binding: t -*-
 ;;; Commentary:
 ;;;
@@ -13,6 +11,7 @@
 (require 'project)
 (require 'subr-x)
 (require 'json)
+(require 'doom-lib)
 
 ;; Beginnings of a multi-package-root npm command runner
 
@@ -22,8 +21,8 @@
                (cl-remove-if-not (apply-partially #'string-match-p "package.json\\'"))))
 
 (defun schmo/make-project-package-json-file-lookup-by-name ()
-  "Create an alist of name->package.json-path, where name is read from the
-package.json file."
+  "Create an alist of name->package.json-path.
+Name is read from the package.json file."
   (mapcar (lambda (pj-filename)
             (cons (thread-last pj-filename
                                (json-read-file)
@@ -36,18 +35,16 @@ package.json file."
          (annotations (schmo/make-project-package-json-annotation-lookup name-to-filename-alist))
          (annotation-function (lambda (s)
                                 (propertize (concat " " (alist-get s annotations "" nil #'string=))
-                                            'face 'completions-annotations))))
-    (alist-get
-     (completing-read
-      "Choose a package: "
-      (lambda (s pred action)
-        (cond
-         ((eq 'metadata action) `(metadata (annotation-function . ,annotation-function)))
-         (t (all-completions s (mapcar #'car name-to-filename-alist) pred)))))
-     name-to-filename-alist
-     nil
-     nil
-     #'string=)))
+                                            'face 'completions-annotations)))
+         (selected (completing-read
+                    "Choose project: "
+                    (lambda (s pred action)
+                      (cond
+                       ((eq 'metadata action) `(metadata (annotation-function . ,annotation-function)))
+                       (t (all-completions s (mapcar #'car name-to-filename-alist) pred)))))))
+    (alist-get selected name-to-filename-alist nil nil #'string=)))
+
+
 
 (defun schmo/make-project-package-json-annotation-lookup (package-jsons)
   (let* ((files (mapcar #'cdr package-jsons))
@@ -59,6 +56,18 @@ package.json file."
                                  (file-name-directory)
                                  (replace-regexp-in-string "\\(/\\|\\\\\\)\\'" ""))))
             package-jsons)))
+
+(defadvice! schmo/npm-mode-run (orig-fn)
+  :around #'npm-mode-npm-run
+  (interactive)
+  (dlet ((default-directory (file-name-directory (schmo/project-package-json-completing-read))))
+    (call-interactively orig-fn)))
+
+(defadvice! schmo/npm-mode-npm-install (orig-fn)
+  :around #'npm-mode-npm-install
+  (interactive)
+  (dlet ((default-directory (file-name-directory (schmo/project-package-json-completing-read))))
+    (call-interactively orig-fn)))
 
 ;; Can use npm-mode-npm-run. It uses `locate-dominating-file' at
 ;; `default-directory' to search for package.json. I work on a project that has
