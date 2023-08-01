@@ -383,6 +383,8 @@ want it on a key that's easier to hit"
 ;;; Misc
 (setq whitespace-global-modes nil)
 
+(setq show-paren-context-when-offscreen 'overlay)
+
 (add-to-list 'auto-mode-alist '("\\.pl\\'" . prolog-mode))
 
 ;; consider these symbols to be parts of words in lisp modes
