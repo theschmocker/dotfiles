@@ -376,6 +376,19 @@ want it on a key that's easier to hit"
 
   (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode)))
 
+(when IS-WINDOWS
+  (defadvice! schmo/floor (orig-fn &rest args)
+    "Wrap `floor' and always return 0 when the first argument is 0.0.
+
+HACK: works around an issue in Emacs 29.1 on Windows where
+(floor 0.0 SOME-NUMBER) results in a fatal error.. This caused
+(very hard to debug) crashes when web-mode tried to colorize the
+foreground of the black color keyword in CSS."
+    :around #'floor
+    (if (= 0.0 (car args))
+        0
+      (apply orig-fn args))))
+
 (setq emmet-indent-after-insert nil)
 ;; Something about emmet-expand-yas breaks undo... just use emmet-expand-line instead
 (advice-add 'emmet-expand-yas :override 'emmet-expand-line)
