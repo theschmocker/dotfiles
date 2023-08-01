@@ -15,11 +15,6 @@
 
 ;; Beginnings of a multi-package-root npm command runner
 
-(defun schmo/get-project-package-json-files (&optional project)
-  "Return a list of package.json file paths in PROJECT or the the current project."
-  (thread-last (project-files (or project (project-current)))
-               (cl-remove-if-not (apply-partially #'string-match-p "package.json\\'"))))
-
 (defun schmo/make-project-package-json-file-lookup-by-name ()
   "Create an alist of name->package.json-path.
 Name is read from the package.json file."

@@ -226,7 +226,16 @@
     :name 'typescript-svelte-plugin
     :activation-fn #'schmo/svelte-project-p
     :package "typescript-svelte-plugin"
-    :dependency-of 'svelte-language-server)))
+    :dependency-of 'svelte-language-server))
+
+  (lsp-ts-plugin-manager-register
+   (lsp-ts-plugin-manager-plugin
+    :name 'typescript-vue-plugin
+    :activation-fn (lambda (&rest _)
+                     (thread-last (schmo/get-project-package-json-files)
+                                  (mapcar #'file-name-directory)
+                                  (cl-some #'schmo/vue-project-p)))
+    :package "typescript-vue-plugin")))
 
 (after! lsp-ui
   (setq lsp-ui-doc-max-width 100

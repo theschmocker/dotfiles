@@ -3,6 +3,7 @@
 (require 'cl-lib)
 (require 'f)
 (require 'json)
+(require 'project)
 
 ;;; Project/Workspace Utilities
 (cl-defun schmo/package-json-has-dependency-p (workspace-root dep &key (in 'dependencies))
@@ -15,6 +16,11 @@
                               (alist-get dep)))
                (ensure-list in))
     nil))
+
+(defun schmo/get-project-package-json-files (&optional project)
+  "Return a list of package.json file paths in PROJECT or the the current project."
+  (thread-last (project-files (or project (project-current)))
+               (cl-remove-if-not (apply-partially #'string-match-p "package.json\\'"))))
 
 (defun schmo/vue-project-p (workspace-root)
   "Check if the 'vue' package is present in the package.json file
