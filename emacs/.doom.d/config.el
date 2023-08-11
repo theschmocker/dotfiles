@@ -535,13 +535,6 @@ device helps"
         (insert ":")
         (insert (s-pad-left 2 "0" (number-to-string mins)))))))
 
-(map!
- (:localleader
-  :mode (csharp-mode sln-mode)
-  (:prefix ("b" . "build")
-   :desc "Build All" "a" #'msbuild-build-all
-   :desc "Build Project" "b" #'msbuild-build-project)))
-
 (defun schmo/format-node-command (js)
   "Turn JS string into a one-liner node shell command.
 
@@ -625,3 +618,5 @@ Indented with tabs."
   (string-replace "λ"
                   (propertize "»" 'face (get-text-property (- (length prompt) 2) 'face prompt))
                   prompt))
+
+(msbuild-auto-project-mode 1)
