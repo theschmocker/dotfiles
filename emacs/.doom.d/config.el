@@ -323,11 +323,6 @@ for filtering company completion candidates"
   (let ((completion-styles '(fussy orderless basic partial-completion emacs22)))
     (apply fn args)))
 
-(defadvice! schmo/company-calculate-candidates (c)
-  "Limits the number of candidates that show up in the company completion UI."
-  :filter-return #'company-calculate-candidates
-  (take 20 c))
-
 (defun schmo/+vertico-orderless-dispatch (pattern _index _total)
   "Orderless dispatch which swaps % and ~ from DOOM's
 `+vertico-orderless-dispatch'. I'm more likely to use `orderless-flex', so I
