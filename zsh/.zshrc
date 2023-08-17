@@ -131,6 +131,7 @@ export PATH="$DENO_INSTALL/bin:$PATH"
 
 # Emacs
 export PATH=$HOME/.emacs.d/bin:$PATH
+export PATH=$HOME/.config/emacs/bin:$PATH
 
 # NVM
 export NVM_DIR="$HOME/.nvm"
