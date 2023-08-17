@@ -673,3 +673,5 @@ Calls `+eshell/here' without reusing an existing eshell buffer."
                (:desc "Toggle eshell popup" "e" #'schmo/eshell-toggle)
                (:desc "Open eshell here" "E" #'schmo/eshell-here)))
 
+;;; better-jumper
+(advice-add 'avy-action-goto :around #'doom-set-jump-maybe-a)
