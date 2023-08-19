@@ -10,6 +10,7 @@
 (require 'prlctl)
 (require 'string-edit)
 (require 'msbuild)
+(require 'web-mode-language-triggers)
 
 (setq user-full-name "Jacob"
       user-mail-address "")
@@ -388,6 +389,8 @@ want it on a key that's easier to hit"
   :after #'editorconfig-set-indentation
   (when vue-minor-mode
     (schmo/unset-vue-web-mode-padding)))
+
+(add-hook 'web-mode-hook 'web-mode-language-triggers-mode)
 
 (after! web-mode
   ;; doom modifies web-mode's autopairs to avoid conflict with smart parens,
