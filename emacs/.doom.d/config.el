@@ -162,6 +162,12 @@
       ("<backtab>" nil)
       ("S-TAB" nil))
 
+;; Company disables yas-keymap when active. I don't use company's tab bindings,
+;; so I'd rather it jump to the next field if I press tab when the popup is open
+(add-hook 'company-mode-hook
+          (lambda ()
+            (remove-hook 'yas-keymap-disable-hook 'company--active-p t)))
+
 (map!
  :map sly-mrepl-mode-map
  :n "gh" 'sly-describe-symbol)
@@ -363,6 +369,11 @@ want it on a key that's easier to hit"
       (apply fn args))))
 
 ;;; Web Mode
+
+(def-project-mode! vue-minor-mode
+  :match "\\.vue$")
+
+(set-yas-minor-mode! 'vue-minor-mode)
 (after! web-mode
   (setq web-mode-part-padding 0)
   (setq web-mode-script-padding 0)
@@ -373,11 +384,6 @@ want it on a key that's easier to hit"
   ;; just disabling web-modes auto-pairing altogether for now; smartparens covers
   ;; most of my needs
   (setq web-mode-enable-auto-pairing nil)
-  ;; move company-web-html to the end so it doesn't shadow other backends
-  ;; (specifically company-yasnippet)
-  (set-company-backend! 'web-mode
-    '(:separate company-yasnippet company-web-html))
-
   (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode)))
 
 (when IS-WINDOWS
@@ -396,6 +402,27 @@ foreground of the black color keyword in CSS."
 (setq emmet-indent-after-insert nil)
 ;; Something about emmet-expand-yas breaks undo... just use emmet-expand-line instead
 (advice-add 'emmet-expand-yas :override 'emmet-expand-line)
+
+(add-hook! 'emmet-mode-hook
+    (map! :map emmet-mode-keymap
+          "<tab>" nil
+          "C-h ," #'emmet-expand-line))
+
+(after! yasnippet
+  ;; breaks undo
+  (setq yas-snippet-revival nil)
+  (define-key yas-minor-mode-map (kbd "<tab>") nil)
+  (define-key yas-minor-mode-map (kbd "TAB") nil)
+  ;; I wish there were a better way to disable doom's smart tab binding,
+  ;; but this works.
+  (map! :i [tab] (cmds! (and nil
+                             (bound-and-true-p company-mode)
+                             (modulep! :completion company +tng))
+                      #'company-indent-or-complete-common)
+        ;; expand snippets with C-l instead
+        :ni "C-l" (cmds! (and (modulep! :editor snippets)
+                              (yas-maybe-expand-abbrev-key-filter 'yas-expand))
+                         #'yas-expand)))
 
 ;;; Misc
 (setq whitespace-global-modes nil)

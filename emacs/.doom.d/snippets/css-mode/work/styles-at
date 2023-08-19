@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: .styles-at
+# key: sat
+# --
+.styles-at${1:-min}($2px, {
+    `(string-trim-right (or yas-selected-text "") "\n")`$0
+});`(if (and (eq evil-state 'visual) (string-match-p "\n\\'" yas-selected-text)) "\n" "")`

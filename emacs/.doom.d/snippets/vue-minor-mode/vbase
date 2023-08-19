@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Vue SFC Base
+# uuid: vbase
+# --
+<template>
+	$1
+</template>
+
+<script setup lang="ts">
+$0
+</script>
+
+<style scoped>
+
+</style>

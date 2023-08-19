@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Writable Computed Property
+# key: compw
+# --
+
+const ${1:value} = computed({
+    get: () => $2,
+    set: ($1) => $0,
+});

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: margin horizontal
+# key: mx
+# --
+margin: 0 $1;

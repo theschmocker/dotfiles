@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: mobile-and-up-styles
+# key: mus
+# condition: t
+# --
+.mobile-and-up-styles({
+    `(string-trim-right (or yas-selected-text "") "\n")`$0
+});`(if (and (eq evil-state 'visual) (string-match-p "\n\\'" yas-selected-text)) "\n" "")`

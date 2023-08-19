@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: defineProps
+# uuid: dfp
+# key: dfp
+# --
+const props = defineProps<{
+	  $0
+}>();

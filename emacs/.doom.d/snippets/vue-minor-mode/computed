@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: Vue Computed Var
+# key: computed
+# condition: t
+# --
+const ${1:name} = computed$2(() => $0);

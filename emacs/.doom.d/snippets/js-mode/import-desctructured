@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: import-descructured
+# key: impd
+# uuid: js-imp
+# condition: t
+# --
+import {$0} from '$1';

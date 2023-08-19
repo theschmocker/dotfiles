@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: desktop-min-only-styles
+# key: ds
+# --
+.desktop-min-only-styles({
+    `(string-trim-right (or yas-selected-text "") "\n")`$0
+});`(if (and (eq evil-state 'visual) (string-match-p "\n\\'" yas-selected-text)) "\n" "")`

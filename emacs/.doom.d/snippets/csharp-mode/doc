@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Documentation Comment
+# key: doc
+# condition: t
+# --
+/// <summary>
+/// $0
+/// </summary>

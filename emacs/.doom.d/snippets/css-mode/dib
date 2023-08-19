@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: display inline-block
+# key: dib
+# --
+display: inline-block;

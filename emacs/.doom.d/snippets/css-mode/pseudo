@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Pseudo-Element
+# key: ps
+# --
+${1:&}::${2:before} {
+    ${2:$(if (or (string= yas-text "before") (string= yas-text "after")) "content: '';" "")}$0
+}

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: tablet-and-up-styles
+# key: tus
+# --
+.tablet-and-up-styles({
+    `(string-trim-right (or yas-selected-text "") "\n")`$0
+});`(if (and (eq evil-state 'visual) (string-match-p "\n\\'" yas-selected-text)) "\n" "")`

@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: setInterval
+# key: setin
+# --
+
+${1:interval} = setInterval(() => {$0}, $2)

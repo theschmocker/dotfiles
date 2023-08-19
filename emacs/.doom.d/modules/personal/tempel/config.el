@@ -69,10 +69,7 @@
     (or (+tempel/javascript-p)
         (+tempel/typescript-p)))
 
-  (add-hook! 'emmet-mode-hook
-    (map! :map emmet-mode-keymap
-          "<tab>" nil
-          "C-h ," #'emmet-expand-line))
+
 
   (add-hook! 'evil-insert-state-exit-hook
              (when (bound-and-true-p tempel--active)

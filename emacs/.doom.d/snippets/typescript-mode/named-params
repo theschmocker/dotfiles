@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Named Parameters
+# key: np
+# --
+{ $1 }: { ${1:$(string-trim-right
+ (string-join
+  (mapcar (lambda (param)
+            (if (string= "" param)
+            ""
+            (concat
+             (car (split-string (string-trim param) " "))
+             ": unknown,")))
+          (split-string yas-text ","))
+  " ")
+ ",")} }

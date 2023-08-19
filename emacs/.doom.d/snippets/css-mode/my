@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: margin vertical
+# key: my
+# --
+margin: $1 0;
