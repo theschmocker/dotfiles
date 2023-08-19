@@ -386,6 +386,13 @@ want it on a key that's easier to hit"
   (setq web-mode-enable-auto-pairing nil)
   (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode)))
 
+
+(defadvice! schmo/web-mode-yasnippet-exit-hook (fn)
+  "Workaround an LSP timeout issue when completing css snippets in vue files"
+  :around #'web-mode-yasnippet-exit-hook
+  (when (not (string= "css" (web-mode-language-at-pos)))
+    (funcall fn)))
+
 (when IS-WINDOWS
   (defadvice! schmo/floor (orig-fn &rest args)
     "Wrap `floor' and always return 0 when the first argument is 0.0.
