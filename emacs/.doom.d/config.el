@@ -297,6 +297,7 @@
               (apply oldfn args)))
 
 (add-hook 'csharp-tree-sitter-mode-local-vars-hook #'lsp! 'append)
+(add-hook 'csharp-mode-hook #'lsp!)
 
 (defadvice! schmo/lsp-find-session-folder (orig-lsp-find-session-folder session file-name)
   "Advice around `lsp-find-session-folder'.
