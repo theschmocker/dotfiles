@@ -194,5 +194,4 @@
        twig
        sql
        org-visual-tweaks
-       rg
-       tempel)
+       rg)
