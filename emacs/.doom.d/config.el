@@ -375,10 +375,21 @@ want it on a key that's easier to hit"
   :match "\\.vue$")
 
 (set-yas-minor-mode! 'vue-minor-mode)
+
+(defun schmo/unset-vue-web-mode-padding ()
+  (setq-local web-mode-part-padding nil)
+  (setq-local web-mode-script-padding nil)
+  (setq-local web-mode-style-padding nil))
+
+(add-hook 'vue-minor-mode-hook #'schmo/unset-vue-web-mode-padding)
+
+(defadvice! schmo/after-editorconfig-set-indentation (&rest _)
+  "Override "
+  :after #'editorconfig-set-indentation
+  (when vue-minor-mode
+    (schmo/unset-vue-web-mode-padding)))
+
 (after! web-mode
-  (setq web-mode-part-padding 0)
-  (setq web-mode-script-padding 0)
-  (setq web-mode-style-padding 0)
   ;; doom modifies web-mode's autopairs to avoid conflict with smart parens,
   ;; but it doesn't remove whitespace from the closing portion. In Vue (for example),
   ;; this leads to this being inserted: {{ |  }}, when this is desired: {{ | }}
