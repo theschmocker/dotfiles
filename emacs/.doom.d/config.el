@@ -386,6 +386,9 @@ want it on a key that's easier to hit"
   (setq web-mode-enable-auto-pairing nil)
   (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode)))
 
+;; Fix newline behavior in comments in web-mode. Seems like a new problem after upgrading
+;; to Emacs 29.
+(setq-hook! 'web-mode-hook comment-line-break-function #'web-mode-comment-indent-new-line)
 
 (defadvice! schmo/web-mode-yasnippet-exit-hook (fn)
   "Workaround an LSP timeout issue when completing css snippets in vue files"
