@@ -1,5 +1,6 @@
 # -*- mode: snippet -*-
 # name: margin horizontal
 # key: mx
+# uuid: mx
 # --
 margin: 0 $1;
