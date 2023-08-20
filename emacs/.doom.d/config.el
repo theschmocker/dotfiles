@@ -3,9 +3,7 @@
 (require 's)
 (require 'f)
 
-;; Adds custom non-DOOM-module lisp files to load path
-(add-to-list 'load-path (f-join doom-user-dir "lisp"))
-
+;; Personal lisp packages outside of doom's module system
 (require 'schmo-lib)
 (require 'prlctl)
 (require 'string-edit)

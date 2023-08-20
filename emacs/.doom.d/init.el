@@ -1,5 +1,8 @@
 ;;; init.el -*- lexical-binding: t; -*-
 
+;; Adds custom non-DOOM-module lisp files to load path
+(add-to-list 'load-path (file-name-concat doom-user-dir "lisp"))
+
 ;; This file controls what Doom modules are enabled and what order they load
 ;; in. Remember to run 'doom sync' after modifying it!
 
