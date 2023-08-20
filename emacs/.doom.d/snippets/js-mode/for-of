@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: for of
-# key: foro
+# key: forof
 # --
 for (const $1 of $2) {
     $0
