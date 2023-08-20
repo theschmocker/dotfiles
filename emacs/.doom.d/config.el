@@ -519,10 +519,6 @@ CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
 (setq org-directory "~/org/")
 (add-to-list 'org-modules 'ol-info)
 
-(defalias 'run-geiser 'geiser
-  "org-babel tries to execute scheme blocks with `run-geiser', which
-no longer exists")
-
 (defun schmo/org-insert-week ()
   (interactive)
   (let ((monday-label (let ((date (calendar-current-date)))
