@@ -46,15 +46,37 @@
 (setq doom-themes-treemacs-enable-variable-pitch nil)
 
 
+;;; Popups
+;;;
+;; I have a habit of pressing escape too many times... meaning I keep losing popup buffers.
+;; This should make "q" the primary way to close some of them
+(set-popup-rules!
+  '(("^\\*info" :quit nil :modeline t :size 0.35)
+    ("^\\*helpful" :quit nil :modeline t :size 0.35 :ttl 30)))
+
+(plist-put +popup-defaults :modeline t)
+
+
 ;;; Editor
+
 (setq scroll-margin 8)
 (setq hscroll-margin 16)
 (setq display-line-numbers-type 'relative)
 
 ;;; Evil
+
 ;; disable evil-snipe
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
 (remove-hook 'doom-first-input-hook #'evil-snipe-override-mode) ; fixes stuff like df<Space>
+
+;; Cleverparens
+(setq evil-cleverparens-use-s-and-S nil)
+(add-hook! '(emacs-lisp-mode-hook
+             lisp-mode-hook
+             clojure-mode-hook
+             scheme-mode-hook
+             fennel-mode-hook)
+           #'evil-cleverparens-mode)
 
 ;; movement with f and t not restricted to current line.
 ;; I prefer the normal behavior for other commands affected by
@@ -65,6 +87,7 @@
   :around #'evil-find-char
   (dlet ((evil-cross-lines t))
     (apply fun args)))
+
 
 ;;; Normal mode / leader mappings
 
@@ -150,23 +173,6 @@
                                 (evil-make-overriding-map diffview--mode-map 'normal t)
                                 (evil-normalize-keymaps)))
 
-(map! :after company
-      :map company-active-map
-      ("C-y" #'company-complete-selection)
-      ("RET" nil)
-      ("<return>" nil)
-      :map (company-active-map company-tng-map)
-      ("TAB" nil)
-      ("<tab>" nil)
-      ("<backtab>" nil)
-      ("S-TAB" nil))
-
-;; Company disables yas-keymap when active. I don't use company's tab bindings,
-;; so I'd rather it jump to the next field if I press tab when the popup is open
-(add-hook 'company-mode-hook
-          (lambda ()
-            (remove-hook 'yas-keymap-disable-hook 'company--active-p t)))
-
 (map!
  :map sly-mrepl-mode-map
  :n "gh" 'sly-describe-symbol)
@@ -186,15 +192,6 @@
 
 (map! :after cycle-quotes
       :n "gq" 'cycle-quotes)
-
-;;; Cleverparens
-(setq evil-cleverparens-use-s-and-S nil)
-(add-hook! '(emacs-lisp-mode-hook
-             lisp-mode-hook
-             clojure-mode-hook
-             scheme-mode-hook
-             fennel-mode-hook)
-           #'evil-cleverparens-mode)
 
 ;;; LSP
 (after! lsp-mode
@@ -298,6 +295,8 @@
 (add-hook 'csharp-tree-sitter-mode-local-vars-hook #'lsp! 'append)
 (add-hook 'csharp-mode-hook #'lsp!)
 
+(msbuild-auto-project-mode 1)
+
 (defadvice! schmo/lsp-find-session-folder (orig-lsp-find-session-folder session file-name)
   "Advice around `lsp-find-session-folder'.
 
@@ -322,13 +321,6 @@ code"
   :config
   (setq fussy-filter-fn 'fussy-filter-flex))
 
-(defadvice! schmo/company-capf-candidates (fn &rest args)
-  "Wraps `company-capf--candidates' to prioritize fuzzy matching over orderless
-for filtering company completion candidates"
-  :around #'company-capf--candidates
-  (let ((completion-styles '(fussy orderless basic partial-completion emacs22)))
-    (apply fn args)))
-
 (defun schmo/+vertico-orderless-dispatch (pattern _index _total)
   "Orderless dispatch which swaps % and ~ from DOOM's
 `+vertico-orderless-dispatch'. I'm more likely to use `orderless-flex', so I
@@ -349,11 +341,6 @@ want it on a key that's easier to hit"
 ;; Current company selection will get put into to the buffer
 (add-hook 'after-init-hook 'company-tng-mode)
 
-(add-hook! 'org-mode-hook
-           ;; dictionary completion was causing some lag when typing. Bumping up the
-           ;; delay here makes things feel a bit more smooth for how I type.
-           (setq-local company-idle-delay 0.3))
-
 (setq company-selection-wrap-around t
       company-tooltip-width-grow-only t)
 
@@ -367,6 +354,30 @@ want it on a key that's easier to hit"
                                                               nil
                                                             res)))))
       (apply fn args))))
+
+(defadvice! schmo/company-capf-candidates (fn &rest args)
+  "Wraps `company-capf--candidates' to prioritize fuzzy matching over orderless
+for filtering company completion candidates"
+  :around #'company-capf--candidates
+  (let ((completion-styles '(fussy orderless basic partial-completion emacs22)))
+    (apply fn args)))
+
+(map! :after company
+      :map company-active-map
+      ("C-y" #'company-complete-selection)
+      ("RET" nil)
+      ("<return>" nil)
+      :map (company-active-map company-tng-map)
+      ("TAB" nil)
+      ("<tab>" nil)
+      ("<backtab>" nil)
+      ("S-TAB" nil))
+
+;; Company disables yas-keymap when active. I don't use company's tab bindings,
+;; so I'd rather it jump to the next field if I press tab when the popup is open
+(add-hook 'company-mode-hook
+          (lambda ()
+            (remove-hook 'yas-keymap-disable-hook 'company--active-p t)))
 
 ;;; Web Mode
 
@@ -387,6 +398,9 @@ want it on a key that's easier to hit"
   :after #'editorconfig-set-indentation
   (when vue-minor-mode
     (schmo/unset-vue-web-mode-padding)))
+
+;; WIP regexp for highlighting compilation errors for a work Vue project
+;; "^\\(\\[vue-tsc\\] ?\\)? \\(.*?\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\) - error"
 
 (add-hook 'web-mode-hook 'web-mode-language-triggers-mode)
 
@@ -476,16 +490,21 @@ foreground of the black color keyword in CSS."
   ("l" #'evil-window-increase-width "Increase Width")
   ("=" #'balance-windows "Balance"))
 
-;;; Popups
-;; I have a habit of pressing escape too many times... meaning I keep losing popup buffers.
-;; This should make "q" the primary way to close some of them
-(set-popup-rules!
-  '(("^\\*info" :quit nil :modeline t :size 0.35)
-    ("^\\*helpful" :quit nil :modeline t :size 0.35 :ttl 30)))
+(defun schmo/restart-windows-parallels-network-device ()
+  "Restarts the Parallels network adapter over in the Windows VM.
+Sometimes upload speeds get borked and local dev is slow; restarting the network
+device helps"
+  (interactive)
+  ;; TODO: check if running on Windows and run command directly
+  (dlet ((prlctl-run-with-current-user nil))
+    (prlctl-exec-shell-command
+     (prlctl-find-vm-by-name-or-uuid "Windows 11")
+     "netsh interface set interface Ethernet disable && netsh interface set interface Ethernet enable"
+     t)))
 
-(plist-put +popup-defaults :modeline t)
 
-;; CSS
+;;; CSS
+
 (defun schmo/insert-relative-units (val &optional arg)
   "Inserts `val' relative to some base number for use with relative units in
 CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
@@ -519,6 +538,11 @@ CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
 (setq org-directory "~/org/")
 (add-to-list 'org-modules 'ol-info)
 
+;; dictionary completion was causing some lag when typing. Bumping up the
+;; delay here makes things feel a bit more smooth for how I type.
+(add-hook! 'org-mode-hook
+  (setq-local company-idle-delay 0.3))
+
 (defun schmo/org-insert-week ()
   (interactive)
   (let ((monday-label (let ((date (calendar-current-date)))
@@ -534,17 +558,6 @@ CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
       (insert (concat "** " day))
       (newline)
       (insert "- "))))
-
-(defun schmo/restart-windows-parallels-network-device ()
-  "Restarts the Parallels network adapter over in the Windows VM.
-Sometimes upload speeds get borked and local dev is slow; restarting the network
-device helps"
-  (interactive)
-  (dlet ((prlctl-run-with-current-user nil))
-    (prlctl-exec-shell-command
-     (prlctl-find-vm-by-name-or-uuid "Windows 11")
-     "netsh interface set interface Ethernet disable && netsh interface set interface Ethernet enable"
-     t)))
 
 (defun schmo/parse-minutes-org (org-line)
   (let* ((parts (thread-first org-line
@@ -581,16 +594,8 @@ device helps"
         (insert ":")
         (insert (s-pad-left 2 "0" (number-to-string mins)))))))
 
-(defun schmo/format-node-command (js)
-  "Turn JS string into a one-liner node shell command.
 
-Replaces <<stdin>> or <<region>> in JS with a JavaScript expression that reads
-from stdin as a string, making this convenient for use with
-`shell-command-on-region'."
-  (let ((with-stdin-str (replace-regexp-in-string "<<\\(stdin\\|region\\)>>"
-                                                  "require('fs').readFileSync(process.stdin.fd).toString()"
-                                                  js)))
-    (format "node -e %s" (shell-quote-argument with-stdin-str))))
+;;; JSON utils
 
 (cl-defmacro schmo/define-json-region-format-command (name docstring &key js buffer-name (major-mode 'json-mode))
   (declare (indent defun))
@@ -639,6 +644,7 @@ Indented with tabs."
   :buffer-name "*minified json*")
 
 (defun schmo/edit-json-string-at-point ()
+  "Edit the string at point in a `json-mode' buffer and handle reformatting."
   (interactive)
   (call-interactively #'edit-string-at-point)
   (schmo/prettify-json (point-min) (point-max) t)
@@ -656,9 +662,7 @@ Indented with tabs."
                   (cl-destructuring-bind (start . end) (thing-at-point-bounds-of-string-at-point)
                     (buffer-substring-no-properties (1+ start) (1- end)))))))
 
-;; "^\\(\\[vue-tsc\\] ?\\)? \\(.*?\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\) - error"
-
-(msbuild-auto-project-mode 1)
 
 ;;; better-jumper
+
 (advice-add 'avy-action-goto :around #'doom-set-jump-maybe-a)

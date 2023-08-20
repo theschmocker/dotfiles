@@ -94,6 +94,17 @@ WORKSPACE-ROOT."
          (setq ,timer (run-with-idle-timer ,seconds nil (lambda ()
                                                           ,@body)))))))
 
+(defun schmo/format-node-command (js)
+  "Turn JS string into a one-liner node shell command.
+
+Replaces <<stdin>> or <<region>> in JS with a JavaScript expression that reads
+from stdin as a string, making this convenient for use with
+`shell-command-on-region'."
+  (let ((with-stdin-str (replace-regexp-in-string "<<\\(stdin\\|region\\)>>"
+                                                  "require('fs').readFileSync(process.stdin.fd).toString()"
+                                                  js)))
+    (format "node -e %s" (shell-quote-argument with-stdin-str))))
+
 ;; Keeping this around for now. The live minibuffer pattern here might be useful some day
 ;; (defun schmo/deadgrep-incremental ()
 ;;   "Alternative to `deadgrep-incremental' that uses the minibuffer instead of a
