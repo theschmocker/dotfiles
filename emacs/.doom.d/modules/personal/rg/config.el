@@ -9,7 +9,7 @@ See: https://www.reddit.com/r/emacs/comments/12l1n7c/comment/jg5on6w/"
 
 (use-package! rg
   :defer t
-  :commands (schmo/rg-project schmo/rg-notes)
+  :commands (schmo/rg-project schmo/rg-notes schmo/rg-doom)
   :init
   (map! :leader
         :prefix "s"
