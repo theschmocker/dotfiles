@@ -192,9 +192,10 @@
        (default +bindings +smartparens)
 
        :personal
+       eshell
        go
        haskell
-       twig
-       sql
        org-visual-tweaks
-       rg)
+       rg
+       sql
+       twig)
