@@ -19,10 +19,10 @@
  (:family "Dank Mono" :size 14))
 
 (doom-variable-pitch-font!
-  (:family "ETBembo" :size 16)
-  (:family "Optima" :size 16)
-  (:family "Futura" :size 16)
-  (:family "Helvetica" :size 16))
+ (:family "ETBembo" :size 16)
+ (:family "Optima" :size 16)
+ (:family "Futura" :size 16)
+ (:family "Helvetica" :size 16))
 
 (setq custom-file (concat doom-user-dir "custom-hidden.el"))
 
@@ -350,9 +350,9 @@ want it on a key that's easier to hit"
 (add-hook 'after-init-hook 'company-tng-mode)
 
 (add-hook! 'org-mode-hook
-  ;; dictionary completion was causing some lag when typing. Bumping up the
-  ;; delay here makes things feel a bit more smooth for how I type.
-  (setq-local company-idle-delay 0.3))
+           ;; dictionary completion was causing some lag when typing. Bumping up the
+           ;; delay here makes things feel a bit more smooth for how I type.
+           (setq-local company-idle-delay 0.3))
 
 (setq company-selection-wrap-around t
       company-tooltip-width-grow-only t)
@@ -427,9 +427,9 @@ foreground of the black color keyword in CSS."
 (advice-add 'emmet-expand-yas :override 'emmet-expand-line)
 
 (add-hook! 'emmet-mode-hook
-    (map! :map emmet-mode-keymap
-          "<tab>" nil
-          "C-h ," #'emmet-expand-line))
+  (map! :map emmet-mode-keymap
+        "<tab>" nil
+        "C-h ," #'emmet-expand-line))
 
 (after! yasnippet
   ;; breaks undo
@@ -441,7 +441,7 @@ foreground of the black color keyword in CSS."
   (map! :i [tab] (cmds! (and nil
                              (bound-and-true-p company-mode)
                              (modulep! :completion company +tng))
-                      #'company-indent-or-complete-common)
+                        #'company-indent-or-complete-common)
         ;; expand snippets with C-l instead
         :ni "C-l" (cmds! (and (modulep! :editor snippets)
                               (yas-maybe-expand-abbrev-key-filter 'yas-expand))
@@ -552,10 +552,10 @@ device helps"
 
 (defun schmo/parse-minutes-org (org-line)
   (let* ((parts (thread-first org-line
-                             (split-string " ")
-                             (last)
-                             (car)
-                             (split-string ":")))
+                              (split-string " ")
+                              (last)
+                              (car)
+                              (split-string ":")))
          (hours-in-minutes (if (string-empty-p (car parts))
                                0
                              (floor (* 60 (string-to-number (car parts))))))
@@ -708,7 +708,7 @@ popup off."
       (pop-to-buffer eshell-buffer))))
 
 (defun schmo/eshell-here (&optional command)
-"Open eshell in the current window.
+  "Open eshell in the current window.
 
 Calls `+eshell/here' without reusing an existing eshell buffer."
   (interactive)
