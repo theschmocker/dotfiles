@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: defun with package name prefix
+# uuid: pdefn
+# key: pdefn
+# condition: t
+# --
+(defun `(schmo/snippet/guess-package-name)`-${1:function} ($2)
+  ${3:"$4"`"\n"`}$0)

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: defvar with package name prefix
+# uuid: pdefv
+# key: pdefv
+# condition: t
+# --
+(defvar `(schmo/snippet/guess-package-name)`-${1:variable} ${2:nil}${3:`"\n"`"$4"}$0)

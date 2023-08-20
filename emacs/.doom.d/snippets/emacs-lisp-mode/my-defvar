@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: my defvar
+# uuid: schmo-defvar
+# key: sdefv
+# condition: t
+# --
+(defvar schmo/${1:variable} $2 "")

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: my defun
+# uuid: schmo-defun
+# key: sdefn
+# condition: t
+# --
+(defun schmo/${1:name} ($2)$0)
