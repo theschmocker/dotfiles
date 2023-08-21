@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: Basic { get; set; } property
+# key: prop
+# uuid: prop
+# --
+${1:$$(yas-choose-value '("public" "protected" "private"))} ${2:Type} ${3:Name} { get; set; }

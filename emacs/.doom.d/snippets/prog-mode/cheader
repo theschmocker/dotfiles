@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Comment header
+# key: cheader
+# expand-env: ((ch-prefix (if (derived-mode-p 'emacs-lisp-mode) ";; " comment-start)) (ch-suffix (if (and comment-end (not (string= "" comment-end))) (concat " " comment-end) "")))
+# --
+`ch-prefix`${1:$(make-string (string-width yas-text) ?\=)}`ch-suffix`
+`ch-prefix`${1:Text}`ch-suffix`
+`ch-prefix`${1:$(make-string (string-width yas-text) ?\=)}`ch-suffix`
