@@ -1,3 +1,4 @@
 .DS_Store
 plugin/
 custom-hidden.el
+/emacs/.doom.d/custom.el
