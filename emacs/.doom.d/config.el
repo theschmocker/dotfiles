@@ -24,8 +24,6 @@
  (:family "Futura" :size 16)
  (:family "Helvetica" :size 16))
 
-(setq custom-file (concat doom-user-dir "custom-hidden.el"))
-
 ;; prevent janky line numbers in variable-pitch-mode
 (custom-set-faces!
   '(line-number-current-line :inherit fixed-pitch)
