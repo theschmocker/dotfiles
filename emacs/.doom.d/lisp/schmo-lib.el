@@ -7,7 +7,7 @@
 
 ;;; Project/Workspace Utilities
 (cl-defun schmo/package-json-has-dependency-p (workspace-root dep &key (in 'dependencies))
-  (if-let ((package-json (f-join workspace-root "package.json"))
+  (if-let ((package-json (and workspace-root (f-join workspace-root "package.json")))
            (exist (f-file-p package-json))
            (config (json-read-file package-json)))
       (cl-some (lambda (key)
