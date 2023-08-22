@@ -49,6 +49,7 @@
 
 ;;; yasnippet
 
+;;;###autoload
 (defvar web-mode-language-triggers-yas-extra-mode-alist
   '(("javascript" js-mode)
     ("typescript" typescript-mode)

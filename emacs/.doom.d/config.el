@@ -382,7 +382,14 @@ for filtering company completion candidates"
 (def-project-mode! vue-minor-mode
   :match "\\.vue$")
 
+(def-project-mode! vue-script-mode
+  :match "\\.\\(js\\|ts\\)$"
+  :when (schmo/vue-project-p (locate-dominating-file "." "package.json")))
+
+(set-yas-minor-mode! 'vue-script-mode)
 (set-yas-minor-mode! 'vue-minor-mode)
+
+(add-to-list 'web-mode-language-triggers-yas-extra-mode-alist '("typescript" vue-script-mode))
 
 (defun schmo/unset-vue-web-mode-padding ()
   (setq-local web-mode-part-padding nil)
