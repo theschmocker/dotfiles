@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: watch
+# uuid: vwatch
+# key: watch
+# --
+watch($1, ($2) => {$0}${3:, $4})

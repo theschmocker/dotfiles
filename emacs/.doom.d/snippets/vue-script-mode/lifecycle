@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: lifecycle
+# uuid: vlifecycle
+# key: on
+# --
+on`(yas-choose-value '("Mounted" "Updated" "Unmounted" "BeforeMount" "BeforeUpdate" "BeforeUnmount" "ErrorCaptured" "Activated" "Deactivated"))`(() => {
+	$0
+});
