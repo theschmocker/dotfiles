@@ -43,6 +43,8 @@
 
 (setq doom-themes-treemacs-enable-variable-pitch nil)
 
+(setq treesit-extra-load-path (list (file-name-concat doom-emacs-dir ".local" "etc" "tree-sitter")))
+(setq treesit-font-lock-level 4)
 
 ;;; Popups
 ;;;
@@ -292,6 +294,9 @@
 
 (add-hook 'csharp-tree-sitter-mode-local-vars-hook #'lsp! 'append)
 (add-hook 'csharp-mode-hook #'lsp!)
+
+(add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-ts-mode))
+(add-hook 'csharp-ts-mode-hook #'lsp!)
 
 (msbuild-auto-project-mode 1)
 
