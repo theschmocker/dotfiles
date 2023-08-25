@@ -144,6 +144,7 @@
     ((font-lock-function-name-face &override) :foreground type)
     ((font-lock-keyword-face &override) :weight 'bold)
     ((font-lock-constant-face &override) :weight 'bold)
+    ((font-lock-bracket-face &override) :foreground subtle)
 
     ;; Highlight line
     (hl-line
