@@ -298,6 +298,14 @@
 (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-ts-mode))
 (add-hook 'csharp-ts-mode-hook #'lsp!)
 
+
+(autoload 'cs-ts-extras-convert-to-typescript-at-point-dwim "cs-ts-extras" nil t)
+
+(map!
+ :mode csharp-ts-mode
+ :localleader
+ :desc "Convert type def to TypeScript" "c" #'cs-ts-extras-convert-to-typescript-at-point-dwim)
+
 (msbuild-auto-project-mode 1)
 
 (defadvice! schmo/lsp-find-session-folder (orig-lsp-find-session-folder session file-name)
