@@ -370,6 +370,7 @@ for filtering company completion candidates"
       ("C-y" #'company-complete-selection)
       ("RET" nil)
       ("<return>" nil)
+      ("C-h" nil)
       :map (company-active-map company-tng-map)
       ("TAB" nil)
       ("<tab>" nil)
