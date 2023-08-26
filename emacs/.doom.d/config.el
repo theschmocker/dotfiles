@@ -305,6 +305,37 @@
                                                            (eq (nth 2 r) 'directives))
                                                          csharp-ts-mode--font-lock-settings)))
 
+(autoload 'treesit-additional-font-lock-rules "treesit-additional-font-lock-rules")
+(after! treesit
+  (treesit-additional-font-lock-rules 'csharp-ts-mode
+    :language 'c-sharp
+    :feature 'directives
+    :override t
+    '((preprocessor_directive) @font-lock-preprocessor-face
+      (preprocessor_call (identifier) @font-lock-variable-use-face))
+
+    :language 'c-sharp
+    :feature 'comment
+    :override t
+    '((arrow_expression_clause
+       "=>" @font-lock-builtin-face)
+      (lambda_expression
+       "=>" @font-lock-builtin-face))
+
+    :language 'c-sharp
+    :feature 'type
+    :override t
+    '((predefined_type) @font-lock-builtin-face))
+
+  (treesit-additional-font-lock-rules 'typescript-ts-mode
+    :language 'typescript
+    :feature 'string
+    :override t
+    '((template_string
+       (template_substitution
+        "${" @font-lock-builtin-face
+        "}" @font-lock-builtin-face)))))
+
 (autoload 'cs-ts-extras-convert-to-typescript-at-point-dwim "cs-ts-extras" nil t)
 
 (map!
