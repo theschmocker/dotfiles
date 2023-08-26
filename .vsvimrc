@@ -1,0 +1,35 @@
+inoremap jk <esc>
+nnoremap Y y$
+set relativenumber
+set number
+let mapleader="\<space>"
+set ignorecase
+set smartcase
+set scrolloff=8
+set sidescrolloff=16
+
+nnoremap gh :vsc Edit.QuickInfo<cr>
+
+nnoremap <leader><leader> :vsc Edit.GoToFile<cr>
+nnoremap <leader>/ :vsc Edit.FindInFiles<cr>
+
+nnoremap <leader>ww <C-W>w
+nnoremap <leader>wd <C-W>c
+nnoremap <leader>w- <C-W>s
+nnoremap <leader>wh <C-W>h
+nnoremap <leader>wj <C-W>j
+nnoremap <leader>wl <C-W>l
+nnoremap <leader>wk <C-W>k
+nnoremap <leader>wH <C-W>5<
+nnoremap <leader>wJ :resize +5<cr>
+nnoremap <leader>wK :resize -5<cr>
+nnoremap <leader>ws <C-W>s
+nnoremap <leader>wv <C-W>v
+nnoremap <leader>wo <cmd>only<cr>
+
+nnoremap <leader>cd :vsc Edit.GoToDefinition<cr>
+nnoremap <leader>ci :vsc Edit.GoToImplementation<cr><esc>
+nnoremap <leader>cf :vsc Edit.FindAllReferences<cr>
+nnoremap <leader>cr :vsc Refactor.Rename<cr>
+nnoremap <leader>ca :vsc View.QuickActionsForPosition<cr>
+nnoremap <leader>co :vsc Edit.ParameterInfo<cr>
