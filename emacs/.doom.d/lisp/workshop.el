@@ -131,4 +131,49 @@ Name is read from the package.json file."
     (forward-line 1)))
 (provide 'workshop)
 
+(defvar-local ts-query-builder-mode-target-buffer nil)
+(defvar-local ts-query-builder-mode-parser-language nil)
+(defvar-local ts-query-builder-mode-overlays nil)
+
+(define-derived-mode ts-query-builder-mode scheme-mode "TS Query Builder"
+  ""
+  (make-local-variable 'after-change-functions)
+  (add-to-list 'after-change-functions (lambda (&rest _)
+                                         (unwind-protect
+                                             (schmo/ts-query--replace-overlays)))))
+
+(defun schmo/ts-query-builder ()
+  (interactive)
+  (let* ((target-buffer (current-buffer))
+         (parsers (treesit-parser-list target-buffer)))
+    (when (null parsers)
+      (error "No active tree-sitter parsers in the current buffer"))
+    (let ((query-buffer (get-buffer-create (format "*ts-query-builder: %s*" (buffer-name target-buffer)))))
+      (with-current-buffer query-buffer
+        (ts-query-builder-mode)
+        (setq ts-query-builder-mode-target-buffer target-buffer)
+        ;; TODO
+        (setq ts-query-builder-mode-parser-language 'c-sharp))
+      (display-buffer query-buffer))))
+
+(defun ts-query--overlay-from-range (buf range)
+  (let ((o (make-overlay (car range) (cdr range) buf)))
+    (overlay-put o 'face 'highlight)
+    o))
+
+(defun schmo/ts-query--replace-overlays ()
+  (when (not ts-query-builder-mode-target-buffer)
+    (error "No target buffer"))
+  (condition-case nil
+      (let ((query (read (buffer-substring-no-properties (point-min) (point-max)))))
+        (dolist (o (car (with-current-buffer ts-query-builder-mode-target-buffer (overlay-lists))))
+          (delete-overlay o))
+        (let ((lang ts-query-builder-mode-parser-language))
+          (let ((ranges (with-current-buffer ts-query-builder-mode-target-buffer
+                          (treesit-query-range lang query))))
+            (when ranges
+              (dolist (range ranges)
+                (ts-query--overlay-from-range ts-query-builder-mode-target-buffer range))))))
+    ((debug error) nil)))
+
 ;;; workshop.el ends here
