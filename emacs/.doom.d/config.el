@@ -296,8 +296,14 @@
 (add-hook 'csharp-mode-hook #'lsp!)
 
 (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-ts-mode))
+
 (add-hook 'csharp-ts-mode-hook #'lsp!)
 
+;; The built in directive queries cause errors
+(after! csharp-mode
+  (setq csharp-ts-mode--font-lock-settings (cl-remove-if (lambda (r)
+                                                           (eq (nth 2 r) 'directives))
+                                                         csharp-ts-mode--font-lock-settings)))
 
 (autoload 'cs-ts-extras-convert-to-typescript-at-point-dwim "cs-ts-extras" nil t)
 
