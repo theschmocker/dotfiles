@@ -1,0 +1,16 @@
+#+title: dotfiles
+
+Very important text files.
+
+Managed with GNU stow and/or manual symlinks.
+
+* emacs
+This is where most of the magic happens these days. General (Doom) Emacs configuration for software development, along with some custom Emacs (proto-)packages in varying states of completeness/usefulness.
+
+I have a lot of fun tinkering with Emacs. Gives me a practical use-case to write Lisp and I get a text editor/computing environment that fits my brain and hands better over time out of it.
+* nvim
+Now that I work nearly full-time in Emacs, my Neovim configuration gets less attention. Still love it, though. Thanks to Fennel and [[https://github.com/Olical/aniseed][aniseed]], it's also quite Lisp-y.
+* zsh/bash
+When I'm not using eshell, I use zsh. Started with bash years ago, and just load my bash aliases into zsh. Nothing too fancy here -- mostly just path settings.
+* .vsvimrc
+When I have to use Visual Studio, this makes it more tolerable.
