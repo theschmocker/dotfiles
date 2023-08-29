@@ -312,7 +312,7 @@ gets appended to `cs-ts-extras--typescript-aggregate-buffer-name'"
         (goto-char (point-max))
         (open-line 2))
       (save-excursion
-        (cs-ts-extras--insert-flash contents))
+        (cs-ts-extras--insert-and-highlight contents))
       (display-buffer buf)
       (when-let ((win (get-buffer-window)))
         (set-window-point win (point)))
@@ -325,17 +325,20 @@ gets appended to `cs-ts-extras--typescript-aggregate-buffer-name'"
         (set-buffer-modified-p nil))
       (typescript-ts-mode))))
 
-(defvar cs-ts-extras-insert-flash-time 0.5
-  "")
+(defvar cs-ts-extras-insert-highlight-duration 0.5
+  "Duration in seconds to highlight converted TypeScript types.")
 
-(defun cs-ts-extras--insert-flash (&rest args)
+(defun cs-ts-extras--insert-and-highlight (&rest args)
+  "Insert ARGS and highlight the insert text temporarily.
+
+Duration is controlled by `cs-ts-extras-insert-highlight-duration'"
   (let ((start (point)))
     (apply #'insert args)
     (let* ((end (point))
            (o (make-overlay start end)))
       (overlay-put o 'face 'region)
       (run-with-timer
-       cs-ts-extras-insert-flash-time
+       cs-ts-extras-insert-highlight-duration
        nil
        (lambda (o)
          (delete-overlay o))
