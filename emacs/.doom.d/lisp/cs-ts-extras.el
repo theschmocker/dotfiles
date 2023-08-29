@@ -20,6 +20,7 @@
 ;;; Code:
 
 (require 'treesit)
+(require 'subr-x)
 
 (defconst cs-ts-extras--typescript-aggregate-buffer-name "*csharp-to-ts*")
 
@@ -166,18 +167,18 @@ Intended for use in C# -> TypeScript conversion property naming."
 
 (defun cs-ts-extras-class-to-typescript-interface-string (class-decl-node)
   "Return CLASS-DECL-NODE as a string containing TypeScript."
-  (let ((name (cs-ts-extras-class-name class-decl-node)))
-    (concat
-     (format "interface %s {\n" name)
-     (string-join (mapcar (lambda (prop)
-                            (let ((prop-name (cs-ts-extras--naive-pascal-case-to-camel-case
-                                              (cs-ts-extras-property-declaration-name prop)))
-                                  (type-str (cs-ts-extras-csharp-type-to-typescript-string
-                                             (cs-ts-extras-property-declaration-type-node prop))))
-                              (format "\t%s: %s;\n" prop-name type-str)))
-                          (cl-remove-if-not #'cs-ts-extras-public-property-declaration-p
-                                            (cs-ts-extras-class-property-declarations class-decl-node))))
-     "}")))
+  (concat
+   (format "%s {\n" (cs-ts-extras-type-definition-info-to-typescript-interface-line
+                     (cs-ts-extras-type-definition-info class-decl-node)))
+   (string-join (mapcar (lambda (prop)
+                          (let ((prop-name (cs-ts-extras--naive-pascal-case-to-camel-case
+                                            (cs-ts-extras-property-declaration-name prop)))
+                                (type-str (cs-ts-extras-csharp-type-to-typescript-string
+                                           (cs-ts-extras-property-declaration-type-node prop))))
+                            (format "\t%s: %s;\n" prop-name type-str)))
+                        (cl-remove-if-not #'cs-ts-extras-public-property-declaration-p
+                                          (cs-ts-extras-class-property-declarations class-decl-node))))
+   "}"))
 
 (defun cs-ts-extras-enum-to-typescript-enum-string (enum-node)
   "Return ENUM-NODE as a string containing TypeScript."
@@ -191,21 +192,99 @@ Intended for use in C# -> TypeScript conversion property naming."
 
 (defun cs-ts-extras-interface-to-typescript-interface-string (interface-decl-node)
   "Return INTERFACE-DECL-NODE as a string containing TypeScript."
-  (let ((name (cs-ts-extras-interface-name interface-decl-node)))
-    (concat
-     (format "interface %s {\n" name)
-     (string-join (mapcar (lambda (prop)
-                            (let ((prop-name (cs-ts-extras--naive-pascal-case-to-camel-case
-                                              (cs-ts-extras-property-declaration-name prop)))
-                                  (type-str (cs-ts-extras-csharp-type-to-typescript-string
-                                             (cs-ts-extras-property-declaration-type-node prop))))
-                              (format "\t%s: %s;\n" prop-name type-str)))
-                          (cs-ts-extras-interface-property-declarations interface-decl-node)))
-     "}")))
+  (concat
+   (format "%s {\n" (cs-ts-extras-type-definition-info-to-typescript-interface-line
+                     (cs-ts-extras-type-definition-info interface-decl-node)))
+   (string-join (mapcar (lambda (prop)
+                          (let ((prop-name (cs-ts-extras--naive-pascal-case-to-camel-case
+                                            (cs-ts-extras-property-declaration-name prop)))
+                                (type-str (cs-ts-extras-csharp-type-to-typescript-string
+                                           (cs-ts-extras-property-declaration-type-node prop))))
+                            (format "\t%s: %s;\n" prop-name type-str)))
+                        (cs-ts-extras-interface-property-declarations interface-decl-node)))
+   "}"))
 
 (defun cs-ts-extras-class-name (class-decl-node)
   "Get the \"name\" field as a string from CLASS-DECL-NODE."
   (treesit-node-text (treesit-node-child-by-field-name class-decl-node "name") t))
+
+(defun cs-ts-extras-type-definition-info (type-decl-node)
+  ""
+  (when (or (cs-ts-extras-class-declaration-p type-decl-node)
+            (cs-ts-extras-interface-declaration-p type-decl-node))
+    (let ((name (cs-ts-extras-class-name type-decl-node))
+          (type-params (mapcar (lambda (tp)
+                                 (treesit-node-text tp t))
+                               (when-let ((tp-node (treesit-node-child-by-field-name type-decl-node "type_parameters")))
+                                 (treesit-query-capture
+                                  tp-node
+                                  '((type_parameter
+                                     (identifier) @tp))
+                                  nil
+                                  nil
+                                  t))))
+          (bases (when-let ((b-node (treesit-node-child-by-field-name type-decl-node "bases")))
+                   (treesit-query-capture
+                    b-node
+                    '((base_list
+                       (_) @b))
+                    nil
+                    nil
+                    t)))
+          (constraints (let ((constraints-clause (car (cl-remove-if-not (lambda (n)
+                                                                     (treesit-node-eq (treesit-node-parent n) type-decl-node))
+                                                                   (treesit-query-capture
+                                                                    type-decl-node
+                                                                    '((type_parameter_constraints_clause) @c)
+                                                                    nil nil
+                                                                    t)))))
+                         (when constraints-clause
+                           (let ((target (treesit-node-child-by-field-name constraints-clause "target")))
+                             (list :target (treesit-node-text target t)
+                                   :types (treesit-query-capture
+                                                    constraints-clause
+                                                    '((type_constraint
+                                                       type: (_) @t))
+                                                    nil nil
+                                                    t)))))))
+      (list :name name
+            :type-params type-params
+            :bases bases
+            :constraints constraints))))
+
+(defun cs-ts-extras-type-definition-info-to-typescript-interface-line (info)
+  ""
+  (when info
+    (let ((name (plist-get info :name))
+          (bases (plist-get info :bases))
+          (type-params (plist-get info :type-params))
+          (constraints (plist-get info :constraints)))
+      (let ((generics
+             (if type-params
+                 (thread-first
+                   (mapcar (lambda (p)
+                             (if (and constraints
+                                      (plist-get constraints :types)
+                                      (string= p (plist-get constraints :target)))
+                                 (format "%s extends %s" p (string-join
+                                                            (mapcar #'cs-ts-extras-csharp-type-to-typescript-string
+                                                                    (plist-get constraints :types))
+                                                            " & "))
+                               p))
+                           type-params)
+                   (string-join ", "))
+               ""))
+            (impls
+             (if bases
+                 (thread-first (mapcar #'cs-ts-extras-csharp-type-to-typescript-string bases)
+                               (string-join ", "))
+               ""))
+            (builder (list (format "interface %s" name))))
+        (when (not (string-empty-p generics))
+          (push (format "<%s>" generics) builder))
+        (when (not (string-empty-p impls))
+          (push (format " extends %s" impls) builder))
+        (string-join (reverse builder))))))
 
 (defalias 'cs-ts-extras-interface-name #'cs-ts-extras-class-name "Get the \"name\" field from the interface declaration node.")
 
