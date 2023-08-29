@@ -215,21 +215,40 @@ Intended for use in C# -> TypeScript conversion property naming."
 NAME: name of the buffer to write to if DEDICATED-BUFFER is non-nil, otherwise
 gets appended to `cs-ts-extras--typescript-aggregate-buffer-name'"
   (let ((buf (get-buffer-create (if dedicated-buffer name cs-ts-extras--typescript-aggregate-buffer-name))))
-      (with-current-buffer buf
-        (if dedicated-buffer
-            (erase-buffer)
-          (goto-char (point-max))
-          (open-line 2))
-        (insert contents)
-        ;; typescript-ts-mode adds itself to auto-mode-alist. I'm still using
-        ;; typescript-mode for day-to-day ts dev, so I don't want that to
-        ;; happen globally
-        (make-local-variable 'auto-mode-alist)
-        (when dedicated-buffer
-          (setq buffer-undo-list nil)
-          (set-buffer-modified-p nil))
-        (typescript-ts-mode))
-      (display-buffer buf)))
+    (with-current-buffer buf
+      (if dedicated-buffer
+          (erase-buffer)
+        (goto-char (point-max))
+        (open-line 2))
+      (save-excursion
+        (cs-ts-extras--insert-flash contents))
+      (display-buffer buf)
+      (when-let ((win (get-buffer-window)))
+        (set-window-point win (point)))
+      ;; typescript-ts-mode adds itself to auto-mode-alist. I'm still using
+      ;; typescript-mode for day-to-day ts dev, so I don't want that to
+      ;; happen globally
+      (make-local-variable 'auto-mode-alist)
+      (when dedicated-buffer
+        (setq buffer-undo-list nil)
+        (set-buffer-modified-p nil))
+      (typescript-ts-mode))))
+
+(defvar cs-ts-extras-insert-flash-time 0.5
+  "")
+
+(defun cs-ts-extras--insert-flash (&rest args)
+  (let ((start (point)))
+    (apply #'insert args)
+    (let* ((end (point))
+           (o (make-overlay start end)))
+      (overlay-put o 'face 'region)
+      (run-with-timer
+       cs-ts-extras-insert-flash-time
+       nil
+       (lambda (o)
+         (delete-overlay o))
+       o))))
 
 (defun cs-ts-extras-class-property-declarations (class-decl-node)
   "Return CLASS-DECL-NODE's property declarations."
