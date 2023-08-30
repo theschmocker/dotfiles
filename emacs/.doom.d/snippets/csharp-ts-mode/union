@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: csharp-union
+# uuid: csharp-union
+# key: union
+# --
+${1:public enum ${2:Name}Type {
+    $3
+}}
+
+${1:$(schmo/snippet/csharp-union-from-enum yas-text)}

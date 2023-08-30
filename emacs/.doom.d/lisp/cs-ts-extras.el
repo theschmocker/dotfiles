@@ -303,7 +303,9 @@ INFO is the return type of `cs-ts-extras-type-definition-info'."
     (concat
      (format "enum %s {\n" name)
      (string-join (mapcar (lambda (enum-mem)
-                            (format "\t%s,\n" (treesit-node-text enum-mem t)))
+                            (format "\t%s,\n" (treesit-node-text
+                                               (treesit-node-child-by-field-name enum-mem "name")
+                                               t)))
                           (cs-ts-extras-enum-member-declarations enum-node)))
      "}")))
 
@@ -455,6 +457,55 @@ gets appended to `cs-ts-extras--typescript-aggregate-buffer-name'"
         (set-buffer-modified-p nil))
       (typescript-ts-mode))))
 
+;;;; C# -> More C#
+
+(defun cs-ts-extras-create-simulated-union-from-enum (enum)
+  "Create a simulated union type tagged by ENUM node.
+
+C# does not, of course, have union types, but they can be roughly simulated with
+an enum, and abstract base class with an abstract property (the tag; type of the
+enum), and inheritors for each enum member. Useful for types that will be
+serialized as JSON -- especially when the intended consumer is TypeScript."
+  (let* ((name (cs-ts-extras-enum-name enum))
+         (base-class-name (if (string-suffix-p "Type" name)
+                              (replace-regexp-in-string "Type\\'" "" name)
+                            (concat name "C")))
+         (members (cs-ts-extras-enum-member-declarations enum)))
+    (concat (format "public abstract class %s {\n" base-class-name)
+            (format "\tpublic abstract %s Type { get; }\n" name)
+            "}\n\n"
+            (thread-first (mapcar (lambda (mem)
+                                    (let ((mem-name (treesit-node-text
+                                                     (treesit-node-child-by-field-name mem "name")
+                                                     t)))
+                                      (concat (format "public class %s%s : %s {\n"
+                                                      mem-name
+                                                      base-class-name
+                                                      base-class-name)
+                                              (format "\tpublic override %s Type => %s.%s;\n"
+                                                      name
+                                                      name
+                                                      mem-name)
+                                              "}")))
+                                  members)
+                          (string-join "\n\n")))))
+
+;;;;; C# -> More C# Commands
+
+;;;###autoload
+(defun cs-ts-extras-create-and-insert-simulated-union-at-pos (&optional pos)
+  "Create a simulated union type from the enum at POS.
+
+See `cs-ts-extras-create-simulated-union-from-enum' for an explanation."
+  (interactive)
+  (let* ((pos (or pos (point)))
+         (enum (cs-ts-extras-enum-at-pos pos)))
+    (unless (cs-ts-extras-enum-declaration-p enum)
+      (error "No enum at pos"))
+    (cs-ts-extras--insert-after-node
+     enum
+     t
+     (concat "\n\n" (cs-ts-extras-create-simulated-union-from-enum enum)))))
 
 ;;; Util
 
@@ -474,8 +525,12 @@ Duration is controlled by `cs-ts-extras-insert-highlight-duration'"
          (delete-overlay o))
        o))))
 
-
-
+(defun cs-ts-extras--insert-after-node (node indent &rest args)
+  (let ((end (treesit-node-end node)))
+    (goto-char end)
+    (apply #'cs-ts-extras--insert-and-highlight args)
+    (when indent
+      (indent-region end (point)))))
 
 (provide 'cs-ts-extras)
 
