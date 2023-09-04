@@ -348,6 +348,9 @@
     :override t
     '((predefined_type) @font-lock-builtin-face)))
 
+(add-hook 'typescript-ts-mode-local-vars-hook #'lsp! 'append)
+(add-hook 'tsx-ts-mode-local-vars-hook #'lsp! 'append)
+
 (autoload 'cs-ts-extras-convert-to-typescript-at-point-dwim "cs-ts-extras" nil t)
 
 (map!
