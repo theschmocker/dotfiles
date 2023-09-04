@@ -22,6 +22,7 @@
 (require 'treesit)
 (require 'typescript-ts-mode)
 (require 'js)
+(require 'css-mode)
 
 (defcustom vue-ts-mode-indent-offset 4
   "Number of spaces for each indentation step in `vue-ts-mode'.
@@ -39,14 +40,12 @@ Will be overridden by `tab-width' When `indent-tabs-mode' is non-nil.")
      ((parent-is "start_tag") parent-bol vue-ts-mode-indent-offset)
      ((parent-is "self_closing_tag") parent-bol vue-ts-mode-indent-offset)
      ((parent-is "element") parent-bol vue-ts-mode-indent-offset)
-     ((parent-is "text") parent-bol vue-ts-mode-indent-offset)
+     ((parent-is "text") grand-parent vue-ts-mode-indent-offset) ;; text includes newline after previous element sibling
      ((node-is "attribute") parent-bol vue-ts-mode-indent-offset)
      ((node-is "directive_attribute") parent-bol vue-ts-mode-indent-offset)
-     ;; ((node-is "quoted_attribute_value") parent-bol vue-ts-mode-indent-offset)
      ((parent-is "quoted_attribute_value") parent-bol 0)
      ((parent-is "attribute_value") parent-bol 0)
-     ((node-is "interpolation") parent-bol vue-ts-mode-indent-offset)
-     )))
+     ((node-is "interpolation") parent-bol vue-ts-mode-indent-offset))))
 
 (defface vue-ts-mode-html-tag-face
   '((t . (:inherit font-lock-function-name-face)))
@@ -56,6 +55,12 @@ Will be overridden by `tab-width' When `indent-tabs-mode' is non-nil.")
   )
 
 (defface vue-ts-mode-builtin-tag-face
+  '((t . (:inherit font-lock-builtin-face)))
+
+  "Face for Vue builtin tags, like template, component, transition, etc."
+  )
+
+(defface vue-ts-mode-sfc-tag-face
   '((t . (:inherit font-lock-keyword-face)))
 
   "Face for Vue builtin tags, like template, script, and style."
@@ -79,12 +84,31 @@ Will be overridden by `tab-width' When `indent-tabs-mode' is non-nil.")
   '((t . (:inherit font-lock-variable-name-face)))
   "Face for dynamic directive arguments, e.g. :[arg]")
 
+(defface vue-ts-mode-shorthand-prefix-face
+  '((t . (:inherit font-lock-bracket-face)))
+  "Face for characters in shorthand directives like the # in #slot-name or @ in @click")
+
 (defvar vue-ts-mode-builtin-directives
   '("v-text" "v-html" "v-show" "v-if" "v-else" "v-else-if" "v-for" "v-on"
     "v-bind" "v-model" "v-slot" "v-pre" "v-once" "v-memo" "v-cloak"))
 
 (defvar vue-ts-mode-sfc-tags
   '("template" "script" "style"))
+
+(defvar vue-ts-mode-builtin-tags
+  '("template" "component" "transition"))
+
+(defun vue-ts-mode--prefix-sub-language-feature (language font-lock-settings)
+  ""
+  (let ((prefix (concat "vue-" (symbol-name language) "-")))
+    (cl-loop for rule in font-lock-settings
+             for rule-copy = (cl-copy-list rule)
+             do (setf (nth 2 rule-copy) (intern (concat prefix (symbol-name (nth 2 rule)))))
+             collect rule-copy)))
+
+(vue-ts-mode--prefix-sub-language-feature
+    'typescript
+    (typescript-ts-mode--font-lock-settings 'typescript))
 
 (defvar vue-ts-mode--font-lock-settings
   (append
@@ -98,8 +122,8 @@ Will be overridden by `tab-width' When `indent-tabs-mode' is non-nil.")
         ("=") :? @vue-ts-mode-attribute-face
         (quoted_attribute_value
          (attribute_value) @vue-ts-mode-attribute-value-face) :?))
-      (directive_name) @font-lock-keyword-face
-      (directive_argument) @font-lock-keyword-face
+      (directive_name) @vue-ts-mode-attribute-face
+      (directive_argument) @vue-ts-mode-attribute-face
       (directive_dynamic_argument
        "[" @font-lock-bracket-face
        (directive_dynamic_argument_value) @vue-ts-mode-dynamic-directive-argument-face
@@ -114,17 +138,96 @@ Will be overridden by `tab-width' When `indent-tabs-mode' is non-nil.")
     :feature 'html
     :override t
     `(((tag_name) @vue-ts-mode-builtin-tag-face
-       (:match ,(regexp-opt vue-ts-mode-sfc-tags) @vue-ts-mode-builtin-tag-face))
+       (:match ,(regexp-opt vue-ts-mode-builtin-tags) @vue-ts-mode-builtin-tag-face))
+      ((directive_name) @vue-ts-mode-shorthand-prefix-face
+       (:match "^\\(#\\|@\\|:\\)" @vue-ts-mode-shorthand-prefix-face)))
+
+    :language 'vue
+    :feature 'html
+    :override t
+    `(((component
+        :anchor
+        (_
+         (_
+          (tag_name) @vue-ts-mode-sfc-tag-face
+          (:match ,(regexp-opt vue-ts-mode-sfc-tags) @vue-ts-mode-sfc-tag-face))) :*))
 
       ((directive_attribute
         (directive_name) @vue-ts-mode-builtin-directive-face
         (:match ,(regexp-opt vue-ts-mode-builtin-directives)
                 @vue-ts-mode-builtin-directive-face)))))
-   (typescript-ts-mode--font-lock-settings 'typescript)
-   ;; js--treesit-font-lock-settings
-   ))
+   (vue-ts-mode--prefix-sub-language-feature
+    'typescript
+    (typescript-ts-mode--font-lock-settings 'typescript))
+   (vue-ts-mode--prefix-sub-language-feature
+    'javascript
+    js--treesit-font-lock-settings)
+   (vue-ts-mode--prefix-sub-language-feature
+    'css
+    css--treesit-settings)))
 
+(defun vue-ts-mode--sfc-element-imenu-index (root simple-imenu-settings defun-name-function)
+  ""
+  (mapcan (lambda (setting)
+            (pcase-let ((`(,category ,regexp ,pred ,name-fn)
+                         setting))
+              (when-let* ((tree (treesit-induce-sparse-tree
+                                 root regexp))
+                          (index (let ((treesit-defun-name-function defun-name-function))
+                                   (treesit--simple-imenu-1
+                                    tree pred name-fn))))
+                (if category
+                    (list (cons category index))
+                  index))))
+          simple-imenu-settings))
 
+(defun vue-ts-mode--get-sfc-language-element-data (el)
+  ""
+  (if-let ((contents
+            (car (treesit-filter-child
+                  el
+                  (lambda (c)
+                    (equal "raw_text" (treesit-node-type c)))))))
+      (let ((lang (vue-ts-mode--treesit-language-at-point (treesit-node-start contents))))
+        (list :lang lang
+              :root (and (treesit-ready-p lang)
+                         (treesit-node-at (treesit-node-start contents) lang))))
+    (list :lang 'vue
+          :root el)))
+
+(defun vue-ts-mode--get-sfc-element-start-tags (root)
+  ""
+  (let ((sfc-elements (treesit-query-capture
+                       root
+                       `((start_tag
+                          (tag_name) @tag-name
+                          (:match ,(regexp-opt vue-ts-mode-sfc-tags) @tag-name)) @start-tag)
+                       nil
+                       nil)))
+    (cl-loop for (cap . node) in sfc-elements
+             if (eq cap 'start-tag)
+             collect node)))
+
+(defun vue-ts-mode-imenu-index ()
+  (let* ((root (treesit-buffer-root-node 'vue))
+         (sfc-elements (vue-ts-mode--get-sfc-element-start-tags root))
+         (typescript-items (vue-ts-mode--sfc-element-imenu-index
+                            (treesit-buffer-root-node 'typescript)
+                            `(("Function" "\\`function_declaration\\'" nil nil)
+                              ("Variable" "\\`lexical_declaration\\'"
+                               js--treesit-valid-imenu-entry nil)
+                              ("Class" ,(rx bos (or "class_declaration"
+                                                    "method_definition")
+                                            eos)
+                               nil nil))
+                            #'js--treesit-defun-name)))
+    `(("SFC" . ,(mapcar (lambda (node)
+                          (cons (treesit-node-text node)
+                                (treesit-node-start node)))
+                        sfc-elements))
+      ,@(when typescript-items
+          (list
+           (cons "TypeScript" typescript-items))))))
 
 (defmacro vue-ts-mode--define-lang-attr-predicate (lang)
   (let ((lang (if (symbolp lang)
@@ -176,6 +279,8 @@ Will be overridden by `tab-width' When `indent-tabs-mode' is non-nil.")
         (car match)
       'vue)))
 
+(add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-ts-mode))
+
 (define-derived-mode vue-ts-mode prog-mode "Vue"
   "Tree-sitter mode for Vue."
   (when (treesit-ready-p 'vue)
@@ -185,10 +290,53 @@ Will be overridden by `tab-width' When `indent-tabs-mode' is non-nil.")
               (append "{}():;,<>/=" electric-indent-chars))
 
   (setq-local treesit-font-lock-feature-list
-              '((html comment declaration interpolation)
-                (keyword string escape-sequence)
-                (constant expression identifier number pattern property)
-                (function bracket delimiter)))
+              '((
+                 html comment declaration interpolation
+                 vue-typescript-comment
+                 vue-typescript-declaration
+                 vue-javascript-comment
+                 vue-javascript-definition
+                 vue-css-selector
+                 vue-css-comment
+                 vue-css-query
+                 vue-css-keyword)
+                (vue-typescript-keyword
+                 vue-typescript-string
+                 vue-typescript-escape-sequence
+                 vue-javascript-keyword
+                 vue-javascript-string
+                 vue-css-property
+                 vue-css-constant
+                 vue-css-string)
+                (
+                 vue-typescript-constant
+                 vue-typescript-expression
+                 vue-typescript-identifier
+                 vue-typescript-number
+                 vue-typescript-pattern
+                 vue-typescript-property
+
+                 vue-javascript-assignment
+                 vue-javascript-constant
+                 vue-javascript-escape-sequence
+                 vue-javascript-jsx
+                 vue-javascript-number
+                 vue-javascript-pattern
+                 vue-javascript-string-interpolation
+
+                 vue-css-error
+                 vue-css-variable
+                 vue-css-function
+                 vue-css-operator
+                 vue-css-bracked)
+                (vue-typescript-function
+                 vue-typescript-bracket
+                 vue-typescript-delimiter
+                 vue-javascript-bracket
+                 vue-javascript-delimiter
+                 vue-javascript-function
+                 vue-javascript-operator
+                 vue-javascript-property)))
 
 
   (setq-local treesit-language-at-point-function #'vue-ts-mode--treesit-language-at-point)
@@ -204,25 +352,25 @@ Will be overridden by `tab-width' When `indent-tabs-mode' is non-nil.")
   (setq-local treesit-simple-indent-rules
               (append
                vue-ts-mode--indent-rules
-               (typescript-ts-mode--indent-rules 'typescript)))
+               (typescript-ts-mode--indent-rules 'typescript)
+               css--treesit-indent-rules))
 
   (setq treesit-range-settings
         (treesit-range-rules
          ;; #'vue-ts-mode--setup-interpolation-parsers
-         ;; :embed 'javascript
-         ;; :host 'vue
-         ;; '((interpolation
-         ;;    (raw_text) @capture))
+         :embed 'javascript
+         :host 'vue
+         '((interpolation
+            (raw_text) @capture))
 
-         ;; :embed 'javascript
-         ;; :host 'vue
-         ;; `((directive_attribute
-         ;;    (quoted_attribute_value
-         ;;     (attribute_value) @capture))
-         ;;   (script_element
-         ;;    (raw_text) @capture
-         ;;    (:pred vue-ts-mode--script-no-lang-p @capture))
-         ;;   )
+         :embed 'javascript
+         :host 'vue
+         `(;; (directive_attribute
+           ;;  (quoted_attribute_value
+           ;;   (attribute_value) @capture))
+           (script_element
+            (raw_text) @capture
+            (:pred vue-ts-mode--script-no-lang-p @capture)))
          ;; '((directive_attribute
          ;;    (quoted_attribute_value
          ;;     (attribute_value) @attr_js)))
@@ -239,10 +387,13 @@ Will be overridden by `tab-width' When `indent-tabs-mode' is non-nil.")
             (raw_text) @typescript
             (:pred vue-ts-mode--start-tag-lang-ts-p @typescript)))
 
-         ;; :embed 'css
-         ;; :host 'vue
-         ;; '((style_element (raw_text) @css))
+         :embed 'css
+         :host 'vue
+         '((style_element (raw_text) @css))
          ))
+
+  (modify-syntax-entry ?=  "." vue-ts-mode-syntax-table)
+  (setq-local imenu-create-index-function #'vue-ts-mode-imenu-index)
 
   (treesit-major-mode-setup))
 
@@ -260,6 +411,34 @@ Will be overridden by `tab-width' When `indent-tabs-mode' is non-nil.")
       (let ((parser (treesit-parser-create 'javascript nil t)))
         (treesit-parser-set-included-ranges parser (list range))
         (push parser vue-ts-mode--interpolation-parsers)))))
+
+;; https://github.com/Sorixelle/astro-ts-mode/blob/207e5da093aa8141b9dd2f5e98afd8952832b4b0/astro-ts-mode.el#L218
+(defun vue-ts-mode--advice-for-treesit-buffer-root-node (&optional lang)
+  "Return the current ranges for the LANG parser in the current buffer.
+
+If LANG is omitted, return ranges for the first language in the parser list.
+
+If `major-mode' is currently `vue-ts-mode', or if LANG is vue, this function
+instead always returns t."
+  (if (or (eq lang 'vue) (not (eq major-mode 'vue-ts-mode)))
+    t
+    (treesit-parser-included-ranges
+     (treesit-parser-create
+      (or lang (treesit-parser-language (car (treesit-parser-list))))))))
+
+(advice-add
+ #'treesit-buffer-root-node
+ :before-while
+ #'vue-ts-mode--advice-for-treesit-buffer-root-node)
+
+(defun vue-ts-mode--advice-for-treesit--merge-ranges (_ new-ranges _ _)
+  "Return truthy if `major-mode' is `vue-ts-mode', and if NEW-RANGES is non-nil."
+  (and (derived-mode-p 'vue-ts-mode) new-ranges))
+
+;; (advice-add
+;;  #'treesit--merge-ranges
+;;  :before-while
+;;  #'vue-ts-mode--advice-for-treesit--merge-ranges)
 
 (provide 'vue-ts-mode)
 ;;; vue-ts-mode.el ends here
