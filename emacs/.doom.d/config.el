@@ -155,7 +155,14 @@
       (:prefix "i"
                (:desc "UUID" "U" #'schmo/insert-uuid)
                (:prefix ("n" . "number")
-                        (:desc "Relative units" "r" 'schmo/insert-relative-units))))
+                        (:desc "Relative units" "r" 'schmo/insert-relative-units)))
+      (:prefix "p"
+               "D" #'projectile-remove-known-project
+               "d" #'project-find-dir))
+
+(map!
+ (:map ctl-x-map
+       (:desc "project" "p" project-prefix-map)))
 
 ;; Version Control Mappings
 (map!
