@@ -469,6 +469,9 @@ for filtering company completion candidates"
 (set-yas-minor-mode! 'vue-script-mode)
 (set-yas-minor-mode! 'vue-minor-mode)
 
+(add-hook 'vue-minor-mode-hook (lambda ()
+                                 (treesit-parser-create 'vue)))
+
 (add-to-list 'web-mode-language-triggers-yas-extra-mode-alist '("typescript" vue-script-mode))
 
 (defun schmo/unset-vue-web-mode-padding ()
