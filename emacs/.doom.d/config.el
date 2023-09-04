@@ -422,7 +422,7 @@ want it on a key that's easier to hit"
   "Wraps `company-capf--candidates' to prioritize fuzzy matching over orderless
 for filtering company completion candidates"
   :around #'company-capf--candidates
-  (let ((completion-styles '(fussy orderless basic partial-completion emacs22)))
+  (let ((completion-styles `(,(if (derived-mode-p 'emacs-lisp-mode) 'flex 'fussy) orderless basic partial-completion emacs22)))
     (apply fn args)))
 
 (map! :after company
