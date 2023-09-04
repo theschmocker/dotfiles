@@ -341,7 +341,12 @@
     '((template_string
        (template_substitution
         "${" @font-lock-builtin-face
-        "}" @font-lock-builtin-face)))))
+        "}" @font-lock-builtin-face)))
+
+    :language 'typescript
+    :feature 'identifier
+    :override t
+    '((predefined_type) @font-lock-builtin-face)))
 
 (autoload 'cs-ts-extras-convert-to-typescript-at-point-dwim "cs-ts-extras" nil t)
 
