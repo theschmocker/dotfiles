@@ -46,6 +46,20 @@
 (setq treesit-extra-load-path (list (file-name-concat doom-emacs-dir ".local" "etc" "tree-sitter")))
 (setq treesit-font-lock-level 4)
 
+
+;;; Tree-sitter
+
+(setq treesit-language-source-alist
+      '((css "https://github.com/tree-sitter/tree-sitter-css")
+        (html "https://github.com/tree-sitter/tree-sitter-html")
+        (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+        (json "https://github.com/tree-sitter/tree-sitter-json")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+        (vue "https://github.com/ikatyang/tree-sitter-vue")
+        (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")))
+
 ;;; Popups
 ;;;
 ;; I have a habit of pressing escape too many times... meaning I keep losing popup buffers.
