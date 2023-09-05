@@ -327,6 +327,38 @@
                                           (when indent-tabs-mode
                                             (setq-local typescript-ts-mode-indent-offset tab-width))))
 
+(defadvice! schmo/tsx-ts-mode--font-lock-compatibility-bb1f97b (language)
+  ;; the error manages to leak out of `tsx-ts-mode--font-lock-compatibility-bb1f97b'
+  ;; function and break syntax highlighting anyway
+  :override #'tsx-ts-mode--font-lock-compatibility-bb1f97b
+  '((jsx_opening_element
+     [(nested_identifier (identifier)) (identifier)]
+     @typescript-ts-jsx-tag-face)
+
+    (jsx_closing_element
+     [(nested_identifier (identifier)) (identifier)]
+     @typescript-ts-jsx-tag-face)
+
+    (jsx_self_closing_element
+     [(nested_identifier (identifier)) (identifier)]
+     @typescript-ts-jsx-tag-face)))
+
+(defadvice! schmo/js-jsx--treesit-font-lock-compatibility-bb1f97b ()
+  ;; the error manages to leak out of `js-jsx--treesit-font-lock-compatibility-bb1f97b'
+  ;; function and break syntax highlighting anyway
+  :override #'js-jsx--treesit-font-lock-compatibility-bb1f97b
+  '((jsx_opening_element
+     [(nested_identifier (identifier)) (identifier)]
+     @font-lock-function-call-face)
+
+    (jsx_closing_element
+     [(nested_identifier (identifier)) (identifier)]
+     @font-lock-function-call-face)
+
+    (jsx_self_closing_element
+     [(nested_identifier (identifier)) (identifier)]
+     @font-lock-function-call-face)))
+
 ;; The built in directive queries cause errors
 (after! csharp-mode
   (setq csharp-ts-mode--font-lock-settings (cl-remove-if (lambda (r)
