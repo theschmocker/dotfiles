@@ -321,7 +321,8 @@
 
 (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-ts-mode))
 
-(add-hook 'csharp-ts-mode-hook #'lsp!)
+(add-hook 'csharp-ts-mode-local-vars-hook #'lsp! 'append)
+
 (add-hook 'typescript-ts-base-mode-hook (lambda ()
                                           (when indent-tabs-mode
                                             (setq-local typescript-ts-mode-indent-offset tab-width))))
