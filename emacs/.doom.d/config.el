@@ -66,7 +66,7 @@
 ;; This should make "q" the primary way to close some of them
 (set-popup-rules!
   '(("^\\*info" :quit nil :modeline t :size 0.35)
-    ("^\\*helpful" :quit nil :modeline t :size 0.35 :ttl 30)))
+    ("^\\*helpful" :quit nil :modeline t :size 0.35 :ttl 300)))
 
 (plist-put +popup-defaults :modeline t)
 
