@@ -231,7 +231,7 @@
   ;;
   ;; Note to future self: revisit this if you run into servers that don't watch
   ;; files themselves
-  (setq lsp-enable-file-watchers nil)
+  (setq lsp-enable-file-watchers (not IS-MAC))
 
   (setq lsp-eldoc-enable-hover nil)
   (setq lsp-auto-execute-action nil))
@@ -253,6 +253,7 @@
     :package "typescript-svelte-plugin"
     :dependency-of 'svelte-language-server))
 
+  (setq lsp-volar-take-over-mode nil)
   (lsp-ts-plugin-manager-register
    (lsp-ts-plugin-manager-plugin
     :name 'typescript-vue-plugin
