@@ -322,6 +322,9 @@
 (add-to-list 'auto-mode-alist '("\\.cs\\'" . csharp-ts-mode))
 
 (add-hook 'csharp-ts-mode-hook #'lsp!)
+(add-hook 'typescript-ts-base-mode-hook (lambda ()
+                                          (when indent-tabs-mode
+                                            (setq-local typescript-ts-mode-indent-offset tab-width))))
 
 ;; The built in directive queries cause errors
 (after! csharp-mode
