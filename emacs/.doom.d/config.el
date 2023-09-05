@@ -109,7 +109,9 @@
 (map! (:n "s" (lambda ()
                 (interactive)
                 (dlet ((avy-all-windows 't))
-                  (call-interactively #'avy-goto-char-timer)))))
+                  (call-interactively #'avy-goto-char-2)))))
+
+(setq avy-keys '(?j ?k ?f ?d ?l ?h ?g ?s ?a))
 
 (defun schmo/insert-uuid ()
   "Shell out to uuidgen and insert the result"
