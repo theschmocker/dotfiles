@@ -399,7 +399,24 @@
     :language 'typescript
     :feature 'identifier
     :override t
-    '((predefined_type) @font-lock-builtin-face)))
+    '((predefined_type) @font-lock-builtin-face))
+
+  (treesit-additional-font-lock-rules 'json-ts-mode
+    :language 'json
+    :feature 'bracket
+    :override t
+    '((string
+       "\"" @font-lock-bracket-face))
+
+    ;; special coloring for top level object keys
+    :language 'json
+    :feature 'pair
+    :override t
+    '((document
+       (object
+        (pair
+         key: (string
+               (string_content) @font-lock-keyword-face)))))))
 
 (add-hook 'typescript-ts-mode-local-vars-hook #'lsp! 'append)
 (add-hook 'tsx-ts-mode-local-vars-hook #'lsp! 'append)
