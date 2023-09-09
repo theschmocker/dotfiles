@@ -2,3 +2,4 @@
 plugin/
 custom-hidden.el
 /emacs/.doom.d/custom.el
+/emacs/.doom.d/lib-repos/
