@@ -43,7 +43,6 @@
 
 (setq doom-themes-treemacs-enable-variable-pitch nil)
 
-(setq treesit-extra-load-path (list (file-name-concat doom-emacs-dir ".local" "etc" "tree-sitter")))
 (setq treesit-font-lock-level 4)
 
 
@@ -59,6 +58,8 @@
         (yaml "https://github.com/ikatyang/tree-sitter-yaml")
         (vue "https://github.com/ikatyang/tree-sitter-vue")
         (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")))
+
+(add-to-list 'auto-mode-alist '("\\.json\\'" . 'json-ts-mode))
 
 ;;; Popups
 ;;;
@@ -323,6 +324,7 @@
 
 (add-hook 'csharp-ts-mode-local-vars-hook #'lsp! 'append)
 
+(setq typescript-ts-mode-indent-offset 4)
 (add-hook 'typescript-ts-base-mode-hook (lambda ()
                                           (when indent-tabs-mode
                                             (setq-local typescript-ts-mode-indent-offset tab-width))))
@@ -403,16 +405,13 @@
 
   (treesit-additional-font-lock-rules 'json-ts-mode
     :language 'json
-    :feature 'bracket
-    :override t
-    '((string
-       "\"" @font-lock-bracket-face))
-
-    ;; special coloring for top level object keys
-    :language 'json
     :feature 'pair
     :override t
-    '((document
+    '((object
+       (pair
+        key: (string "\"" @font-lock-bracket-face)))
+      ;; special coloring for top level object keys
+      (document
        (object
         (pair
          key: (string
