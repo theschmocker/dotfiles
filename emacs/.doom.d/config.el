@@ -609,7 +609,15 @@ foreground of the black color keyword in CSS."
                          #'yas-expand)))
 
 ;;; Misc
+
+;; TODO DOOM adds a function to `after-change-major-mode-hook' that tries to detect whitespace mismatches.
+;; It doesn't take editorconfig changes into account, so tabs always get highlighted. Need to change that.
 (setq whitespace-global-modes nil)
+
+(map! :leader
+      :prefix "t"
+      "w" #'whitespace-mode
+      "W" #'visual-line-mode)
 
 (setq show-paren-context-when-offscreen 'overlay)
 
