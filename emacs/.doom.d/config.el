@@ -449,6 +449,7 @@ code"
 
 ;;; Completion
 (setq completion-ignore-case t)
+(setq company-dabbrev-code-ignore-case t)
 
 (use-package! fussy
   :config
@@ -494,6 +495,9 @@ for filtering company completion candidates"
   :around #'company-capf--candidates
   (let ((completion-styles `(,(if (derived-mode-p 'emacs-lisp-mode) 'flex 'fussy) orderless basic partial-completion emacs22)))
     (apply fn args)))
+
+;; I have no use for the default C-o mapping
+(map! :i "C-o" #'completion-at-point)
 
 (map! :after company
       :map company-active-map
