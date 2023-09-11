@@ -198,4 +198,5 @@
        org-visual-tweaks
        rg
        sql
-       twig)
+       twig
+       vue)
