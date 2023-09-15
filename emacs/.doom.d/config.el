@@ -752,7 +752,7 @@ CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
 
 ;;; JSON utils
 
-(cl-defmacro schmo/define-json-region-format-command (name docstring &key js buffer-name (major-mode 'json-mode))
+(cl-defmacro schmo/define-json-region-format-command (name docstring &key js buffer-name (major-mode 'json-ts-mode))
   (declare (indent defun))
   (let* ((basedoc "Arguments:
 START:   region start or `point-min'.
@@ -805,7 +805,7 @@ Indented with tabs."
   (schmo/prettify-json (point-min) (point-max) t)
   (setq buffer-undo-list nil)
   (set-buffer-modified-p nil)
-  (json-mode)
+  (json-ts-mode)
   (deactivate-mark)
   (setq-local string-edit-mode-reformat-string-function
               (lambda (_ new-json)
