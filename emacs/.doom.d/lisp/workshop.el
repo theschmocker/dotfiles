@@ -128,6 +128,128 @@ Name is read from the package.json file."
     ((debug error) nil)))
 
 
+(defvar schmo/ts-overlays nil)
+
+(defun schmo/ts-highlight-clear-overlays ()
+  (interactive)
+  (dolist (o schmo/ts-overlays)
+    (delete-overlay o)))
+
+(defun schmo/ts-highlight-query-result (results)
+  (schmo/ts-highlight-clear-overlays)
+  (dolist (match results)
+    (let ((face 'highlight)
+          start
+          end)
+      (if (symbolp (car match))
+          (progn
+            (when (facep (car match))
+              (setq face (car match)))
+            (setq start (treesit-node-start (cdr match)))
+            (setq end (treesit-node-end (cdr match))))
+        (setq start (car match))
+        (setq end (cdr match)))
+      (let ((o (make-overlay start end)))
+        (overlay-put o 'face face)
+        (push o schmo/ts-overlays)))))
+
+(require 'treesit)
+
+(defvar-local schmo/npm-dep-info-cache nil)
+
+(defun schmo/retrieve-dependency-info (dep-name callback)
+  (url-retrieve (format "https://registry.npmjs.org/%s" dep-name)
+                (lambda (status)
+                  (goto-char (point-min))
+                  ;; skip the HTTP headers
+                  (while (not (looking-at "\n")) (forward-line))
+                  (delete-region (point-min) (+ 1 (point)))
+                  (let ((res (json-parse-buffer
+                              :object-type 'plist
+                              :array-type 'list)))
+                    (funcall callback
+                             (mapcan (lambda (key)
+                                       (list key (plist-get res key)))
+                                     '(:description :homepage)))))
+                nil
+                'silent
+                'inhibit-cookies))
+
+(schmo/retrieve-dependency-info "react" #'print)
+
+(defun schmo/get-json-pair-key (node)
+  (treesit-node-text
+   (car
+    (treesit-query-capture
+     (treesit-node-child-by-field-name node "key")
+     '((string_content) @c)
+     nil nil t))
+   t))
+
+(defun schmo/get-json-dep-name-at-pos (&optional pos)
+  (let ((pos (or pos (point))))
+    (let* ((node (treesit-node-at pos))
+           (pair (treesit-parent-until node (lambda (n) (equal (treesit-node-type n) "pair"))))
+           (pair-parent (treesit-parent-until pair (lambda (n) (equal (treesit-node-type n) "pair")))))
+      (when (and pair
+                 pair-parent
+                 (string-match-p
+                  (regexp-opt '("dependencies" "devDependencies" "peerDependencies"))
+                  (schmo/get-json-pair-key pair-parent)))
+        (schmo/get-json-pair-key pair)))))
+
+(with-current-buffer "package.json"
+  (schmo/get-json-dep-name-at-pos))
+
+(defun schmo/insert-with-current-buffer-in-scratch (buf)
+  (interactive "b")
+  (doom/open-scratch-buffer)
+  (goto-char (point-max))
+  (newline 2)
+  (insert (format "(with-current-buffer \"%s\")" buf))
+  (backward-char)
+  (newline-and-indent))
+
+(defvar schmo/ts-overlays nil)
+
+(defun schmo/ts-highlight-clear-overlays ()
+  (interactive)
+  (dolist (o schmo/ts-overlays)
+    (delete-overlay o)))
+
+(defun schmo/ts-highlight-query-result (results)
+  (schmo/ts-highlight-clear-overlays)
+  (dolist (match results)
+    (let ((face 'highlight)
+          start
+          end)
+      (if (symbolp (car match))
+          (progn
+            (cond ((facep (car match))
+                   (setq face (car match)))
+                  ((string-prefix-p "_" (symbol-name (car match))) ;; ignore captures starting with underscore
+                   (setq face nil)))
+            (setq start (treesit-node-start (cdr match)))
+            (setq end (treesit-node-end (cdr match))))
+        (setq start (car match))
+        (setq end (cdr match)))
+      (let ((o (make-overlay start end)))
+        (overlay-put o 'face face)
+        (push o schmo/ts-overlays)))))
+
+(defun schmo/create-ts-query-in-scratch-buffer ()
+  (interactive)
+  (call-interactively #'schmo/insert-with-current-buffer-in-scratch)
+  (let ((start (point)))
+    (insert (string-trim-right (pp
+                                '(schmo/ts-highlight-query-result
+                                  (treesit-query-capture
+                                   (treesit-buffer-root-node)
+                                   )))))
+    (indent-region start (point)))
+  (backward-char 2)
+  (newline-and-indent))
+
 (provide 'workshop)
 
 ;;; workshop.el ends here
