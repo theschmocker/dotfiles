@@ -12,7 +12,10 @@
     :desc "Go to matching element tag" "m" #'vue-ts-mode-element-match
     (:prefix ("e" . "element")
      :desc "Go to next element" "n" #'vue-ts-mode-element-next
-     :desc "Go to previous element" "p" #'vue-ts-mode-element-previous)))
+     :desc "Go to previous element" "p" #'vue-ts-mode-element-previous)
+    (:prefix ("a" . "attribute")
+     :desc "Toggle attribute wrapping" "n" nil
+     :desc "Toggle attribute wrapping" "t" #'vue-ts-mode-attributes-toggle-wrap)))
 
   (when (featurep! :tools lsp)
     (setq-hook! 'vue-ts-mode-hook lsp-enable-imenu nil) ;; use vue-ts-mode's imenu index instead
