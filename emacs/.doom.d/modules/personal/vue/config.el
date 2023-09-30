@@ -22,7 +22,7 @@
     (add-hook! 'vue-ts-mode-local-vars-hook :append #'lsp!))
 
   (when (featurep 'emmet-mode)
-    (add-hook! 'vue-ts-mode-hook #'emmet-mode))
+    (add-hook 'vue-ts-mode-hook (lambda () (emmet-mode 1))))
 
   (add-to-list 'vue-ts-mode-language-at-point-functions #'+vue/setup-yas-extra-langs)
 
