@@ -107,8 +107,8 @@
     (methods         foam)
     (numbers         rose)
     (operators       gold)
-    (strings         (doom-blend highlightH gold 0.175))
-    (type            rose)
+    (strings         (doom-blend highlightH gold 0.05))
+    (type            (doom-blend pine foam 0.1))
     (variables       iris)
 
     (error           love)
@@ -141,9 +141,11 @@
       :background (if doom-rose-pine-moon-brighter-comments (doom-blend teal base 0.07)))
     ((font-lock-type-face &override) :slant 'italic)
     ((font-lock-builtin-face &override) :slant 'italic)
-    ((font-lock-function-name-face &override) :foreground type)
+    ((font-lock-function-name-face &override) :foreground rose)
     ((font-lock-keyword-face &override) :weight 'bold)
     ((font-lock-constant-face &override) :weight 'bold)
+    ((font-lock-operator-face &override) :foreground subtle)
+    ((font-lock-punctuation-face &override) :foreground subtle)
     ((font-lock-bracket-face &override) :foreground subtle)
 
     ;; Highlight line
