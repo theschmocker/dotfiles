@@ -43,10 +43,10 @@
 
 (setq doom-themes-treemacs-enable-variable-pitch nil)
 
-(setq treesit-font-lock-level 4)
-
 
 ;;; Tree-sitter
+
+(setq treesit-font-lock-level 4)
 
 (setq treesit-language-source-alist
       '((css "https://github.com/tree-sitter/tree-sitter-css")
@@ -59,7 +59,9 @@
         (vue "https://github.com/ikatyang/tree-sitter-vue")
         (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")))
 
-(add-to-list 'auto-mode-alist '("\\.json\\'" . 'json-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
 
 ;;; Popups
 ;;;
@@ -367,6 +369,11 @@
                                                            (eq (nth 2 r) 'directives))
                                                          csharp-ts-mode--font-lock-settings)))
 
+(defface font-lock-constructor-face
+  '((t . (:inherit font-lock-function-name-face
+          :slant italic)))
+  "Face for html tags.")
+
 (autoload 'treesit-additional-font-lock-rules "treesit-additional-font-lock-rules")
 (after! treesit
   (treesit-additional-font-lock-rules 'csharp-ts-mode
@@ -380,28 +387,57 @@
     :feature 'comment
     :override t
     '((arrow_expression_clause
-       "=>" @font-lock-builtin-face)
+       "=>" @font-lock-operator-face)
       (lambda_expression
-       "=>" @font-lock-builtin-face))
+       "=>" @font-lock-operator-face))
+
+    :language 'c-sharp
+    :feature 'definition
+    :override t
+    '((using_directive (identifier) @font-lock-variable-name-face)
+      (qualified_name (identifier) @font-lock-variable-name-face)
+      (qualified_name "." @font-lock-punctuation-face)
+
+      (property_declaration
+       type: (generic_name (identifier) @font-lock-type-face))
+
+      (constructor_declaration
+       name: (_) @font-lock-constructor-face)
+
+      (expression_statement
+       (assignment_expression left: (identifier) @font-lock-variable-name-face))
+
+      (object_creation_expression
+       type: (identifier) @font-lock-constructor-face)
+      (object_creation_expression
+       type: (generic_name (identifier) @font-lock-constructor-face)))
 
     :language 'c-sharp
     :feature 'type
     :override t
-    '((predefined_type) @font-lock-builtin-face))
+    '((predefined_type) @font-lock-builtin-face
+      (void_keyword) @font-lock-builtin-face
+      (implicit_type "var" @font-lock-keyword-face)))
 
-  (treesit-additional-font-lock-rules 'typescript-ts-mode
-    :language 'typescript
-    :feature 'string
-    :override t
-    '((template_string
-       (template_substitution
-        "${" @font-lock-builtin-face
-        "}" @font-lock-builtin-face)))
-
-    :language 'typescript
-    :feature 'identifier
-    :override t
-    '((predefined_type) @font-lock-builtin-face))
+  (cl-loop for (mode . feature) in '((typescript-ts-mode . identifier)
+                                     (vue-ts-mode . vue-typescript-identifier))
+           do (apply #'treesit-additional-font-lock-rules
+                     mode
+                     `(:language typescript
+                       :feature ,feature
+                       :override t
+                       ((predefined_type) @font-lock-builtin-face
+                        (new_expression
+                         constructor: (identifier) @font-lock-constructor-face)
+                        (assignment_expression
+                         left: (identifier) @font-lock-variable-name-face)
+                        (member_expression
+                         object: (identifier) @font-lock-type-face
+                         (:match "^[[:upper:]].*" @font-lock-type-face))
+                        (type_parameters
+                         ["<" ">"] @font-lock-bracket-face)
+                        (type_arguments
+                         ["<" ">"] @font-lock-bracket-face)))))
 
   (treesit-additional-font-lock-rules 'json-ts-mode
     :language 'json
