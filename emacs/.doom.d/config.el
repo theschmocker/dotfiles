@@ -74,7 +74,7 @@
 
 ;;; Editor
 
-(setq scroll-margin 8)
+(setq scroll-margin 4)
 (setq hscroll-margin 16)
 (setq display-line-numbers-type 'relative)
 
