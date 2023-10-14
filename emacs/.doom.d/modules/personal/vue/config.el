@@ -21,8 +21,10 @@
     (setq-hook! 'vue-ts-mode-hook lsp-enable-imenu nil) ;; use vue-ts-mode's imenu index instead
     (add-hook! 'vue-ts-mode-local-vars-hook :append #'lsp!))
 
-  (when (featurep 'emmet-mode)
-    (add-hook 'vue-ts-mode-hook (lambda () (emmet-mode 1))))
+  (add-hook 'vue-ts-mode-hook
+            (lambda ()
+              (when (require 'emmet-mode nil t)
+                (emmet-mode 1))))
 
   (add-to-list 'vue-ts-mode-language-at-point-functions #'+vue/setup-yas-extra-langs)
 
