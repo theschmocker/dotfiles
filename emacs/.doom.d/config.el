@@ -595,8 +595,8 @@ for filtering company completion candidates"
   ;; this leads to this being inserted: {{ |  }}, when this is desired: {{ | }}
   ;; just disabling web-modes auto-pairing altogether for now; smartparens covers
   ;; most of my needs
-  (setq web-mode-enable-auto-pairing nil)
-  (add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode)))
+  (setq web-mode-enable-auto-pairing nil))
+(add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode))
 
 ;; Fix newline behavior in comments in web-mode. Seems like a new problem after upgrading
 ;; to Emacs 29.
