@@ -347,6 +347,97 @@ Name is read from the package.json file."
         (indent-region start (point)))
     (error "No ternary at point that can be converted into conditional statements")))
 
-(provide 'workshop)
+(defun create-matrix (width height &optional init-value)
+  (let ((m (make-vector height nil)))
+    (dotimes (i height)
+      (setf (aref m i) (make-vector width init-value)))
+    m))
 
+(defun matrix-get (x y matrix)
+  (aref (aref matrix y) x))
+
+(defun matrix-set (x y matrix value)
+  (let ((row (aref matrix y)))
+    (setf (aref row x) value)))
+
+(defun matrix-row (row matrix)
+  (aref matrix row))
+
+(defun matrix-print (matrix)
+  (let ((height (length matrix))
+        (width (length (aref matrix 0))))
+    (print
+     (with-temp-buffer
+       (dotimes (y height)
+         (dotimes (x width)
+           (princ (matrix-get x y matrix) (current-buffer))
+           (insert " "))
+         (delete-char -1)
+         (newline))
+       (buffer-string)))))
+
+(defun schmo/fuzzy-safe-aref (array idx &optional default)
+  (if (<= idx (length array))
+      (aref array idx)
+    default))
+
+(cl-defun schmo/fuzzy-match (input pattern)
+  (cl-block 'fn
+    (let* ((m (length input))
+           (n (length pattern))
+           (matrix (create-matrix m n)))
+      (if (zerop n)
+          (list :score 0 :matrix)
+        (dotimes (row n)
+          (let (matchp
+                (prev-match-idx (if (< 0 row)
+                                    (cl-loop with r = (matrix-row (1- row) matrix)
+                                             for i below (length r)
+                                             if (aref r i) return i
+                                             finally return -1)
+                                  -1)))
+            (cl-loop for column from (1+ prev-match-idx) below m
+                     ;; do (matrix-print matrix)
+                     do (when-let ((pattern-char (schmo/fuzzy-safe-aref pattern row))
+                                   (char (schmo/fuzzy-safe-aref input column))
+                                   ((and ;; (print (cons (string pattern-char) (string char)))
+                                     (eql pattern-char char))))
+                          (setq matchp t)
+                          (let ((score 1))
+                            (when (< 0 row)
+                              (let ((max-previous most-negative-fixnum))
+                                (dotimes (prev-column column)
+                                  (let ((s (matrix-get prev-column (1- row) matrix)))
+                                    (when s
+                                      (let ((gap-penalty (1- (- column prev-column))))
+                                        (setq max-previous (max max-previous (- s gap-penalty)))))))
+                                (setq score (+ score max-previous))))
+                            (matrix-set column row matrix score))))
+            (unless matchp
+              (cl-return-from 'fn))))
+        (let* ((last-row (matrix-row (1- n) matrix))
+               (max-score (apply #'max (seq-filter (lambda (s) s) last-row))))
+          (list :score max-score :matrix matrix))))))
+
+(defun schmo/fuzzy-try-completions (string table pred point)
+  (completion-flex-try-completion string table pred point))
+
+(defun schmo/fuzzy-all-completions (string table pred point)
+  (pcase-let ((`(,completions ,pattern ,prefix ,_suffix ,_carbounds)
+               (completion-substring--all-completions
+                string
+                table pred point
+                #'completion-flex--make-flex-pattern)))
+    (let ((scored
+           (cl-loop for c in completions
+                    for flx-score = (schmo/fuzzy-match c string)
+                    if flx-score
+                    collect `(:completion ,c ,@flx-score))))
+      (thread-last (sort scored (lambda (a b)
+                                  (print (cons b a))
+                                        (< (plist-get b :score) (plist-get a :score))))
+                   (mapcar (lambda (c)
+                             (plist-get c :completion)))))))
+
+(provide 'workshop)
 ;;; workshop.el ends here
