@@ -198,5 +198,6 @@
        org-visual-tweaks
        rg
        sql
+       treesit-helpers
        twig
        vue)
