@@ -609,17 +609,17 @@ for filtering company completion candidates"
     (funcall fn)))
 
 (when IS-WINDOWS
-  (defadvice! schmo/floor (orig-fn &rest args)
-    "Wrap `floor' and always return 0 when the first argument is 0.0.
+  (defmacro schmo/fix-windows-float-conversion-fn (fn)
+    `(defadvice! ,(intern (concat "schmo/fix-" (symbol-name (cadr fn)))) (orig-fn &rest args)
+       :around ,fn
+       (if (= 0.0 (car args))
+           0
+         (apply orig-fn args))))
 
-HACK: works around an issue in Emacs 29.1 on Windows where
-(floor 0.0 SOME-NUMBER) results in a fatal error.. This caused
-(very hard to debug) crashes when web-mode tried to colorize the
-foreground of the black color keyword in CSS."
-    :around #'floor
-    (if (= 0.0 (car args))
-        0
-      (apply orig-fn args))))
+  (schmo/fix-windows-float-conversion-fn #'floor)
+  (schmo/fix-windows-float-conversion-fn #'round)
+  (schmo/fix-windows-float-conversion-fn #'ceiling)
+  (schmo/fix-windows-float-conversion-fn #'truncate))
 
 (setq emmet-indent-after-insert nil)
 ;; Something about emmet-expand-yas breaks undo... just use emmet-expand-line instead
