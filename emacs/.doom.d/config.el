@@ -508,7 +508,8 @@ want it on a key that's easier to hit"
   (setq completion-styles '(orderless fussy basic)))
 
 ;; Current company selection will get put into to the buffer
-(add-hook 'after-init-hook 'company-tng-mode)
+(add-to-list 'company-frontends 'company-tng-frontend)
+(setq company-selection-default nil)
 
 (setq company-selection-wrap-around t
       company-tooltip-width-grow-only t)
