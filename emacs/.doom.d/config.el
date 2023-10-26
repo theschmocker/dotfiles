@@ -426,7 +426,8 @@
                      `(:language typescript
                        :feature ,feature
                        :override t
-                       ((predefined_type) @font-lock-builtin-face
+                       ((undefined) @font-lock-builtin-face
+                        (predefined_type) @font-lock-builtin-face
                         (new_expression
                          constructor: (identifier) @font-lock-constructor-face)
                         (assignment_expression
