@@ -29,8 +29,6 @@
   (add-to-list 'vue-ts-mode-language-at-point-functions #'+vue/setup-yas-extra-langs)
 
   (add-hook! 'vue-ts-mode-hook
-    ;; TODO: put this back into vue-ts-mode
-    (modify-syntax-entry ?= "." vue-ts-mode-syntax-table)
     (+vue/setup-yas-extra-langs (treesit-language-at (point))))
 
   (advice-add 'vue-ts-mode-element-match :around #'doom-set-jump-maybe-a)
