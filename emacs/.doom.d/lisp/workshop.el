@@ -308,6 +308,14 @@ Name is read from the package.json file."
         (indent-region start (point)))
     (error "No if-else at point that can be converted into a ternary")))
 
+(defun schmo/ternary-return-statement-at-point-p ()
+  (and-let* ((return-node (treesit-parent-until (treesit-node-at (point) 'typescript)
+                                                (lambda (n)
+                                                  (and (equal "return_statement" (treesit-node-type n))
+                                                       (schmo/treesit-selected-immediate-descendant n "ternary_expression")))))
+             (ternary (schmo/treesit-selected-immediate-descendant return-node "ternary_expression"))
+             (condition-field (treesit-node-child-by-field-name ternary "condition")))))
+
 (defun schmo/ts-convert-ternary-return-expression-at-point-to-statements ()
   (interactive)
   (if-let* ((return-node (treesit-parent-until (treesit-node-at (point) 'typescript)
