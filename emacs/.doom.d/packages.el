@@ -62,8 +62,5 @@
   :pin "27baf4c5bd...")
 
 (package! diffview)
-(package! spacemacs-theme)
-
-(package! cycle-quotes)
 
 (package! apheleia :pin "706d6bd")
