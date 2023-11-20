@@ -9,6 +9,7 @@
 (require 'string-edit)
 (require 'msbuild)
 (require 'web-mode-language-triggers)
+(require 'misc-tools)
 
 (setq user-full-name "Jacob"
       user-mail-address "")
@@ -144,7 +145,8 @@
       (:prefix "c"
        :desc "Jump to references" "f" #'+lookup/references
        :desc "Format buffer/region" "F" #'+format/region-or-buffer
-       "D" nil)
+       "D" nil
+       "o" #'schmo/try-find-alt-type)
 
       (:prefix "w"
                ("w" 'ace-window)
