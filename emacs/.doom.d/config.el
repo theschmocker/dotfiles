@@ -236,10 +236,13 @@
   ;;
   ;; Note to future self: revisit this if you run into servers that don't watch
   ;; files themselves
-  (setq lsp-enable-file-watchers (not IS-MAC))
+  ;; (setq lsp-enable-file-watchers (not IS-MAC))
 
   (setq lsp-eldoc-enable-hover nil)
-  (setq lsp-auto-execute-action nil))
+  (setq lsp-auto-execute-action nil)
+  (setq lsp-enable-indentation nil)
+  (lsp-register-custom-settings '(("eslint.rules.customizations" (vector (list :rule "prettier*"
+                                                                               :severity "off"))))))
 
 ;; Register plugins with lsp-ts-plugin-manager
 (after! lsp-mode
@@ -258,15 +261,16 @@
     :package "typescript-svelte-plugin"
     :dependency-of 'svelte-language-server))
 
-  (setq lsp-volar-take-over-mode nil)
-  (lsp-ts-plugin-manager-register
-   (lsp-ts-plugin-manager-plugin
-    :name 'typescript-vue-plugin
-    :activation-fn (lambda (&rest _)
-                     (thread-last (schmo/get-project-package-json-files)
-                                  (mapcar #'file-name-directory)
-                                  (cl-some #'schmo/vue-project-p)))
-    :package "typescript-vue-plugin")))
+  (when IS-WINDOWS
+    (setq lsp-volar-take-over-mode nil)
+    (lsp-ts-plugin-manager-register
+     (lsp-ts-plugin-manager-plugin
+      :name 'typescript-vue-plugin
+      :activation-fn (lambda (&rest _)
+                       (thread-last (schmo/get-project-package-json-files)
+                                    (mapcar #'file-name-directory)
+                                    (cl-some #'schmo/vue-project-p)))
+      :package "typescript-vue-plugin"))))
 
 (after! lsp-ui
   (setq lsp-ui-doc-max-width 100
@@ -306,6 +310,11 @@
 ;; I work on a project that has vue in the devDependencies... for reasons. This ensures that volar gets initialized in that workspace
 (advice-add 'lsp-volar--vue-project-p :override #'schmo/vue-project-p)
 
+(defadvice! schmo/lsp-volar--vue-project-p (orig &rest args)
+  :around 'lsp-volar--activate-p
+  (and (schmo/vue-project-p (lsp-workspace-root))
+       (apply orig args)))
+
 ;; Workarounds for language servers (specifically volar) that include bytes in their JSON responses.
 ;; The libjansson version in Emacs isn't configured to handle them and it barfs
 ;; https://github.com/typescript-language-server/typescript-language-server/issues/559#issuecomment-1259470791
@@ -330,40 +339,9 @@
 
 (setq typescript-ts-mode-indent-offset 4)
 (add-hook 'typescript-ts-base-mode-hook (lambda ()
+                                          (setq-local comment-multi-line t)
                                           (when indent-tabs-mode
                                             (setq-local typescript-ts-mode-indent-offset tab-width))))
-
-(defadvice! schmo/tsx-ts-mode--font-lock-compatibility-bb1f97b (language)
-  ;; the error manages to leak out of `tsx-ts-mode--font-lock-compatibility-bb1f97b'
-  ;; function and break syntax highlighting anyway
-  :override #'tsx-ts-mode--font-lock-compatibility-bb1f97b
-  '((jsx_opening_element
-     [(nested_identifier (identifier)) (identifier)]
-     @typescript-ts-jsx-tag-face)
-
-    (jsx_closing_element
-     [(nested_identifier (identifier)) (identifier)]
-     @typescript-ts-jsx-tag-face)
-
-    (jsx_self_closing_element
-     [(nested_identifier (identifier)) (identifier)]
-     @typescript-ts-jsx-tag-face)))
-
-(defadvice! schmo/js-jsx--treesit-font-lock-compatibility-bb1f97b ()
-  ;; the error manages to leak out of `js-jsx--treesit-font-lock-compatibility-bb1f97b'
-  ;; function and break syntax highlighting anyway
-  :override #'js-jsx--treesit-font-lock-compatibility-bb1f97b
-  '((jsx_opening_element
-     [(nested_identifier (identifier)) (identifier)]
-     @font-lock-function-call-face)
-
-    (jsx_closing_element
-     [(nested_identifier (identifier)) (identifier)]
-     @font-lock-function-call-face)
-
-    (jsx_self_closing_element
-     [(nested_identifier (identifier)) (identifier)]
-     @font-lock-function-call-face)))
 
 ;; The built in directive queries cause errors
 (after! csharp-mode
@@ -458,6 +436,7 @@
 
 (add-hook 'typescript-ts-mode-local-vars-hook #'lsp! 'append)
 (add-hook 'tsx-ts-mode-local-vars-hook #'lsp! 'append)
+(add-hook 'js-ts-mode-local-vars-hook #'lsp! 'append)
 
 (autoload 'cs-ts-extras-convert-to-typescript-at-point-dwim "cs-ts-extras" nil t)
 
@@ -532,7 +511,7 @@ want it on a key that's easier to hit"
   "Wraps `company-capf--candidates' to prioritize fuzzy matching over orderless
 for filtering company completion candidates"
   :around #'company-capf--candidates
-  (let ((completion-styles `(,(if (derived-mode-p 'emacs-lisp-mode) 'flex 'fussy) orderless basic partial-completion emacs22)))
+  (let ((completion-styles `(flex orderless basic partial-completion emacs22)))
     (apply fn args)))
 
 ;; I have no use for the default C-o mapping
