@@ -63,6 +63,7 @@
 (add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
 
 ;;; Popups
 ;;;
@@ -439,6 +440,22 @@
 (add-hook 'js-ts-mode-local-vars-hook #'lsp! 'append)
 
 (autoload 'cs-ts-extras-convert-to-typescript-at-point-dwim "cs-ts-extras" nil t)
+
+(autoload 'jsx-ts-extras-auto-close-mode "jsx-ts-extras")
+(add-hook 'tsx-ts-mode-hook #'jsx-ts-extras-auto-close-mode)
+(autoload 'jsx-ts-extras-auto-open-tag-mode "jsx-ts-extras")
+(add-hook 'tsx-ts-mode-hook #'jsx-ts-extras-auto-open-tag-mode)
+(add-hook 'tsx-ts-mode-hook
+            (lambda ()
+              (when (require 'emmet-mode nil t)
+                (emmet-mode 1))))
+
+(autoload 'jsx-ts-extras-element-match "jsx-ts-extras")
+(advice-add 'jsx-ts-extras-element-match :around #'doom-set-jump-maybe-a)
+(map!
+   :mode tsx-ts-mode
+   (:localleader
+    :desc "Go to matching element tag" "m" #'jsx-ts-extras-element-match))
 
 (map!
  :mode csharp-ts-mode
