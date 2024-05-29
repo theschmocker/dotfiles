@@ -101,6 +101,52 @@ For example: <tag>|</tag>, but not <tag> |</tag>."
 (defun jsx-ts-extra--point-in-node-p (node)
   (<= (treesit-node-start node) (point) (treesit-node-end node)))
 
+;; Editing Commands
+
+(defun jsx-ts-extras-attributes-wrap (pos)
+  ""
+  (interactive "d")
+  (let* ((node (jsx-ts-extras--get-attr-tag-node pos))
+         (parts (mapcar (lambda (child)
+                          (let ((add-leading-newline-p (string-match-p ">\\|/>\\|jsx_attribute\\|jsx_expression"
+                                                                       (treesit-node-type child))))
+                            (cons (copy-marker (treesit-node-start child) nil)
+                                  add-leading-newline-p)))
+                        (treesit-node-children node))))
+    (save-excursion
+      (atomic-change-group
+        (cl-loop for (start . add-leading-newline-p) in parts
+                 do (progn
+                      (goto-char start)
+                      (when add-leading-newline-p
+                        (newline-and-indent))
+                      (set-marker start nil)))))))
+
+(defun jsx-ts-extras-attributes-unwrap (pos)
+  ""
+  (interactive "d")
+  (let* ((node (jsx-ts-extras--get-attr-tag-node pos))
+         (start (copy-marker (treesit-node-start node) nil))
+         (end (copy-marker (treesit-node-end node) t)))
+    (atomic-change-group
+      (save-excursion
+        (goto-char end)
+        (let (started)
+          (while (not (eql (line-number-at-pos start)
+                           (line-number-at-pos end)))
+            (join-line)
+            (when (and (not started)
+                       (looking-at-p " >"))
+              (delete-char 1)
+              (setq started t))))))))
+
+(defun jsx-ts-extras--get-attr-tag-node (pos)
+  ""
+  (treesit-parent-until (treesit-node-at pos)
+                        (lambda (n)
+                          (string-match-p "jsx_opening_element\\|jsx_self_closing_element"
+                                          (treesit-node-type n)))))
+
 ;; Shared Helpers
 
 (defun jsx-ts-extras--get-node-at-point (node-type)
