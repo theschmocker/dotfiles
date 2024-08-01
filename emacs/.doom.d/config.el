@@ -483,7 +483,6 @@ code"
 
 ;;; Completion
 (setq completion-ignore-case t)
-(setq company-dabbrev-code-ignore-case t)
 
 (use-package! fussy
   :config
@@ -506,51 +505,20 @@ want it on a key that's easier to hit"
   ;; fall back on fussy for automatic fuzzy matching if I get lazy using orderless
   (setq completion-styles '(orderless fussy basic)))
 
-;; Current company selection will get put into to the buffer
-(add-to-list 'company-frontends 'company-tng-frontend)
-(setq company-selection-default nil)
-
-(setq company-selection-wrap-around t
-      company-tooltip-width-grow-only t)
-
-;; Prevents company yasnippet completion when there's no symbol prefix
-(defadvice! schmo/company-yas (fn &rest args)
-  :around #'company-yasnippet
-  (cl-letf ((original-company-grab-symbol (symbol-function 'company-grab-symbol)))
-    (cl-letf (((symbol-function 'company-grab-symbol) (lambda ()
-                                                        (let ((res (funcall original-company-grab-symbol)))
-                                                          (if (string-empty-p res)
-                                                              nil
-                                                            res)))))
-      (apply fn args))))
-
-(defadvice! schmo/company-capf-candidates (fn &rest args)
-  "Wraps `company-capf--candidates' to prioritize fuzzy matching over orderless
-for filtering company completion candidates"
-  :around #'company-capf--candidates
-  (let ((completion-styles `(flex orderless basic partial-completion emacs22)))
-    (apply fn args)))
-
 ;; I have no use for the default C-o mapping
 (map! :i "C-o" #'completion-at-point)
 
-(map! :after company
-      :map company-active-map
-      ("C-y" #'company-complete-selection)
-      ("RET" nil)
-      ("<return>" nil)
-      ("C-h" nil)
-      :map (company-active-map company-tng-map)
-      ("TAB" nil)
-      ("<tab>" nil)
-      ("<backtab>" nil)
-      ("S-TAB" nil))
+(map! :after corfu
+      :map corfu-map
+      (:gi "C-y" #'corfu-insert)
+      (:gi "C-g" #'corfu-quit)
+      (:gi "TAB" nil)
+      (:gi "<tab>" nil)
+      (:gi "<backtab>" nil)
+      (:gi "S-TAB" nil))
 
-;; Company disables yas-keymap when active. I don't use company's tab bindings,
-;; so I'd rather it jump to the next field if I press tab when the popup is open
-(add-hook 'company-mode-hook
-          (lambda ()
-            (remove-hook 'yas-keymap-disable-hook 'company--active-p t)))
+(setq +corfu-want-ret-to-confirm 'minibuffer)
+(add-hook! 'corfu-mode-hook (setq-local completion-styles '(fussy orderless basic)))
 
 ;;; Web Mode
 
@@ -635,15 +603,12 @@ for filtering company completion candidates"
   (define-key yas-minor-mode-map (kbd "TAB") nil)
   ;; I wish there were a better way to disable doom's smart tab binding,
   ;; but this works.
-  (map! :i [tab] (cmds! (and nil
-                             (bound-and-true-p company-mode)
-                             (modulep! :completion company +tng))
-                        #'company-indent-or-complete-common)
-        ;; expand snippets with C-l instead
-        :ni "C-l" (cmds! (and (modulep! :editor snippets)
-                              (yas-maybe-expand-abbrev-key-filter 'yas-expand))
-                         #'yas-expand)))
+  (map! :i [tab] nil))
 
+(map! ;; expand snippets with C-l instead
+      :gni "C-l" (cmds! (and (modulep! :editor snippets)
+                             (yas-maybe-expand-abbrev-key-filter 'yas-expand))
+                        #'yas-expand))
 ;;; Misc
 
 ;; TODO DOOM adds a function to `after-change-major-mode-hook' that tries to detect whitespace mismatches.
@@ -728,11 +693,6 @@ CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
 ;;; org
 (setq org-directory "~/org/")
 (add-to-list 'org-modules 'ol-info)
-
-;; dictionary completion was causing some lag when typing. Bumping up the
-;; delay here makes things feel a bit more smooth for how I type.
-(add-hook! 'org-mode-hook
-  (setq-local company-idle-delay 0.3))
 
 (defun schmo/org-insert-week ()
   (interactive)
