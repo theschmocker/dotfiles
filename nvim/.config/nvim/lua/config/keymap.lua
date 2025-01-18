@@ -39,7 +39,16 @@ leader_map({
 	mode = "n",
 	keys = {
 		g = { function() require('neogit').open() end, desc = "Neogit" },
-		-- TODO: see if there's a way to map q in the blame buffer to quit the blame
 		b = { function() require('gitsigns').blame() end, desc = "Blame" },
 	},
+})
+
+-- bind q in gitsigns blame to close
+local gitsigns_group = vim.api.nvim_create_augroup('MyGroupGitsignsBlame', { clear = true })
+vim.api.nvim_create_autocmd('FileType', {
+	pattern = "gitsigns-blame",
+	group = gitsigns_group,
+	callback = function(data)
+		vim.keymap.set('n', 'q', '<cmd>:quit<CR>')
+	end
 })
