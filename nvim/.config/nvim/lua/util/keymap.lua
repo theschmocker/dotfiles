@@ -7,10 +7,12 @@ M.leader_map = function (opts)
 
 	local tbl = {}
 
-	table.insert(tbl, {
-		prefix,
-		group = opts.name,	
-	})
+	if prefix and opts.name then
+		table.insert(tbl, {
+			prefix,
+			group = opts.name,	
+		})
+	end
 
 	if opts.keys then
 		local keymap = {}

@@ -32,3 +32,14 @@ leader_map({
 		['o'] = { '<cmd>only<cr>', desc = 'only' },
 	},
 })
+
+leader_map({
+	name = "+git",
+	prefix = "g",
+	mode = "n",
+	keys = {
+		g = { function() require('neogit').open() end, desc = "Neogit" },
+		-- TODO: see if there's a way to map q in the blame buffer to quit the blame
+		b = { function() require('gitsigns').blame() end, desc = "Blame" },
+	},
+})

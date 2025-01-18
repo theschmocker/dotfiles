@@ -8,6 +8,7 @@ return {
 		require("telescope").setup({
 			defaults = {
 				layout_strategy = 'bottom_pane',
+				sorting_strategy = 'ascending',
 				layout_config = {
 					bottom_pane = {
 						width = 0.4,
