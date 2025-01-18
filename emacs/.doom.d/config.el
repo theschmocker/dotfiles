@@ -316,21 +316,6 @@
   (and (schmo/vue-project-p (lsp-workspace-root))
        (apply orig args)))
 
-;; Workarounds for language servers (specifically volar) that include bytes in their JSON responses.
-;; The libjansson version in Emacs isn't configured to handle them and it barfs
-;; https://github.com/typescript-language-server/typescript-language-server/issues/559#issuecomment-1259470791
-;; This might be fixed in Emacs 29
-(advice-add 'json-parse-string :around
-            (lambda (orig string &rest rest)
-              (apply orig (s-replace "\\u0000" "" string)
-                     rest)))
-(advice-add 'json-parse-buffer :around
-            (lambda (oldfn &rest args)
-              (save-excursion
-                (while (search-forward "\\u0000" nil t)
-                  (replace-match "" nil t)))
-              (apply oldfn args)))
-
 (add-hook 'csharp-tree-sitter-mode-local-vars-hook #'lsp! 'append)
 (add-hook 'csharp-mode-hook #'lsp!)
 
