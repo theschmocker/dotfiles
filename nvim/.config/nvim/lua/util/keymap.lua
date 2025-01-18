@@ -1,5 +1,3 @@
-local wk = require("which-key")
-
 local M = {}
 
 M.leader_map = function (opts)
@@ -10,7 +8,7 @@ M.leader_map = function (opts)
 	if prefix and opts.name then
 		table.insert(tbl, {
 			prefix,
-			group = opts.name,	
+			group = opts.name,
 		})
 	end
 
@@ -19,6 +17,10 @@ M.leader_map = function (opts)
 
 		if opts.mode then
 			keymap.mode = opts.mode
+		end
+
+		if opts.buffer then
+			keymap.buffer = opts.buffer
 		end
 
 		for key, mapping in pairs(opts.keys) do
