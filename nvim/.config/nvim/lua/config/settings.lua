@@ -26,15 +26,13 @@ vim.o.splitbelow = true
 vim.o.inccommand = "split"
 vim.o.background = "dark"
 vim.o.undofile = true
-
-vim.opt.splitright = true
-vim.opt.splitbelow = true
+vim.o.ignorecase = true
+vim.o.smartcase = true
 
 vim.schedule(function()
 	vim.opt.clipboard = 'unnamedplus'
 end)
 
 -- EditorConfig_exclude_patterns ["fugitive://.*" "scp://.*"]
-vim.g.user_emmet_leader_key = "<C-H>"
 vim.g.mapleader = " "
 vim.g.maplocalleader = " m"

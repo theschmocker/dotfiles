@@ -10,6 +10,15 @@ vim.keymap.set({'v', 'n'}, '<leader>;', function() require('telescope.builtin').
 	desc = "M-x", -- ;)
 })
 
+vim.keymap.set({'v', 'n'}, '<leader>.', function()
+	require('telescope.builtin').find_files({
+		cwd = require('telescope.utils').buffer_dir(),
+		no_ignore = true,
+	})
+end, {
+	desc = "Find file (relative)",
+})
+
 leader_map({
 	name = "+window",
 	prefix = "w",
@@ -43,12 +52,37 @@ leader_map({
 	},
 })
 
--- bind q in gitsigns blame to close
-local gitsigns_group = vim.api.nvim_create_augroup('MyGroupGitsignsBlame', { clear = true })
-vim.api.nvim_create_autocmd('FileType', {
-	pattern = "gitsigns-blame",
-	group = gitsigns_group,
-	callback = function(data)
-		vim.keymap.set('n', 'q', '<cmd>:quit<CR>')
-	end
+leader_map({
+	name = "+buffer",
+	prefix = "b",
+	mode = "n",
+	keys = {
+		b = { function() require('telescope.builtin').buffers() end, desc = "Switch to buffer" },
+	},
+})
+
+leader_map({
+	name = "+open",
+	prefix = "o",
+	mode = "n",
+	keys = {
+		['-'] = { '<cmd>Explore<cr>', desc = "Current Dir" },
+	},
+})
+
+local function bind_q_to_close(file_types)
+	local group = vim.api.nvim_create_augroup('QToCloseGroup', { clear = true })
+	vim.api.nvim_create_autocmd('FileType', {
+		pattern = file_types,
+		group = group,
+		callback = function(data)
+			print(data)
+			vim.keymap.set('n', 'q', '<cmd>:quit<CR>', { buffer = data.buf })
+		end
+	})
+end
+
+bind_q_to_close({
+	'gitsigns-blame',
+	'help',
 })

@@ -73,6 +73,9 @@ return {
 					end
 
 					map('gh', vim.lsp.buf.hover, "Hover", "n")
+					map('gd', function ()
+						vim.diagnostic.open_float()
+					end, "Show diagnostic", "n")
 
 					local leader_map = require('util.keymap').leader_map
 					leader_map({
@@ -183,6 +186,15 @@ return {
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
+			local vue_lang_server_path = vim.fs.joinpath(
+				require('mason-registry').get_package('vue-language-server'):get_install_path(),
+				'node_modules',
+				'@vue',
+				'language-server'
+			)
+
+			local svelte_ts_plugin_path = require('mason-registry').get_package('svelte-language-server'):get_install_path()
+
 			-- Enable the following language servers
 			--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 			--
@@ -193,19 +205,29 @@ return {
 			--  - settings (table): Override the default settings passed when initializing the server.
 			--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 			local servers = {
-				-- clangd = {},
-				-- gopls = {},
-				-- pyright = {},
-				-- rust_analyzer = {},
-				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-				--
-				-- Some languages (like typescript) have entire language plugins that can be useful:
-				--    https://github.com/pmizio/typescript-tools.nvim
-				--
-				-- But for many setups, the LSP (`ts_ls`) will work just fine
-				-- ts_ls = {},
-				--
-
+				ts_ls = {
+					init_options = {
+						tsserver = {
+							logVerbosity = 'verbose',
+							logDirectory = '/Users/jacob/.local/share/nvim/tsserver',
+							trace = 'verbose',
+						},
+						plugins = {
+							{
+								name = '@vue/typescript-plugin',
+								location = vue_lang_server_path,
+								languages = {"javascript", "typescript", "vue"},
+							},
+							{
+								name = 'typescript-svelte-plugin',
+								location = svelte_ts_plugin_path,
+							}
+						},
+					},
+					single_file_support = false,
+					filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+				},
+				volar = {},
 				lua_ls = {
 					-- cmd = { ... },
 					-- filetypes = { ... },
@@ -242,6 +264,8 @@ return {
 			-- require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
 			require('mason-lspconfig').setup {
+				ensure_installed = {},
+				automatic_installation = false,
 				handlers = {
 					function(server_name)
 						local server = servers[server_name] or {}
