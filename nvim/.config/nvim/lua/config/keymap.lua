@@ -70,6 +70,26 @@ leader_map({
 	},
 })
 
+leader_map({
+	name = "+help",
+	prefix = "h",
+	mode = "n",
+	keys = {
+		['k'] = {
+			function ()
+				require('telescope.builtin').keymaps()
+			end,
+			desc = "keymaps"
+		},
+		['h'] = {
+			function ()
+				require('telescope.builtin').help_tags()
+			end,
+			desc = "help tags"
+		},
+	}
+})
+
 local function bind_q_to_close(file_types)
 	local group = vim.api.nvim_create_augroup('QToCloseGroup', { clear = true })
 	vim.api.nvim_create_autocmd('FileType', {
