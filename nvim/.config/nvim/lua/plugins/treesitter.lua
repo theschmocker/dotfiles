@@ -27,4 +27,22 @@ return {
 		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
 		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	},
+	{
+		'JoosepAlviste/nvim-ts-context-commentstring',
+		opts = {
+			enable_autocmd = false,
+		},
+		init = function ()
+			if not _G._my_vim_get_option then
+				_G._my_vim_get_option = vim.filetype.get_option
+			end
+
+			---@diagnostic disable-next-line: duplicate-set-field
+			vim.filetype.get_option = function (filetype, option)
+				return option == "commentstring"
+					and require("ts_context_commentstring.internal").calculate_commentstring()
+					or _G._my_vim_get_option(filetype, option)
+			end
+		end
+	}
 }
