@@ -10,6 +10,12 @@ local neogit = {
 		integrations = {
 			telescope = true,
 		},
+		mappings = {
+			popup = {
+				['P'] = false,
+				['p'] = 'PushPopup',
+			}
+		},
 	},
 }
 
