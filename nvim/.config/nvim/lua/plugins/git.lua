@@ -14,6 +14,7 @@ local neogit = {
 			popup = {
 				['P'] = false,
 				['p'] = 'PushPopup',
+				['F'] = 'PullPopup',
 			}
 		},
 	},
