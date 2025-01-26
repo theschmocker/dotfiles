@@ -72,6 +72,12 @@ return {
 						vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
 					end
 
+					vim.keymap.set('n', 'gh', vim.lsp.buf.hover, {
+						desc = "LSP: Hover",
+						buffer = event.buf,
+						silent = true,
+					})
+
 					map('gh', vim.lsp.buf.hover, "Hover", "n")
 					map('gd', function ()
 						vim.diagnostic.open_float()

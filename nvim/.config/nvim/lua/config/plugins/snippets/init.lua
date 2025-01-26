@@ -71,3 +71,9 @@ const props = defineProps<{{
 }}>()
 	]], { i(1) }))
 })
+
+ls.add_snippets('lua', {
+	s('f', fmt([[function {}({})
+	{}
+end]], { i(1), i(2), i(3) })),
+})

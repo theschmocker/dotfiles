@@ -9,7 +9,7 @@ vim.o.wrap = false
 vim.o.linebreak = true
 vim.o.wildmenu = true
 vim.o.wildmode = "longest,full"
-vim.o.timeoutlen = 200
+vim.o.timeoutlen = 300
 vim.o.fixeol = false
 vim.o.scrolloff = 8
 vim.o.sidescrolloff = 16
@@ -36,3 +36,5 @@ end)
 -- EditorConfig_exclude_patterns ["fugitive://.*" "scp://.*"]
 vim.g.mapleader = " "
 vim.g.maplocalleader = " m"
+
+vim.g.have_nerd_font = true
