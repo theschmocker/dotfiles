@@ -12,19 +12,26 @@ return {
 	},
 	{
 		"rebelot/kanagawa.nvim",
-		opts = {
-			colors = {
-				theme = {
-					all = {
-						ui = {
-							bg_gutter = "none",
+		config = function() 
+			require('kanagawa').setup({
+				colors = {
+					theme = {
+						all = {
+							ui = {
+								bg_gutter = "none",
+							},
 						},
 					},
 				},
-			},
-		},
-		init = function ()
+				overrides = function (colors)
+					return {
+						-- indent-blankline overrides
+						IblIndent = { fg = colors.palette.dragonBlack4 },
+						IblScope = { fg = colors.palette.dragonBlack5 },
+					}
+				end
+			})
 			vim.cmd("colorscheme kanagawa-dragon")
-		end,
+		end
 	},
 }

@@ -19,5 +19,12 @@ return {
 		init = function ()
 			vim.g.user_emmet_leader_key = "<C-H>"
 		end
+	},
+	{
+		"lukas-reineke/indent-blankline.nvim",
+		main = "ibl",
+		---@module "ibl"
+		---@type ibl.config
+		opts = {},
 	}
 }
