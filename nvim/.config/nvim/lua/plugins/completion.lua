@@ -17,7 +17,9 @@ return {
 			-- See `:help cmp`
 			local cmp = require 'cmp'
 			local luasnip = require 'luasnip'
-			luasnip.config.setup {}
+			luasnip.config.setup {
+				update_events = "TextChanged,TextChangedI,InsertLeave"
+			}
 
 			cmp.setup {
 				snippet = {

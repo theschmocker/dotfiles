@@ -78,7 +78,12 @@ return {
 						silent = true,
 					})
 
-					map('gh', vim.lsp.buf.hover, "Hover", "n")
+					vim.keymap.set('i', '<C-S>', vim.lsp.buf.signature_help, {
+						desc = "LSP: Signature Help",
+						buffer = event.buf,
+						silent = true,
+					})
+
 					map('gd', function ()
 						vim.diagnostic.open_float()
 					end, "Show diagnostic", "n")
