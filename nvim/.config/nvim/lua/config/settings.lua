@@ -38,3 +38,10 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " m"
 
 vim.g.have_nerd_font = true
+
+vim.filetype.add({
+	filename = {
+		Podfile = "ruby",
+		Fastfile = "ruby",
+	}
+})

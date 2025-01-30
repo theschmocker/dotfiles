@@ -77,3 +77,21 @@ ls.add_snippets('lua', {
 	{}
 end]], { i(1), i(2), i(3) })),
 })
+
+ls.add_snippets('typescriptreact', {
+	s({ trig = 'us', desc = 'useState' }, fmt("const [{var}, set{var_upper}] = useState{before_parens}({value});", {
+		var = i(1),
+		var_upper = f(function (args)
+			local var_name = args[1][1];
+			if var_name == "" then
+				return ""
+			end
+
+			return string.gsub(var_name, "^%a", function (match)
+				return match:upper()
+			end)
+		end, { 1 }),
+		before_parens = i(2),
+		value = i(3),
+	}))
+})
