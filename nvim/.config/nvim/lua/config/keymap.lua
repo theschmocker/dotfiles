@@ -5,6 +5,9 @@ local leader_map = require("util.keymap").leader_map
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 vim.keymap.set('i', 'jk', '<Esc>')
+vim.keymap.set('t', 'jk', '<C-\\><C-n>')
+
+vim.keymap.set('n', 'gh', 'K')
 
 vim.keymap.set({'v', 'n'}, '<leader>;', function() require('telescope.builtin').commands() end, {
 	desc = "M-x", -- ;)
@@ -58,6 +61,7 @@ leader_map({
 	mode = "n",
 	keys = {
 		b = { function() require('telescope.builtin').buffers() end, desc = "Switch to buffer" },
+		d = { function () require('mini.bufremove').delete(0, false) end, desc = "Delete Buffer" }
 	},
 })
 
@@ -90,13 +94,21 @@ leader_map({
 	}
 })
 
+leader_map({
+	name = "+toggle",
+	prefix = "t",
+	mode = "n",
+	keys = {
+		['c'] = { '<cmd>TSContextToggle<cr>', desc = "TS Context" },
+	},
+})
+
 local function bind_q_to_close(file_types)
 	local group = vim.api.nvim_create_augroup('QToCloseGroup', { clear = true })
 	vim.api.nvim_create_autocmd('FileType', {
 		pattern = file_types,
 		group = group,
 		callback = function(data)
-			print(data)
 			vim.keymap.set('n', 'q', '<cmd>:quit<CR>', { buffer = data.buf })
 		end
 	})

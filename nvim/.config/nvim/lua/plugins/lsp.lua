@@ -99,6 +99,7 @@ return {
 							f = { require('telescope.builtin').lsp_references, desc = "Find References" },
 							r = { vim.lsp.buf.rename, desc = "Rename" },
 							a = { vim.lsp.buf.code_action, desc = "Code Actions", mode = { 'n', 'v' } },
+							i = { require('telescope.builtin').lsp_implementations, desc = "Find Implementations" }
 						}
 					})
 
