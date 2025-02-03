@@ -178,6 +178,24 @@ return {
 							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
 						end, '[T]oggle Inlay [H]ints')
 					end
+
+					-- WORKAROUND for omnisharp token casing
+					-- https://github.com/OmniSharp/omnisharp-roslyn/issues/2483#issuecomment-1539809155
+					local function toSnakeCase(str)
+						return string.gsub(str, "%s*[- ]%s*", "_")
+					end
+
+					if client and client.name == 'omnisharp' then
+						local tokenModifiers = client.server_capabilities.semanticTokensProvider.legend.tokenModifiers
+						for i, v in ipairs(tokenModifiers) do
+							tokenModifiers[i] = toSnakeCase(v)
+						end
+						local tokenTypes = client.server_capabilities.semanticTokensProvider.legend.tokenTypes
+						for i, v in ipairs(tokenTypes) do
+							tokenTypes[i] = toSnakeCase(v)
+						end
+					end
+					-- /WORKAROUND for omnisharp token casing
 				end,
 			})
 
@@ -255,6 +273,14 @@ return {
 					},
 				},
 			}
+
+			-- Mason doesn't detect that it should download the arm build of omnisharp on windows, so it doesn't
+			-- work with my setup. As a hack, set it up to use the working build from my Emacs setup.
+			if vim.fn.has('win32') then
+				servers['omnisharp'] = {
+					cmd = { "C:/Users/schmo/AppData/Roaming/.emacs.d/.local/etc/lsp/omnisharp-roslyn/latest/OmniSharp.exe" }
+				}
+			end
 
 			-- Ensure the servers and tools above are installed
 			--
