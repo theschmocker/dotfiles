@@ -29,7 +29,9 @@ return {
 
 		local builtin = require("telescope.builtin")
 		vim.keymap.set("n", "<leader><leader>", function ()
-			if not pcall(builtin.git_files) then
+			if not pcall(builtin.git_files, {
+				show_untracked = true,
+			}) then
 				builtin.find_files()
 			end
 		end, { desc = "Find File" })
