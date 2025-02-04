@@ -1,3 +1,4 @@
+---@diagnostic disable: unused-local
 local ls = require("luasnip")
 local s = ls.snippet
 local sn = ls.snippet_node
@@ -60,6 +61,41 @@ local vue_computed_snippet = s(
 	})
 )
 
+local ecma_import_snippet = s(
+	'imp',
+	fmta("import { <named> } from '<package>';", {
+		package = i(1),
+		named = i(2),
+	})
+)
+
+local ecma_arrow_function = s(
+	{
+		trig = "fn",
+		desc = "arrow function",
+	},
+	fmta("(<params>) =>> {<body>}", {
+		params = i(1),
+		body = i(2)
+	})
+)
+
+local ecma_function = s(
+	{
+		trig = "func",
+		desc = "function",
+	},
+	fmta(
+		[[function <name>(<params>) {
+	<body>
+}]],
+		{
+			name = i(1),
+			params = i(2),
+			body = i(3),
+		})
+)
+
 ls.add_snippets("vue", {
 	vue_computed_snippet,
 	s({
@@ -69,13 +105,27 @@ ls.add_snippets("vue", {
 const props = defineProps<{{
 	{}
 }}>()
-	]], { i(1) }))
+	]], { i(1) })),
+	ecma_import_snippet,
+	ecma_arrow_function,
+	ecma_function,
 })
 
 ls.add_snippets('lua', {
 	s('f', fmt([[function {}({})
 	{}
 end]], { i(1), i(2), i(3) })),
+})
+
+ls.add_snippets('typescript', {
+	ecma_import_snippet,
+	ecma_arrow_function,
+	ecma_function,
+})
+ls.add_snippets('javascript', {
+	ecma_import_snippet,
+	ecma_arrow_function,
+	ecma_function,
 })
 
 ls.add_snippets('typescriptreact', {
@@ -93,5 +143,20 @@ ls.add_snippets('typescriptreact', {
 		end, { 1 }),
 		before_parens = i(2),
 		value = i(3),
-	}))
+	})),
+	s(
+		{ trig = 'ue', desc = 'useEffect' }, 
+		fmt(
+			[[useEffect(() => {{
+	{body}
+}}, [{deps}])]],
+			{
+				body = i(2),
+				deps = i(1),
+			}
+		)
+	),
+	ecma_import_snippet,
+	ecma_arrow_function,
+	ecma_function,
 })
