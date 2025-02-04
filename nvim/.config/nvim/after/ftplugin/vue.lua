@@ -58,5 +58,5 @@ vim.keymap.set('n', '<localleader>at', function ()
 	vim.cmd(string.format("%d,%dnormal ==", node_start_row, node_start_row + #rep_lines))
 
 	vim.api.nvim_win_set_cursor(0, { node_start_row + 1, node_start_col + 1 })
-end, { desc = "Toggle attribute wrapping" })
+end, { desc = "Toggle attribute wrapping", buffer = 0 })
 
