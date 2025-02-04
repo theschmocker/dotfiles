@@ -103,6 +103,49 @@ leader_map({
 	},
 })
 
+leader_map({
+	name = "+find/file",
+	prefix = "f",
+	mode = "n",
+	keys = {
+		['r'] = {
+			function ()
+				require('telescope.builtin').oldfiles({ only_cwd = true })
+			end,
+			desc = 'Recent file in CWD',
+		},
+	}
+})
+
+leader_map({
+	name = "+search",
+	prefix = "s",
+	mode = "n",
+	keys = {
+		['b'] = {
+			function ()
+				require('telescope.builtin').current_buffer_fuzzy_find()
+			end,
+			desc = 'Fuzzy find in current buffer',
+		},
+		['d'] = {
+			function ()
+				require('telescope.builtin').live_grep({
+					cwd = require('telescope.utils').buffer_dir(),
+				})
+			end,
+			desc = 'Grep from current directory',
+		},
+	}
+})
+
+vim.keymap.set('n', 'g/',
+	function ()
+		require('telescope.builtin').current_buffer_fuzzy_find()
+	end,
+	{ desc = 'Fuzzy find in current buffer' }
+)
+
 local function bind_q_to_close(file_types)
 	local group = vim.api.nvim_create_augroup('QToCloseGroup', { clear = true })
 	vim.api.nvim_create_autocmd('FileType', {
