@@ -70,7 +70,7 @@ leader_map({
 	prefix = "o",
 	mode = "n",
 	keys = {
-		['-'] = { '<cmd>Explore<cr>', desc = "Current Dir" },
+		['-'] = { '<cmd>Oil<cr>', desc = "Current Dir" },
 	},
 })
 
