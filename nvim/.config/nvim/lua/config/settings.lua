@@ -45,3 +45,9 @@ vim.filetype.add({
 		Fastfile = "ruby",
 	}
 })
+
+vim.filetype.add({
+	extension = {
+		mdx = "markdown",
+	}
+})
