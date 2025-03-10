@@ -26,5 +26,11 @@ return {
 		---@module "ibl"
 		---@type ibl.config
 		opts = {},
-	}
+	},
+	{
+		'ggml-org/llama.vim',
+		init = function ()
+			vim.keymap.set('n', '<leader>tl', '<cmd>LlamaToggle<cr>', { desc = 'Toggle Code Completion' })
+		end
+	},
 }
