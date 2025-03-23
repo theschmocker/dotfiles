@@ -708,14 +708,97 @@ CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
     (open-line 1)
     (newline)
     (insert "- TOTAL: ")
-    (let ((hours (/ time-in-mins 60))
-          (mins (% time-in-mins 60)))
-      (when (< 0 hours)
-        (insert (number-to-string hours)))
-      (when (< 0 mins)
-        (insert ":")
-        (insert (s-pad-left 2 "0" (number-to-string mins)))))))
+    (insert (schmo/minutes-to-hours-string time-in-mins))))
 
+(defun schmo/minutes-to-hours-string (time-in-mins)
+  (let ((res "")
+        (hours (/ time-in-mins 60))
+        (mins (% time-in-mins 60)))
+    (when (< 0 hours)
+      (setq res (number-to-string hours)))
+    (setq res (concat res ":" (s-pad-left 2 "0" (number-to-string mins))))
+    res))
+
+(defvar-local schmo/org-hours-overlays nil)
+
+(defun schmo/org-hours-clear-overlays ()
+  (dolist (o schmo/org-hours-overlays)
+    (delete-overlay o))
+  (setq schmo/org-hours-overlays nil))
+
+(defun schmo/org-element-text-content (element)
+  (if-let ((beg (org-element-property :contents-begin element))
+           (end (org-element-property :contents-end element)))
+      (buffer-substring-no-properties beg end)
+    ""))
+
+(defun schmo/org-hours-compute-and-apply-overlays ()
+  (schmo/org-hours-clear-overlays)
+  (let ((day-table (make-hash-table :test #'eq))
+        (week-table (make-hash-table :test #'eq)))
+
+    (org-element-map (org-element-parse-buffer) 'headline
+      (lambda (headline)
+        (let ((headline-level (org-element-property :level headline)))
+          (cond
+           ((eql headline-level 1)
+            (when (not (gethash headline week-table))
+              (setf (gethash headline week-table) 0)))
+
+           ((> headline-level 1)
+            (when (not (gethash headline day-table))
+              (setf (gethash headline day-table) 0))
+            (org-element-map headline 'plain-list
+              (lambda (l)
+                (org-element-map l 'item
+                  (lambda (item)
+                    (let ((item-mins (thread-last (schmo/org-element-text-content item)
+                                                  (string-trim)
+                                                  (schmo/parse-minutes-org))))
+                      (cl-incf (gethash headline day-table) item-mins)
+                      (when-let* ((week-headline (org-element-parent headline))
+                                  (headlinep (org-element-type-p week-headline 'headline)))
+                        (cl-incf (gethash week-headline week-table) item-mins))))))))))))
+
+    (cl-labels ((org-hours-add-heading-overlay (element minutes)
+                  (let* ((hours-text (schmo/minutes-to-hours-string minutes))
+                         (overlay-text (concat "  " hours-text " "))
+                         (heading-begin (org-element-begin element))
+                         (heading-line-end (save-excursion
+                                             (goto-char heading-begin)
+                                             (line-end-position)))
+                         (o (make-overlay heading-line-end
+                                          heading-line-end)))
+                    (put-text-property 1 (length overlay-text) 'face '(:background "#2a283e":foreground "#908caa") overlay-text)
+                    (overlay-put o 'after-string overlay-text)
+                    (add-to-list 'schmo/org-hours-overlays o))))
+
+      (maphash #'org-hours-add-heading-overlay day-table)
+      (maphash #'org-hours-add-heading-overlay week-table))))
+
+(defun schmo/org-hours-after-change-h (&rest args)
+  (unwind-protect
+      (schmo/org-hours-compute-and-apply-overlays)
+    nil))
+
+(define-minor-mode org-hours-minor-mode ()
+  :global t
+  (unless (derived-mode-p 'org-mode)
+    (error "Cannot use org-hours-minor-mode outside of org-mode"))
+  (if org-hours-minor-mode
+      (progn
+        (schmo/org-hours-after-change-h)
+        (add-hook 'after-change-functions 'schmo/org-hours-after-change-h nil t))
+    (remove-hook 'after-change-functions 'schmo/org-hours-after-change-h t)
+    (schmo/org-hours-clear-overlays)))
+
+(defun schmo/after-change-major-mode-enable-org-hours-minor-mode-h ()
+  (when (and (derived-mode-p 'org-mode)
+             (buffer-file-name)
+             (string= "hours.org" (file-name-nondirectory (buffer-file-name))))
+    (org-hours-minor-mode 1)))
+
+(add-hook 'after-change-major-mode-hook 'schmo/after-change-major-mode-enable-org-hours-minor-mode-h)
 
 ;;; JSON utils
 
