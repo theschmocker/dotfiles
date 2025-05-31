@@ -109,6 +109,31 @@ const props = defineProps<{{
 	ecma_import_snippet,
 	ecma_arrow_function,
 	ecma_function,
+	s(
+		{
+			trig = "vbase",
+			desc = "script setup component boilerplate"
+		},
+		fmt(
+			[[
+<template>
+	{template}
+</template>
+
+<script setup lang="ts">
+	{script}
+</script>
+
+<style{style_attrs}>
+</style>
+	]],
+			{
+				style_attrs = i(1),
+				template = i(2),
+				script = i(3),
+			}
+		)
+	)
 })
 
 ls.add_snippets('lua', {

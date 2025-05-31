@@ -31,6 +31,7 @@ return {
 		vim.keymap.set("n", "<leader><leader>", function ()
 			if not pcall(builtin.git_files, {
 				show_untracked = true,
+				use_git_root = false,
 			}) then
 				builtin.find_files()
 			end

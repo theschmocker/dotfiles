@@ -12,6 +12,7 @@ vim.o.wildmode = "longest,full"
 vim.o.timeoutlen = 300
 vim.o.fixeol = false
 vim.o.scrolloff = 8
+-- TODO: sidescrolloff=2 in insert mode
 vim.o.sidescrolloff = 16
 vim.o.hlsearch = false
 vim.o.cursorline = true

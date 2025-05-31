@@ -49,7 +49,7 @@ return {
 		'nginx',
 		-- 'norg',
 		'objc',
-		'org',
+		-- 'org',
 		'php',
 		'php_only',
 		'phpdoc',

@@ -91,6 +91,7 @@ return {
 					{ name = 'luasnip' },
 					{ name = 'path' },
 				},
+				preselect = 'None'
 			}
 		end,
 	},

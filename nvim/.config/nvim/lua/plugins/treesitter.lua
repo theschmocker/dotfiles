@@ -1,5 +1,11 @@
 local data = require('data.treesitter-data')
 
+-- TODO: CSS text objects
+-- is: inside selector. something like .|some-class|
+-- as: around selector. something like |.some-class|
+-- ir: inside ruleset. something like .some-class {| some: property |}
+-- ar: around ruleset. something like |.some-class { some: property }|
+
 -- doing this because the default keymaps option only sets the keymap
 -- if the queries are defined for the top-level language of a buffer,
 -- not for injections, so things like JS/TS objects wouldn't work in

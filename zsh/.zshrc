@@ -79,10 +79,6 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
-if [[ -f $HOME/.env.zsh ]]; then
-  source $HOME/.env.zsh
-fi
-
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -124,6 +120,10 @@ export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
 # Go
 export GOPATH=$HOME/go
 export PATH=$PATH:${GOPATH//://bin:}/bin
+if [[ -f $HOME/.env.zsh ]]; then
+  source $HOME/.env.zsh
+fi
+
 
 # Deno
 export DENO_INSTALL="$HOME/.deno"
@@ -151,9 +151,15 @@ export PATH=$HOME/.composer/vendor/bin:$PATH
 export PATH=$HOME/.gem/ruby/2.6.0/bin:$PATH
 
 # FZF
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
+
 export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'
 
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $* ;}
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
