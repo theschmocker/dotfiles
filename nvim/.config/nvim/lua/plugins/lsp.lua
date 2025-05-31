@@ -272,11 +272,27 @@ return {
 						},
 					},
 				},
+				eslint = {
+					on_attach = function (client, bufnr)
+						if client.name == 'eslint' then
+							vim.api.nvim_create_autocmd('BufWritePre', { buffer = bufnr, command = 'EslintFixAll' })
+						end
+					end,
+					settings = {
+						rulesCustomizations = {
+							{
+								rule = "prettier*",
+								severity = "off",
+							},
+						},
+					},
+				},
 			}
 
 			-- Mason doesn't detect that it should download the arm build of omnisharp on windows, so it doesn't
 			-- work with my setup. As a hack, set it up to use the working build from my Emacs setup.
-			if vim.fn.has('win32') then
+			-- if vim.fn.has('win32') == 1 then
+			if true then
 				servers['omnisharp'] = {
 					cmd = { "C:/Users/schmo/AppData/Roaming/.emacs.d/.local/etc/lsp/omnisharp-roslyn/latest/OmniSharp.exe" }
 				}
