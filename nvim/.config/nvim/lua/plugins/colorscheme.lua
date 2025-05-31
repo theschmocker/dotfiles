@@ -12,8 +12,9 @@ return {
 	},
 	{
 		"rebelot/kanagawa.nvim",
-		config = function() 
+		config = function()
 			require('kanagawa').setup({
+				undercurl = false,
 				colors = {
 					theme = {
 						all = {
@@ -23,8 +24,16 @@ return {
 						},
 					},
 				},
+
+				---@param colors KanagawaColors
 				overrides = function (colors)
 					return {
+						DiagnosticUnderlineWarn = { sp = '#96602A' },
+						DiagnosticUnderlineError = { sp = '#C22121', undercurl = true },
+						DiagnosticSignError = { fg = '#D52323' },
+						DiagnosticUnderlineInfo = { underdotted = true },
+						["@string.special.url"] = { undercurl = false, underdotted = true },
+
 						-- indent-blankline overrides
 						IblIndent = { fg = colors.palette.dragonBlack4 },
 						IblScope = { fg = colors.palette.dragonBlack5 },
