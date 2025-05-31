@@ -185,3 +185,13 @@ ls.add_snippets('typescriptreact', {
 	ecma_arrow_function,
 	ecma_function,
 })
+
+ls.add_snippets('cs', {
+	s({ trig = '///', desc = "doc comment" },
+		fmt(
+			[[/// <summary>
+/// {}
+/// </summary>]],
+			{ i(1) }
+	))
+})
