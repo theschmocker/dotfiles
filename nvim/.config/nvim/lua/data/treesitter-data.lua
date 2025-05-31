@@ -13,6 +13,8 @@ return {
 		'dockerfile',
 		'editorconfig',
 		'fennel',
+		'gdscript',
+		'gdshader',
 		'git_config',
 		'git_rebase',
 		'gitattributes',
