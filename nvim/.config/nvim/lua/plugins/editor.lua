@@ -30,6 +30,13 @@ return {
 	{
 		'ggml-org/llama.vim',
 		init = function ()
+			-- running in parallels; point at mac host
+			if vim.fn.has('win32') == 1 then
+				vim.g.llama_config = {
+					endpoint = 'http://10.211.55.2:8012/infill',
+				}
+
+			end
 			vim.keymap.set('n', '<leader>tl', '<cmd>LlamaToggle<cr>', { desc = 'Toggle Code Completion' })
 		end
 	},
