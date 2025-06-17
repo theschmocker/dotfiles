@@ -72,8 +72,12 @@ local function setup_mini_statusline()
 end
 
 local function setup_mini_operators()
-	-- main thing I care about is vim-exchange-like gx op
-	require('mini.operators').setup()
+	require('mini.operators').setup({
+		replace = {
+			-- not mnemonic, but more ergonomic than the default gr
+			prefix = 'gl'
+		}
+	})
 end
 
 return { -- Collection of various small independent plugins/modules
