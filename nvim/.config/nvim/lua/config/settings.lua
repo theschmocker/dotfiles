@@ -63,3 +63,7 @@ vim.diagnostic.config({
 		}
 	}
 })
+
+-- silence deprecation warnings
+---@diagnostic disable-next-line: duplicate-set-field
+vim.deprecate = function() end

@@ -216,14 +216,18 @@ return {
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
+			local function get_mason_package_install_path(package_name)
+				return vim.fn.expand("$MASON/packages/" .. package_name)
+			end
+
 			local vue_lang_server_path = vim.fs.joinpath(
-				require('mason-registry').get_package('vue-language-server'):get_install_path(),
+				get_mason_package_install_path('vue-language-server'),
 				'node_modules',
 				'@vue',
 				'language-server'
 			)
 
-			local svelte_ts_plugin_path = require('mason-registry').get_package('svelte-language-server'):get_install_path()
+			local svelte_ts_plugin_path = get_mason_package_install_path('svelte-language-server')
 
 			-- Enable the following language servers
 			--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -257,7 +261,7 @@ return {
 					single_file_support = false,
 					filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
 				},
-				volar = {},
+				vue_ls = {},
 				lua_ls = {
 					-- cmd = { ... },
 					-- filetypes = { ... },
@@ -287,51 +291,30 @@ return {
 						},
 					},
 				},
+				gdscript = {},
 			}
+
+			for server_name, config in pairs(servers) do
+				-- This handles overriding only values explicitly passed
+				-- by the server configuration above. Useful when disabling
+				-- certain features of an LSP (for example, turning off formatting for ts_ls)
+				config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, config.capabilities or {})
+				vim.lsp.config(server_name, config)
+				vim.lsp.enable(server_name)
+			end
 
 			-- Mason doesn't detect that it should download the arm build of omnisharp on windows, so it doesn't
 			-- work with my setup. As a hack, set it up to use the working build from my Emacs setup.
-			-- if vim.fn.has('win32') == 1 then
-			if true then
+			if vim.fn.has('win32') == 1 then
 				servers['omnisharp'] = {
 					cmd = { "C:/Users/schmo/AppData/Roaming/.emacs.d/.local/etc/lsp/omnisharp-roslyn/latest/OmniSharp.exe" }
 				}
 			end
 
-			require('lspconfig').gdscript.setup({})
-
-			-- Ensure the servers and tools above are installed
-			--
-			-- To check the current status of installed tools and/or manually install
-			-- other tools, you can run
-			--    :Mason
-			--
-			-- You can press `g?` for help in this menu.
-			--
-			-- `mason` had to be setup earlier: to configure its options see the
-			-- `dependencies` table for `nvim-lspconfig` above.
-			--
-			-- You can add other tools here that you want Mason to install
-			-- for you, so that they are available from within Neovim.
-			-- local ensure_installed = vim.tbl_keys(servers or {})
-			-- vim.list_extend(ensure_installed, {
-			-- 	'stylua', -- Used to format Lua code
-			-- })
-			-- require('mason-tool-installer').setup { ensure_installed = ensure_installed }
-
 			require('mason-lspconfig').setup {
+				automatic_enable = true,
 				ensure_installed = {},
 				automatic_installation = false,
-				handlers = {
-					function(server_name)
-						local server = servers[server_name] or {}
-						-- This handles overriding only values explicitly passed
-						-- by the server configuration above. Useful when disabling
-						-- certain features of an LSP (for example, turning off formatting for ts_ls)
-						server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-						require('lspconfig')[server_name].setup(server)
-					end,
-				},
 			}
 		end,
 	},
