@@ -130,8 +130,12 @@ leader_map({
 		},
 		['d'] = {
 			function ()
+				local cwd = require('telescope.utils').buffer_dir()
+				if vim.startswith(cwd, "oil://") then
+					cwd = require('oil').get_current_dir() or cwd
+				end
 				require('telescope.builtin').live_grep({
-					cwd = require('telescope.utils').buffer_dir(),
+					cwd = cwd
 				})
 			end,
 			desc = 'Grep from current directory',
