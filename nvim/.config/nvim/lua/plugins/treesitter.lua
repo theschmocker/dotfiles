@@ -24,6 +24,8 @@ local function map_treesitter_text_objects()
 		['af'] = '@function.outer',
 		['ia'] = '@parameter.inner',
 		['aa'] = '@parameter.outer',
+		['ix'] = '@attribute.inner',
+		['ax'] = '@attribute.outer',
 	}
 
 	for _, mode in ipairs({ 'o', 'x' }) do
