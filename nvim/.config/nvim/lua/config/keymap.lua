@@ -1,5 +1,7 @@
 local leader_map = require("util.keymap").leader_map
 
+_G.leader_map = leader_map
+
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
@@ -12,6 +14,9 @@ vim.keymap.set('n', 'gh', 'K')
 vim.keymap.set({'v', 'n'}, '<leader>;', function() require('telescope.builtin').commands() end, {
 	desc = "M-x", -- ;)
 })
+
+-- don't yank visual selection on paste
+vim.keymap.set('v', 'p', 'P')
 
 vim.keymap.set({'v', 'n'}, '<leader>.', function()
 	require('telescope.builtin').find_files({
@@ -95,11 +100,15 @@ leader_map({
 })
 
 leader_map({
-	name = "+toggle",
+	name = "+tab/toggle",
 	prefix = "t",
 	mode = "n",
 	keys = {
 		['c'] = { '<cmd>TSContextToggle<cr>', desc = "TS Context" },
+		['n'] = { '<cmd>tabn<cr>', desc = "Next Tab" },
+		['p'] = { '<cmd>tabp<cr>', desc = "Previous Tab" },
+		['N'] = { '<cmd>tabe<cr>', desc = "New Tab" },
+		['<C-n>'] = { '<cmd>tabe %<cr>', desc = "Edit current file in new tab" },
 	},
 })
 
