@@ -229,6 +229,25 @@ return {
 
 			local svelte_ts_plugin_path = get_mason_package_install_path('svelte-language-server')
 
+			local base_eslint_on_attach = vim.lsp.config.eslint.on_attach
+			local eslint_config = {
+				on_attach = function (client, bufnr)
+					---@diagnostic disable-next-line: need-check-nil
+					base_eslint_on_attach(client, bufnr)
+					if client.name == 'eslint' then
+						vim.api.nvim_create_autocmd('BufWritePre', { buffer = bufnr, command = 'LspEslintFixAll' })
+					end
+				end,
+				settings = {
+					rulesCustomizations = {
+						{
+							rule = "prettier*",
+							severity = "off",
+						},
+					},
+				},
+			}
+
 			-- Enable the following language servers
 			--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 			--
@@ -241,11 +260,6 @@ return {
 			local servers = {
 				ts_ls = {
 					init_options = {
-						tsserver = {
-							logVerbosity = 'verbose',
-							logDirectory = '/Users/jacob/.local/share/nvim/tsserver',
-							trace = 'verbose',
-						},
 						plugins = {
 							{
 								name = '@vue/typescript-plugin',
@@ -276,23 +290,27 @@ return {
 						},
 					},
 				},
-				eslint = {
-					on_attach = function (client, bufnr)
-						if client.name == 'eslint' then
-							vim.api.nvim_create_autocmd('BufWritePre', { buffer = bufnr, command = 'EslintFixAll' })
-						end
-					end,
-					settings = {
-						rulesCustomizations = {
-							{
-								rule = "prettier*",
-								severity = "off",
-							},
-						},
-					},
-				},
+				eslint = eslint_config,
 				gdscript = {},
 			}
+
+			-- Mason doesn't detect that it should download the arm build of omnisharp on windows, so it doesn't
+			-- work with my setup. As a hack, set it up to use the working build from my Emacs setup.
+			if vim.fn.has('win32') == 1 then
+				servers['omnisharp'] = {
+					cmd = {
+						"C:/Users/schmo/AppData/Roaming/.emacs.d/.local/etc/lsp/omnisharp-roslyn/latest/OmniSharp.exe",
+						'-z', -- https://github.com/OmniSharp/omnisharp-vscode/pull/4300
+						'--hostPID',
+						tostring(vim.fn.getpid()),
+						'DotNet:enablePackageRestore=false',
+						'--encoding',
+						'utf-8',
+						'--languageserver',
+					}
+				}
+			end
+
 
 			for server_name, config in pairs(servers) do
 				-- This handles overriding only values explicitly passed
@@ -301,14 +319,6 @@ return {
 				config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, config.capabilities or {})
 				vim.lsp.config(server_name, config)
 				vim.lsp.enable(server_name)
-			end
-
-			-- Mason doesn't detect that it should download the arm build of omnisharp on windows, so it doesn't
-			-- work with my setup. As a hack, set it up to use the working build from my Emacs setup.
-			if vim.fn.has('win32') == 1 then
-				servers['omnisharp'] = {
-					cmd = { "C:/Users/schmo/AppData/Roaming/.emacs.d/.local/etc/lsp/omnisharp-roslyn/latest/OmniSharp.exe" }
-				}
 			end
 
 			require('mason-lspconfig').setup {
