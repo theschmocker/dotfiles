@@ -33,9 +33,14 @@ local function map_treesitter_text_objects()
 			vim.keymap.set(
 				mode,
 				key,
-				function ()
-					select_textobject(query, 'textobjects', mode)
-				end,
+				-- NOTE: this has to be a string, for some reason. when I passed what I thought was an
+				-- equivalent lua function, the mappings broke if there was a delay, e.g. typing 'yi' quickly, then
+				-- pressing the remaining object mapping, e.g. f, wouldn't work
+				string.format(
+					"<cmd>lua require'nvim-treesitter.textobjects.select'.select_textobject('%s','textobjects','%s')<cr>",
+					query,
+					mode
+				),
 				{
 					silent = true,
 					desc = "TS " .. query,
