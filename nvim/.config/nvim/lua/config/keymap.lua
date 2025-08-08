@@ -37,12 +37,12 @@ leader_map({
 		['-'] = { '<C-W>s', desc = 'split-window-below' },
 		['h'] = { '<C-W>h', desc = 'window-left' },
 		['j'] = { '<C-W>j', desc = 'window-below' },
-		['l'] = { '<C-W>l', desc = 'window-right' },
 		['k'] = { '<C-W>k', desc = 'window-up' },
-		['H'] = { '<C-W>5<', desc = 'expand-window-left' },
-		['J'] = { '<cmd>resize +5<cr>', desc = 'expand-window-below' },
-		['L'] = { '<C-W>5>', desc = 'expand-window-right' },
-		['K'] = { '<cmd>resize -5<cr>', desc = 'expand-window-up' },
+		['l'] = { '<C-W>l', desc = 'window-right' },
+		['H'] = { '<C-W>H', desc = 'move window left' },
+		['J'] = { '<C-W>J', desc = 'move window down' },
+		['K'] = { '<C-W>K', desc = 'move window up' },
+		['L'] = { '<C-W>L', desc = 'move window right' },
 		['='] = { '<C-W>=', desc = 'balance-window' },
 		['s'] = { '<C-W>s', desc = 'split-window-below' },
 		['v'] = { '<C-W>v', desc = 'split-window-vertical' },
@@ -148,6 +148,26 @@ leader_map({
 				})
 			end,
 			desc = 'Grep from current directory',
+		},
+	}
+})
+
+leader_map({
+	name = "+diagnostic",
+	prefix = "d",
+	mode = "n",
+	keys = {
+		['l'] = {
+			function ()
+				require('telescope.builtin').diagnostics({ bufnr = 0 });
+			end,
+			desc = "List Diagnostics in current buffer"
+		},
+		['w'] = {
+			function ()
+				require('telescope.builtin').diagnostics();
+			end,
+			desc = "List Diagnostics in workspace"
 		},
 	}
 })
