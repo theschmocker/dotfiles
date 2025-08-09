@@ -80,6 +80,14 @@ local function setup_mini_operators()
 	})
 end
 
+local function setup_mini_splitjoin()
+	require('mini.splitjoin').setup({
+		mappings = {
+			toggle = '<leader>tw'
+		}
+	})
+end
+
 return { -- Collection of various small independent plugins/modules
 	'echasnovski/mini.nvim',
 	config = function()
@@ -97,6 +105,8 @@ return { -- Collection of various small independent plugins/modules
 		setup_mini_statusline()
 
 		setup_mini_operators()
+
+		setup_mini_splitjoin()
 
 		-- ... and there is more!
 		--  Check out: https://github.com/echasnovski/mini.nvim
