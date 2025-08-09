@@ -169,6 +169,16 @@ leader_map({
 			end,
 			desc = "List Diagnostics in workspace"
 		},
+		['n'] = {
+			function ()
+				vim.diagnostic.jump({ count = 1, wrap = true })
+			end
+		},
+		['p'] = {
+			function ()
+				vim.diagnostic.jump({ count = -1, wrap = true })
+			end
+		},
 	}
 })
 
