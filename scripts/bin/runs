@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+SCRIPT_PATH="$(readlink -f ~/bin/)"
+
+THIS_SCRIPT_PATH="$(readlink -f "$0")"
+THIS_SCRIPT_NAME="$(basename $THIS_SCRIPT_PATH)"
+
+# ~/bin/ is a stow symlink to my dotfiles, so need to follow links to
+SELECTED="$(find ~/bin/ -type f -perm +100  -exec basename {} \; |
+	grep -v "^$THIS_SCRIPT_NAME$" | # exclude this script
+	fzf --preview 'cat {-1}')"
+
+echo "Running '$SELECTED'"
+
+eval "$SCRIPT_PATH/$SELECTED"

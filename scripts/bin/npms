@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -e
+
+project_root="$(npm prefix)"
+package_json_path="$project_root/package.json"
+
+if [ ! -f "$package_json_path" ]; then
+    echo "Error: not inside of an npm project" >&2
+    exit 1
+fi
+
+project_name="$(jq -r '.name' $package_json_path)"
+script_name="$(jq -r '.scripts | keys[]' $package_json_path | fzf --prompt="npm script ($project_name):")"
+
+npm run "$script_name"
