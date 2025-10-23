@@ -10,6 +10,7 @@ vim.o.linebreak = true
 vim.o.wildmenu = true
 vim.o.wildmode = "longest,full"
 vim.o.timeoutlen = 300
+require('util.keymap').configure_insert_mode_timeout()
 vim.o.fixeol = false
 vim.o.scrolloff = 8
 -- TODO: sidescrolloff=2 in buffer types like text or markdown

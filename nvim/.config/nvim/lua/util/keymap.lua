@@ -37,4 +37,24 @@ M.leader_map = function (opts)
 	require("which-key").add(tbl)
 end
 
+--- Sets up auto commands to enable timeout in insert mode, but disable in other modes.
+--- keeps `jk` working as I expect, and fixes timeout-related issues I've had with
+--- entering tree-sitter textobject mappings
+M.configure_insert_mode_timeout = function ()
+	local group = vim.api.nvim_create_augroup('insert-mode-enable-timeout', { clear = true })
+	vim.api.nvim_create_autocmd('InsertEnter', {
+		group = group,
+		callback = function (event)
+			vim.cmd("setlocal timeout")
+		end
+	})
+
+	vim.api.nvim_create_autocmd('InsertLeave', {
+		group = group,
+		callback = function (event)
+			vim.cmd("setlocal notimeout")
+		end
+	})
+end
+
 return M

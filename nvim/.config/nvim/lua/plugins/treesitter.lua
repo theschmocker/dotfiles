@@ -11,14 +11,7 @@ local data = require('data.treesitter-data')
 -- not for injections, so things like JS/TS objects wouldn't work in
 -- Vue/Svelte files.
 --
--- TODO: there's a weird bug, possibly which-key related where pressing
--- "ci" quickly, then attempting a custom textobj mapping (like "f" for "if"),
--- doesn't work. It does work if I enter the whole thing quickly "cif" or if I
--- wait for which-key to appear after pressing "c". Happens with keymaps plugin
--- option too.
 local function map_treesitter_text_objects()
-	local select_textobject = require('nvim-treesitter.textobjects.select').select_textobject
-
 	local mappings = {
 		['if'] = '@function.inner',
 		['af'] = '@function.outer',
