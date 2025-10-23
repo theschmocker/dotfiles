@@ -146,6 +146,7 @@ ls.add_snippets('typescript', {
 	ecma_import_snippet,
 	ecma_arrow_function,
 	ecma_function,
+	s({ trig = '//@tse', desc = '// @ts-expect-error' }, fmt('// @ts-expect-error', {}))
 })
 ls.add_snippets('javascript', {
 	ecma_import_snippet,
