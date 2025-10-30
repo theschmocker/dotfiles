@@ -3,3 +3,4 @@ plugin/
 custom-hidden.el
 /emacs/.doom.d/custom.el
 /emacs/.doom.d/lib-repos/
+zellij/.config/zellij/config.kdl.bak

@@ -11,6 +11,7 @@ STOW_DIRS = [
     "bash",
     "zsh",
     "nvim",
+    "zellij",
 ]
 
 def main():
