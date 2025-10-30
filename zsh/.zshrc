@@ -1,6 +1,11 @@
 if [[ -f /opt/homebrew/bin/brew ]]; then
 	eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
+
+VI_MODE_DISABLE_CLIPBOARD=true
+VI_MODE_SET_CURSOR=true
+KEYTIMEOUT=1
+
 # Path to oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -11,12 +16,14 @@ zstyle ':omz:update' frequency 30
 plugins=(
   git
   nvm
+  vi-mode
 )
 
 source "$ZSH/oh-my-zsh.sh"
 # Clean up af-magic theme prompt a bit
 RPS1=""
 function afmagic_dashes { }
+
 
 # /oh-my-zsh
 
@@ -30,11 +37,11 @@ fi
 
 source ~/.bash_aliases
 
-bindkey -v
 bindkey '^K' up-line-or-history
 bindkey '^J' down-line-or-history
 bindkey '^P' up-line-or-history
 bindkey '^N' down-line-or-history
+bindkey '^F' edit-command-line
 
 
 # Android
