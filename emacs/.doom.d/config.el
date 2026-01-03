@@ -84,6 +84,8 @@
 
 ;;; Evil
 
+(setq evil-escape-key-sequence "jk")
+
 ;; disable evil-snipe
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
 (remove-hook 'doom-first-input-hook #'evil-snipe-override-mode) ; fixes stuff like df<Space>

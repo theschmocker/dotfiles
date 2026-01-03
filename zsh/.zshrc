@@ -37,8 +37,8 @@ fi
 
 source ~/.bash_aliases
 
-bindkey '^K' up-line-or-history
-bindkey '^J' down-line-or-history
+# bindkey '^K' up-line-or-history
+# bindkey '^J' down-line-or-history
 bindkey '^P' up-line-or-history
 bindkey '^N' down-line-or-history
 bindkey '^F' edit-command-line
