@@ -67,6 +67,7 @@ export PATH=$HOME/.config/emacs/bin:$PATH
 
 # Various path inclusions
 export PATH=$HOME/bin:$PATH
+export PATH=$HOME/.local/bin:$PATH
 export PATH=$HOME/.composer/vendor/bin:$PATH
 
 # FZF
