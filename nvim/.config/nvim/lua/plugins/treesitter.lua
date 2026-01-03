@@ -12,6 +12,7 @@ local data = require('data.treesitter-data')
 -- Vue/Svelte files.
 --
 local function map_treesitter_text_objects()
+	local select_textobject = require('nvim-treesitter.textobjects.select').select_textobject
 	local mappings = {
 		['if'] = '@function.inner',
 		['af'] = '@function.outer',
@@ -29,11 +30,14 @@ local function map_treesitter_text_objects()
 				-- NOTE: this has to be a string, for some reason. when I passed what I thought was an
 				-- equivalent lua function, the mappings broke if there was a delay, e.g. typing 'yi' quickly, then
 				-- pressing the remaining object mapping, e.g. f, wouldn't work
-				string.format(
-					"<cmd>lua require'nvim-treesitter.textobjects.select'.select_textobject('%s','textobjects','%s')<cr>",
-					query,
-					mode
-				),
+				-- string.format(
+				-- 	"<cmd>lua require'nvim-treesitter.textobjects.select'.select_textobject('%s','textobjects','%s')<cr>",
+				-- 	query,
+				-- 	mode
+				-- ),
+				function ()
+					select_textobject(query, 'textobjects', mode)
+				end,
 				{
 					silent = true,
 					desc = "TS " .. query,
@@ -66,7 +70,13 @@ return {
 					--  the list of additional_vim_regex_highlighting and disabled languages for indent.
 					additional_vim_regex_highlighting = { 'ruby' },
 				},
-				indent = { enable = true, disable = { 'ruby' } },
+				indent = {
+					enable = true,
+					disable = {
+						'ruby',
+						'python',
+					}
+				},
 				incremental_selection = {
 					enable = true,
 					keymaps = {

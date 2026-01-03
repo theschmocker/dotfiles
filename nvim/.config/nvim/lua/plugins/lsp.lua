@@ -219,6 +219,26 @@ return {
 				},
 				eslint = eslint_config,
 				gdscript = {},
+				['rust_analyzer'] = {
+					settings = {
+						["rust-analyzer"] = {
+							imports = {
+								granularity = {
+									group = "module",
+								},
+								prefix = "self",
+							},
+							cargo = {
+								buildScripts = {
+									enable = true,
+								},
+							},
+							procMacro = {
+								enable = true
+							},
+						}
+					}
+				},
 			}
 
 			-- Mason doesn't detect that it should download the arm build of omnisharp on windows, so it doesn't

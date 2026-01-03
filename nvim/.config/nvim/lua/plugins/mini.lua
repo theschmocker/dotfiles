@@ -46,7 +46,7 @@ local function setup_mini_statusline()
 
 		return MiniStatusline.combine_groups({
 			{ hl = mode_hl,                  strings = { mode } },
-			{ hl = 'MiniStatuslineDevinfo',  strings = { git, diff } },
+			{ hl = 'MiniStatuslineDevinfo',  strings = { diff } },
 			'%<', -- Mark general truncate point
 			{ hl = 'MiniStatuslineFilename', strings = { filename } },
 			'%=', -- End left alignment
@@ -89,7 +89,8 @@ local function setup_mini_splitjoin()
 end
 
 return { -- Collection of various small independent plugins/modules
-	'echasnovski/mini.nvim',
+	'nvim-mini/mini.nvim',
+	-- version = "*",
 	config = function()
 		-- Better Around/Inside textobjects
 		--
