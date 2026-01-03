@@ -136,6 +136,72 @@ const props = defineProps<{{
 	)
 })
 
+ls.add_snippets("svelte", {
+	vue_computed_snippet,
+	s({
+		trig = "props",
+		desc = "$props snippet"
+		-- TODO: choice node with type Props = {...}
+	}, fmt("let {{{}}}: Props = $props();", { i(1) })),
+	s({
+		trig = "st",
+		desc = "$state snippet"
+		-- TODO: choice node with type Props = {...}
+	}, fmt("let {} = $state({});", { i(1), i(2) })),
+	s({
+		trig = "der",
+		desc = "$derived snippet"
+		-- TODO: choice node with type Props = {...}
+	}, fmt("const {} = $derived({});", { i(1), i(2) })),
+	s({
+		trig = "derby",
+		desc = "$derived.by snippet"
+		-- TODO: choice node with type Props = {...}
+	}, fmt([[
+const {} = $derived.by(() => {{
+	{}
+}});
+]], { i(1), i(2) })),
+	ecma_import_snippet,
+	ecma_arrow_function,
+	ecma_function,
+	s(
+		{
+			trig = "script",
+			desc = "script boilerplate"
+		},
+		fmt(
+			[[
+<script lang="ts">
+	{script}
+</script>
+	]],
+			{
+				script = i(1),
+			}
+		)
+	),
+	s(
+		{
+			trig = "vbase",
+			desc = "component boilerplate"
+		},
+		fmt(
+			[[
+<script lang="ts">
+	{script}
+</script>
+
+<style>
+</style>
+	]],
+			{
+				script = i(1),
+			}
+		)
+	),
+})
+
 ls.add_snippets('lua', {
 	s('f', fmt([[function {}({})
 	{}
