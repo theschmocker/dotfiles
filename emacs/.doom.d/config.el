@@ -595,6 +595,12 @@ want it on a key that's easier to hit"
 ;; It doesn't take editorconfig changes into account, so tabs always get highlighted. Need to change that.
 (setq whitespace-global-modes nil)
 
+(advice-add #'doom-highlight-non-default-indentation-h :override #'ignore)
+
+(after! magit
+  (setq git-commit-style-convention-checks
+        (remove 'overlong-summary-line git-commit-style-convention-checks)))
+
 (map! :leader
       :prefix "t"
       "w" #'whitespace-mode
