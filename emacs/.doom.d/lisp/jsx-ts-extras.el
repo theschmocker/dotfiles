@@ -11,7 +11,11 @@
   (when (not (cl-some #'derived-mode-p '(tsx-ts-mode js-ts-mode)))
     (error "%s does nothing outside of treesitter modes supporting JSX" 'jsx-ts-extras-auto-close-mode))
   (if jsx-ts-extras-auto-close-mode
-      (add-hook 'post-command-hook #'jsx-ts-extras--auto-close-tag-post-command-h nil t)
+      (progn
+        (when (fboundp 'sp-local-pair)
+          ;; TODO: look into sp-update-local-pairs instead OR see if a condition can be added to check if jsx-ts-extras-auto-close-mode is enabled
+          (sp-local-pair sp--javascript-modes "<" nil :actions :rem))
+        (add-hook 'post-command-hook #'jsx-ts-extras--auto-close-tag-post-command-h nil t))
     (remove-hook 'post-command-hook #'jsx-ts-extras--auto-close-tag-post-command-h t)))
 
 (defun jsx-ts-extras--auto-close-tag-post-command-h ()
