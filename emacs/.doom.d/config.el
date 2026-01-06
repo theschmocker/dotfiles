@@ -185,7 +185,11 @@
                         (:desc "Relative units" "r" 'schmo/insert-relative-units)))
       (:prefix "p"
                "D" #'projectile-remove-known-project
-               "d" #'project-find-dir))
+               "d" #'project-find-dir)
+      (:prefix "TAB"
+               ;; swapped from doom default
+               (:desc "Switch workspace" "TAB" #'+workspace/switch-to)
+               (:desc "Display tab bar" "." #'+workspace/display)))
 
 (map!
  (:map ctl-x-map
