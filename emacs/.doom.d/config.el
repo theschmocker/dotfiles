@@ -58,7 +58,8 @@
         (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
         (yaml "https://github.com/ikatyang/tree-sitter-yaml")
         (vue "https://github.com/ikatyang/tree-sitter-vue")
-        (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")))
+        (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
+        (rust "https://github.com/tree-sitter/tree-sitter-rust")))
 
 (add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
