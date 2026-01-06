@@ -85,7 +85,9 @@
 
 ;;; Evil
 
+(setq evil-ex-search-highlight-all nil)
 (setq evil-escape-key-sequence "jk")
+(setq evil-kill-on-visual-paste nil)
 
 ;; disable evil-snipe
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
