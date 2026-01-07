@@ -35,7 +35,8 @@
       (funcall fn additional-face)))
   (funcall fn face))
 
-(setq kanagawa-themes-custom-colors '((bg-gutter "#181616")))
+(setq kanagawa-themes-custom-colors '((bg-gutter "#181616")
+                                      (vcs-added "#76946A")))
 (setq doom-theme 'kanagawa-dragon)
 
 ;; Maximize window on startup
