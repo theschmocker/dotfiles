@@ -1,6 +1,8 @@
 ;;; misc-tools.el -*- lexical-binding: t; -*-
 
 (require 'cl-lib)
+(require 'subr-x)
+(require 'project)
 
 (defun schmo/get-net-web-app-config-files ()
   (cl-remove-if-not (lambda (p)
@@ -102,5 +104,15 @@
                                                  "cs"
                                                "vue,ts"))))
     (error "Nothing at point")))
+
+(defun schmo/insert-uuid ()
+  "Shell out to uuidgen and insert the result."
+  (interactive)
+  (let ((command (if IS-WINDOWS
+                     "powershell -Command \"[guid]::NewGuid().ToString()\""
+                   "uuidgen")))
+    (thread-last (shell-command-to-string command)
+                 (string-replace "\n" "")
+                 insert)))
 
 (provide 'misc-tools)

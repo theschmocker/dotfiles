@@ -65,3 +65,10 @@
 (package! diffview)
 
 (package! apheleia :pin "706d6bd")
+
+;; for consideration: https://sr.ht/~niklaseklund/detached.el/
+;; one of the things I've enjoyed about switching back to neovim + terminal workflow (esp. with zellij)
+;; is that I can spin up e.g. a dev server and if neovim freezes, or if I need to restart for a config
+;; change, I don't have to shut down the dev server process
+
+;; for consideration: https://github.com/kiennq/treesit-langs

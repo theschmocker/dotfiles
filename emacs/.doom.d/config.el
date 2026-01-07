@@ -1,12 +1,10 @@
-;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+;;; $DOOMDIR/config.el -*- lexical-binding: t -*-
 
 (require 's)
 (require 'f)
 
 ;; Personal lisp packages outside of doom's module system
 (require 'schmo-lib)
-(require 'prlctl)
-(require 'string-edit)
 (require 'msbuild)
 (require 'web-mode-language-triggers)
 (require 'misc-tools)
@@ -37,34 +35,10 @@
       (funcall fn additional-face)))
   (funcall fn face))
 
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-rose-pine-moon)
 
-(setq doom-themes-treemacs-enable-variable-pitch nil)
-
-
-;;; Tree-sitter
-
-(setq treesit-font-lock-level 4)
-
-(setq treesit-language-source-alist
-      '((css "https://github.com/tree-sitter/tree-sitter-css")
-        (html "https://github.com/tree-sitter/tree-sitter-html")
-        (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-        (json "https://github.com/tree-sitter/tree-sitter-json")
-        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
-        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
-        (yaml "https://github.com/ikatyang/tree-sitter-yaml")
-        (vue "https://github.com/ikatyang/tree-sitter-vue")
-        (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
-        (rust "https://github.com/tree-sitter/tree-sitter-rust")))
-
-(add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
-(add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
-(add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+;; Maximize window on startup
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;;; Popups
 ;;;
@@ -83,8 +57,7 @@
 (setq hscroll-margin 16)
 (setq display-line-numbers-type 'relative)
 
-;;; Evil
-
+;; Evil
 (setq evil-ex-search-highlight-all nil)
 (setq evil-escape-key-sequence "jk")
 (setq evil-kill-on-visual-paste nil)
@@ -102,36 +75,14 @@
              fennel-mode-hook)
            #'evil-cleverparens-mode)
 
-;; movement with f and t not restricted to current line.
-;; I prefer the normal behavior for other commands affected by
-;; `evil-cross-lines', so this advice only overrides it for `evil-find-char' and
-;; its variants
-(defadvice! schmo/with-evil-cross-lines (fun &rest args)
-  "Call FUN with `evil-cross-lines' bound to `t'"
-  :around #'evil-find-char
-  (dlet ((evil-cross-lines t))
-    (apply fun args)))
-
-
-;;; Normal mode / leader mappings
-
-;; Remap s and S to avy-goto-char-2
+;; Avy
+(setq avy-keys '(?j ?k ?f ?d ?l ?h ?g ?s ?a))
 (map! (:n "s" (lambda ()
                 (interactive)
                 (dlet ((avy-all-windows 't))
                   (call-interactively #'avy-goto-char-2)))))
 
-(setq avy-keys '(?j ?k ?f ?d ?l ?h ?g ?s ?a))
-
-(defun schmo/insert-uuid ()
-  "Shell out to uuidgen and insert the result"
-  (interactive)
-  (let ((command (if IS-WINDOWS
-                     "powershell -Command \"[guid]::NewGuid().ToString()\""
-                   "uuidgen")))
-    (thread-last (shell-command-to-string command)
-                 (string-replace "\n" "" )
-                 insert)))
+;;; Normal mode / leader mappings
 
 (map! :leader
       ;; Swapped from defaults
@@ -189,19 +140,23 @@
       (:prefix "TAB"
                ;; swapped from doom default
                (:desc "Switch workspace" "TAB" #'+workspace/switch-to)
-               (:desc "Display tab bar" "." #'+workspace/display)))
+               (:desc "Display tab bar" "." #'+workspace/display))
+      (:prefix ("l" . "llm")
+               (:desc "Add text to LLM context" "a" #'gptel-add)
+               (:desc "Explain item or selection" "e" #'gptel-quick)
+               (:desc "Add file to LLM context" "f" #'gptel-add-file)
+               (:desc "Open gptel chat buffer" "l" #'gptel)
+               (:desc "Send text before ~(point)~ (or selection)" "s" #'gptel-send)
+               (:desc "Open configuration menu for gptel" "m" #'gptel-menu)
+               (:desc "Rewrite, refactor, or change the selected region" "r" #'gptel-rewrite)
+               (:desc "Limit context to Org heading" "o" #'gptel-org-set-topic)
+               (:desc "Store gptel config as org properties" "O" #'gptel-org-set-properties)))
 
 (map!
  (:map ctl-x-map
        (:desc "project" "p" project-prefix-map)))
 
-;; Version Control Mappings
 (map!
- (:leader
-  (:desc "vc" "v" vc-prefix-map))
- (:map vc-prefix-map
-       "=" #'vc-dir
-       "d" #'vc-diff)
  (:localleader
   :mode (diff-mode magit-diff-mode)
   :desc "Show side-by-side diff" "d" #'diffview-current))
@@ -228,26 +183,12 @@
  (:prefix "e"
           ("p" 'eval-print-last-sexp)))
 
-(map! :after cycle-quotes
-      :n "gq" 'cycle-quotes)
-
 ;;; LSP
 (after! lsp-mode
   (setq lsp-warn-no-matched-clients nil)
   (add-to-list 'lsp-language-id-configuration '(".*\\.twig$" . "html"))
 
-  ;; On macOS, the filenotify backend (kqueue) doesn't emit a change event
-  ;; when a file inside of a watched directory changes (unless some other
-  ;; change happens like create or delte). This caused some issues for me
-  ;; when working in Svelte projects: changes in TS files weren't reflected
-  ;; in Svelte components. svelte-language-server spins up its own watcher
-  ;; if the client doesn't claim the workspace.didChangeWatchedFiles capability,
-  ;; (which isn't sent to the server when this var is nil) and fixes my problem.
-  ;;
-  ;; Note to future self: revisit this if you run into servers that don't watch
-  ;; files themselves
-  ;; (setq lsp-enable-file-watchers (not IS-MAC))
-
+  (setq lsp-semantic-tokens-enable t)
   (setq lsp-eldoc-enable-hover nil)
   (setq lsp-auto-execute-action nil)
   (setq lsp-enable-indentation nil)
@@ -325,6 +266,380 @@
   (and (schmo/vue-project-p (lsp-workspace-root))
        (apply orig args)))
 
+
+(defadvice! schmo/lsp-find-session-folder (orig-lsp-find-session-folder session file-name)
+  "Advice around `lsp-find-session-folder'.
+
+Use the solution root for C# files instead of the closest project folder.
+Prevents spawning additional omnisharp processes inside of solution projects,
+especially those which DO need their own language server processes for frontend
+code"
+  :around 'lsp-find-session-folder
+  (if (and (string-match-p "\\.cs\\'" file-name)
+           lsp-csharp-solution-file)
+      (file-name-directory lsp-csharp-solution-file)
+    (funcall orig-lsp-find-session-folder session file-name)))
+
+;;; Which key
+(setq which-key-idle-delay 0.25)
+(setq doom-leader-alt-key "M-RET")
+
+;;; Completion
+(setq completion-ignore-case t)
+
+(use-package! fussy
+  :config
+  (setq fussy-filter-fn 'fussy-filter-flex))
+
+(defun schmo/+vertico-orderless-dispatch (pattern _index _total)
+  "Orderless dispatch which swaps % and ~ from DOOM's
+`+vertico-orderless-dispatch'. I'm more likely to use `orderless-flex', so I
+want it on a key that's easier to hit"
+  (cond
+   ;; Character folding
+   ((string-prefix-p "~" pattern) `(char-fold-to-regexp . ,(substring pattern 1)))
+   ((string-suffix-p "~" pattern) `(char-fold-to-regexp . ,(substring pattern 0 -1)))
+   ;; Flex matching
+   ((string-prefix-p "%" pattern) `(orderless-flex . ,(substring pattern 1)))
+   ((string-suffix-p "%" pattern) `(orderless-flex . ,(substring pattern 0 -1)))))
+
+(after! orderless
+  (add-to-list 'orderless-style-dispatchers #'schmo/+vertico-orderless-dispatch)
+  ;; fall back on fussy for automatic fuzzy matching if I get lazy using orderless
+  (setq completion-styles '(orderless fussy basic)))
+
+;; I have no use for the default C-o mapping
+(map! :i "C-o" #'completion-at-point)
+
+(map! :after corfu
+      :map corfu-map
+      (:gi "C-y" #'corfu-insert)
+      (:gi "C-g" #'corfu-quit)
+      (:gi "TAB" nil)
+      (:gi "<tab>" nil)
+      (:gi "<backtab>" nil)
+      (:gi "S-TAB" nil))
+
+(setq +corfu-want-ret-to-confirm 'minibuffer)
+(add-hook! 'corfu-mode-hook (setq-local completion-styles '(fussy orderless basic)))
+
+;;; Web Mode
+
+;; TODO: do I still need these with vue-ts-mode?
+(def-project-mode! vue-minor-mode
+  :match "\\.vue$")
+
+(def-project-mode! vue-script-mode
+  :match "\\.\\(js\\|ts\\)$"
+  :when (schmo/vue-project-p (locate-dominating-file "." "package.json")))
+
+(set-yas-minor-mode! 'vue-script-mode)
+(set-yas-minor-mode! 'vue-minor-mode)
+
+(add-hook 'vue-minor-mode-hook (lambda ()
+                                 (treesit-parser-create 'vue)))
+
+(add-to-list 'web-mode-language-triggers-yas-extra-mode-alist '("typescript" vue-script-mode))
+
+(defun schmo/unset-vue-web-mode-padding ()
+  (setq-local web-mode-part-padding nil)
+  (setq-local web-mode-script-padding nil)
+  (setq-local web-mode-style-padding nil))
+
+(add-hook 'vue-minor-mode-hook #'schmo/unset-vue-web-mode-padding)
+
+(defadvice! schmo/after-editorconfig-set-indentation (&rest _)
+  "Override "
+  :after #'editorconfig-set-indentation
+  (when vue-minor-mode
+    (schmo/unset-vue-web-mode-padding)))
+
+;; WIP regexp for highlighting compilation errors for a work Vue project
+;; "^\\(\\[vue-tsc\\] ?\\)? \\(.*?\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\) - error"
+
+(add-hook 'web-mode-hook 'web-mode-language-triggers-mode)
+
+(after! web-mode
+  ;; doom modifies web-mode's autopairs to avoid conflict with smart parens,
+  ;; but it doesn't remove whitespace from the closing portion. In Vue (for example),
+  ;; this leads to this being inserted: {{ |  }}, when this is desired: {{ | }}
+  ;; just disabling web-modes auto-pairing altogether for now; smartparens covers
+  ;; most of my needs
+  (setq web-mode-enable-auto-pairing nil))
+(add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode))
+
+;; TODO: still necessary?
+;; Fix newline behavior in comments in web-mode. Seems like a new problem after upgrading
+;; to Emacs 29.
+(setq-hook! 'web-mode-hook comment-line-break-function #'web-mode-comment-indent-new-line)
+
+;; (defadvice! schmo/web-mode-yasnippet-exit-hook (fn)
+;;   "Workaround an LSP timeout issue when completing css snippets in vue files"
+;;   :around #'web-mode-yasnippet-exit-hook
+;;   (when (not (string= "css" (web-mode-language-at-pos)))
+;;     (funcall fn)))
+
+;; TODO: see if this is still necessary once I update to Emacs 30 in windows vm
+(when IS-WINDOWS
+  (defmacro schmo/fix-windows-float-conversion-fn (fn)
+    `(defadvice! ,(intern (concat "schmo/fix-" (symbol-name (cadr fn)))) (orig-fn &rest args)
+       :around ,fn
+       (if (= 0.0 (car args))
+           0
+         (apply orig-fn args))))
+
+  (schmo/fix-windows-float-conversion-fn #'floor)
+  (schmo/fix-windows-float-conversion-fn #'round)
+  (schmo/fix-windows-float-conversion-fn #'ceiling)
+  (schmo/fix-windows-float-conversion-fn #'truncate))
+
+(setq emmet-indent-after-insert nil)
+;; Something about emmet-expand-yas breaks undo... just use emmet-expand-line instead
+(advice-add 'emmet-expand-yas :override 'emmet-expand-line)
+
+(add-hook! 'emmet-mode-hook
+  (map! :map emmet-mode-keymap
+        "<tab>" nil
+        "C-h ," #'emmet-expand-line))
+
+(after! yasnippet
+  ;; breaks undo
+  (setq yas-snippet-revival nil)
+  (define-key yas-minor-mode-map (kbd "<tab>") nil)
+  (define-key yas-minor-mode-map (kbd "TAB") nil)
+  ;; I wish there were a better way to disable doom's smart tab binding,
+  ;; but this works.
+  (map! :i [tab] nil))
+
+(map! ;; expand snippets with C-l instead
+      :gni "C-l" (cmds! (and (modulep! :editor snippets)
+                             (yas-maybe-expand-abbrev-key-filter 'yas-expand))
+                        #'yas-expand))
+;;; Misc
+
+(msbuild-auto-project-mode 1)
+
+;; TODO DOOM adds a function to `after-change-major-mode-hook' that tries to detect whitespace mismatches.
+;; It doesn't take editorconfig changes into account, so tabs always get highlighted. Need to change that.
+(setq whitespace-global-modes nil)
+
+(advice-add #'doom-highlight-non-default-indentation-h :override #'ignore)
+
+(after! magit
+  (setq git-commit-style-convention-checks
+        (remove 'overlong-summary-line git-commit-style-convention-checks)))
+
+(map! :leader
+      :prefix "t"
+      "w" #'whitespace-mode
+      "W" #'visual-line-mode)
+
+(setq show-paren-context-when-offscreen 'overlay)
+
+;; consider these symbols to be parts of words in lisp modes
+(let ((word-characters (list ?- ?: ?? ?/ ?+))
+      (modes '(emacs-lisp-mode lisp-mode clojure-mode scheme-mode)))
+  (dolist (mode modes)
+    (let* ((mode-name (symbol-name mode))
+           (hook (intern (concat mode-name "-hook")))
+           (syntax-table-sym (intern (concat mode-name "-syntax-table"))))
+      (add-hook hook (lambda ()
+                       (dolist (char word-characters)
+                         (modify-syntax-entry char "w" (symbol-value syntax-table-sym))))))))
+
+(setq doom-themes-treemacs-enable-variable-pitch nil)
+
+(defhydra schmo/window-resize nil
+  "Window Resize"
+  ("h" #'evil-window-decrease-width "Decrease Width")
+  ("j" #'evil-window-increase-height "Increase Height")
+  ("k" #'evil-window-decrease-height "Decrease Height")
+  ("l" #'evil-window-increase-width "Increase Width")
+  ("=" #'balance-windows "Balance"))
+
+;;; CSS
+
+(defun schmo/insert-relative-units (val &optional arg)
+  "Inserts `val' relative to some base number for use with relative units in
+CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
+  (interactive (list (read-number "Value: ")
+                     current-prefix-arg))
+  (let ((base (float (if arg
+                         (read-number "Base: ")
+                       16))))
+    (when (<= base 0)
+      (error "Base must be greater than 0"))
+    (let ((res (schmo/print-float-with-max-places (/ val base) 4)))
+      ;; If in normal mode and the point visual covers a space, I want the
+      ;; relative units to be inserted at the next position.
+      ;; Typical CSS example:
+      ;; line-height:❚;
+      ;; should become
+      ;; line-height: 0.75❚ (where cursor covers the semicolon)
+      ;; But if I'm in insert mode, I still want this:
+      ;; line-height: |;
+      ;; to become
+      ;; line-height: 0.75|;
+      (when (and evil-normal-state-minor-mode
+                 (= 32 (char-after))
+                 (not (= (point) (point-at-eol))))
+        (goto-char (+ 1 (point))))
+      (insert (if (s-ends-with? ".0" res)
+                  (s-replace ".0" "" res)
+                res)))))
+
+;;; org
+
+(setq org-directory "~/org/")
+(add-to-list 'org-modules 'ol-info)
+
+(defun schmo/org-insert-week ()
+  (interactive)
+  (let ((monday-label (let ((date (calendar-current-date)))
+                        (cl-destructuring-bind (month day _year)
+                            (calendar-gregorian-from-absolute
+                             (1+ (- (calendar-absolute-from-gregorian date)
+                                    (calendar-day-of-week date))))
+                          (format "%02d/%02d" month day)))))
+    (newline)
+    (insert (concat "* " monday-label))
+    (dolist (day '("Mon" "Tue" "Wed" "Thu" "Fri"))
+      (newline)
+      (insert (concat "** " day))
+      (newline)
+      (insert "- "))))
+
+(defun schmo/parse-minutes-org (org-line)
+  (let* ((parts (thread-first org-line
+                              (split-string " ")
+                              (last)
+                              (car)
+                              (split-string ":")))
+         (hours-in-minutes (if (string-empty-p (car parts))
+                               0
+                             (floor (* 60 (string-to-number (car parts))))))
+         (minutes (if (or (null (cdr parts))
+                          (string-empty-p (cadr parts)))
+                      0
+                    (string-to-number (cadr parts)))))
+    (+ hours-in-minutes minutes)))
+
+(defun schmo/minutes-to-hours-string (time-in-mins)
+  (let ((res "")
+        (hours (/ time-in-mins 60))
+        (mins (% time-in-mins 60)))
+    (when (< 0 hours)
+      (setq res (number-to-string hours)))
+    (setq res (concat res ":" (s-pad-left 2 "0" (number-to-string mins))))
+    res))
+
+(defvar-local schmo/org-hours-overlays nil)
+
+(defun schmo/org-hours-clear-overlays ()
+  (dolist (o schmo/org-hours-overlays)
+    (delete-overlay o))
+  (setq schmo/org-hours-overlays nil))
+
+(defun schmo/org-element-text-content (element)
+  (if-let ((beg (org-element-property :contents-begin element))
+           (end (org-element-property :contents-end element)))
+      (buffer-substring-no-properties beg end)
+    ""))
+
+(defun schmo/org-hours-compute-and-apply-overlays ()
+  (schmo/org-hours-clear-overlays)
+  (let ((day-table (make-hash-table :test #'eq))
+        (week-table (make-hash-table :test #'eq)))
+
+    (org-element-map (org-element-parse-buffer) 'headline
+      (lambda (headline)
+        (let ((headline-level (org-element-property :level headline)))
+          (cond
+           ((eql headline-level 1)
+            (when (not (gethash headline week-table))
+              (setf (gethash headline week-table) 0)))
+
+           ((> headline-level 1)
+            (when (not (gethash headline day-table))
+              (setf (gethash headline day-table) 0))
+            (org-element-map headline 'plain-list
+              (lambda (l)
+                (org-element-map l 'item
+                  (lambda (item)
+                    (let ((item-mins (thread-last (schmo/org-element-text-content item)
+                                                  (string-trim)
+                                                  (schmo/parse-minutes-org))))
+                      (cl-incf (gethash headline day-table) item-mins)
+                      (when-let* ((week-headline (org-element-parent headline))
+                                  (headlinep (org-element-type-p week-headline 'headline)))
+                        (cl-incf (gethash week-headline week-table) item-mins))))))))))))
+
+    (cl-labels ((org-hours-add-heading-overlay (element minutes)
+                  (let* ((hours-text (schmo/minutes-to-hours-string minutes))
+                         (overlay-text (concat "  " hours-text " "))
+                         (heading-begin (org-element-begin element))
+                         (heading-line-end (save-excursion
+                                             (goto-char heading-begin)
+                                             (line-end-position)))
+                         (o (make-overlay heading-line-end
+                                          heading-line-end)))
+                    (put-text-property 1 (length overlay-text) 'face '(:background "#2a283e":foreground "#908caa") overlay-text)
+                    (overlay-put o 'after-string overlay-text)
+                    (add-to-list 'schmo/org-hours-overlays o))))
+
+      (maphash #'org-hours-add-heading-overlay day-table)
+      (maphash #'org-hours-add-heading-overlay week-table))))
+
+(defun schmo/org-hours-after-change-h (&rest args)
+  (unwind-protect
+      (schmo/org-hours-compute-and-apply-overlays)
+    nil))
+
+(define-minor-mode org-hours-minor-mode ()
+  :global t
+  (unless (derived-mode-p 'org-mode)
+    (error "Cannot use org-hours-minor-mode outside of org-mode"))
+  (if org-hours-minor-mode
+      (progn
+        (schmo/org-hours-after-change-h)
+        (add-hook 'after-change-functions 'schmo/org-hours-after-change-h nil t))
+    (remove-hook 'after-change-functions 'schmo/org-hours-after-change-h t)
+    (schmo/org-hours-clear-overlays)))
+
+(defun schmo/after-change-major-mode-enable-org-hours-minor-mode-h ()
+  (when (and (derived-mode-p 'org-mode)
+             (buffer-file-name)
+             (string= "hours.org" (file-name-nondirectory (buffer-file-name))))
+    (org-hours-minor-mode 1)))
+
+(add-hook 'after-change-major-mode-hook 'schmo/after-change-major-mode-enable-org-hours-minor-mode-h)
+
+;;; better-jumper
+
+(advice-add 'avy-action-goto :around #'doom-set-jump-maybe-a)
+
+
+;;; Tree-sitter
+
+(setq treesit-font-lock-level 4)
+
+(setq treesit-language-source-alist
+      '((css "https://github.com/tree-sitter/tree-sitter-css")
+        (html "https://github.com/tree-sitter/tree-sitter-html")
+        (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+        (json "https://github.com/tree-sitter/tree-sitter-json")
+        (tsx "https://github.com/tree-sitter/tree-sitter-typescript" "master" "tsx/src")
+        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" "master" "typescript/src")
+        (yaml "https://github.com/ikatyang/tree-sitter-yaml")
+        (vue "https://github.com/ikatyang/tree-sitter-vue")
+        (c-sharp "https://github.com/tree-sitter/tree-sitter-c-sharp")
+        (rust "https://github.com/tree-sitter/tree-sitter-rust")))
+
+(add-to-list 'auto-mode-alist '("\\.json\\'" . json-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
+
 (add-hook 'csharp-tree-sitter-mode-local-vars-hook #'lsp! 'append)
 (add-hook 'csharp-mode-hook #'lsp!)
 
@@ -347,7 +662,7 @@
 (defface font-lock-constructor-face
   '((t . (:inherit font-lock-function-name-face
           :slant italic)))
-  "Face for html tags.")
+  "Face for constructors.")
 
 (autoload 'treesit-additional-font-lock-rules "treesit-additional-font-lock-rules")
 (after! treesit
@@ -442,451 +757,7 @@
  :localleader
  :desc "Convert type def to TypeScript" "c" #'cs-ts-extras-convert-to-typescript-at-point-dwim)
 
-(msbuild-auto-project-mode 1)
-
-(defadvice! schmo/lsp-find-session-folder (orig-lsp-find-session-folder session file-name)
-  "Advice around `lsp-find-session-folder'.
-
-Use the solution root for C# files instead of the closest project folder.
-Prevents spawning additional omnisharp processes inside of solution projects,
-especially those which DO need their own language server processes for frontend
-code"
-  :around 'lsp-find-session-folder
-  (if (and (string-match-p "\\.cs\\'" file-name)
-           lsp-csharp-solution-file)
-      (file-name-directory lsp-csharp-solution-file)
-    (funcall orig-lsp-find-session-folder session file-name)))
-
-;;; Which key
-(setq which-key-idle-delay 0.25)
-(setq doom-leader-alt-key "M-RET")
-
-;;; Completion
-(setq completion-ignore-case t)
-
-(use-package! fussy
-  :config
-  (setq fussy-filter-fn 'fussy-filter-flex))
-
-(defun schmo/+vertico-orderless-dispatch (pattern _index _total)
-  "Orderless dispatch which swaps % and ~ from DOOM's
-`+vertico-orderless-dispatch'. I'm more likely to use `orderless-flex', so I
-want it on a key that's easier to hit"
-  (cond
-   ;; Character folding
-   ((string-prefix-p "~" pattern) `(char-fold-to-regexp . ,(substring pattern 1)))
-   ((string-suffix-p "~" pattern) `(char-fold-to-regexp . ,(substring pattern 0 -1)))
-   ;; Flex matching
-   ((string-prefix-p "%" pattern) `(orderless-flex . ,(substring pattern 1)))
-   ((string-suffix-p "%" pattern) `(orderless-flex . ,(substring pattern 0 -1)))))
-
-(after! orderless
-  (add-to-list 'orderless-style-dispatchers #'schmo/+vertico-orderless-dispatch)
-  ;; fall back on fussy for automatic fuzzy matching if I get lazy using orderless
-  (setq completion-styles '(orderless fussy basic)))
-
-;; I have no use for the default C-o mapping
-(map! :i "C-o" #'completion-at-point)
-
-(map! :after corfu
-      :map corfu-map
-      (:gi "C-y" #'corfu-insert)
-      (:gi "C-g" #'corfu-quit)
-      (:gi "TAB" nil)
-      (:gi "<tab>" nil)
-      (:gi "<backtab>" nil)
-      (:gi "S-TAB" nil))
-
-(setq +corfu-want-ret-to-confirm 'minibuffer)
-(add-hook! 'corfu-mode-hook (setq-local completion-styles '(fussy orderless basic)))
-
-;;; Web Mode
-
-(def-project-mode! vue-minor-mode
-  :match "\\.vue$")
-
-(def-project-mode! vue-script-mode
-  :match "\\.\\(js\\|ts\\)$"
-  :when (schmo/vue-project-p (locate-dominating-file "." "package.json")))
-
-(set-yas-minor-mode! 'vue-script-mode)
-(set-yas-minor-mode! 'vue-minor-mode)
-
-(add-hook 'vue-minor-mode-hook (lambda ()
-                                 (treesit-parser-create 'vue)))
-
-(add-to-list 'web-mode-language-triggers-yas-extra-mode-alist '("typescript" vue-script-mode))
-
-(defun schmo/unset-vue-web-mode-padding ()
-  (setq-local web-mode-part-padding nil)
-  (setq-local web-mode-script-padding nil)
-  (setq-local web-mode-style-padding nil))
-
-(add-hook 'vue-minor-mode-hook #'schmo/unset-vue-web-mode-padding)
-
-(defadvice! schmo/after-editorconfig-set-indentation (&rest _)
-  "Override "
-  :after #'editorconfig-set-indentation
-  (when vue-minor-mode
-    (schmo/unset-vue-web-mode-padding)))
-
-;; WIP regexp for highlighting compilation errors for a work Vue project
-;; "^\\(\\[vue-tsc\\] ?\\)? \\(.*?\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\) - error"
-
-(add-hook 'web-mode-hook 'web-mode-language-triggers-mode)
-
-(after! web-mode
-  ;; doom modifies web-mode's autopairs to avoid conflict with smart parens,
-  ;; but it doesn't remove whitespace from the closing portion. In Vue (for example),
-  ;; this leads to this being inserted: {{ |  }}, when this is desired: {{ | }}
-  ;; just disabling web-modes auto-pairing altogether for now; smartparens covers
-  ;; most of my needs
-  (setq web-mode-enable-auto-pairing nil))
-(add-to-list 'auto-mode-alist '("\\.cshtml\\'" . web-mode))
-
-;; Fix newline behavior in comments in web-mode. Seems like a new problem after upgrading
-;; to Emacs 29.
-(setq-hook! 'web-mode-hook comment-line-break-function #'web-mode-comment-indent-new-line)
-
-(defadvice! schmo/web-mode-yasnippet-exit-hook (fn)
-  "Workaround an LSP timeout issue when completing css snippets in vue files"
-  :around #'web-mode-yasnippet-exit-hook
-  (when (not (string= "css" (web-mode-language-at-pos)))
-    (funcall fn)))
-
-(when IS-WINDOWS
-  (defmacro schmo/fix-windows-float-conversion-fn (fn)
-    `(defadvice! ,(intern (concat "schmo/fix-" (symbol-name (cadr fn)))) (orig-fn &rest args)
-       :around ,fn
-       (if (= 0.0 (car args))
-           0
-         (apply orig-fn args))))
-
-  (schmo/fix-windows-float-conversion-fn #'floor)
-  (schmo/fix-windows-float-conversion-fn #'round)
-  (schmo/fix-windows-float-conversion-fn #'ceiling)
-  (schmo/fix-windows-float-conversion-fn #'truncate))
-
-(setq emmet-indent-after-insert nil)
-;; Something about emmet-expand-yas breaks undo... just use emmet-expand-line instead
-(advice-add 'emmet-expand-yas :override 'emmet-expand-line)
-
-(add-hook! 'emmet-mode-hook
-  (map! :map emmet-mode-keymap
-        "<tab>" nil
-        "C-h ," #'emmet-expand-line))
-
-(after! yasnippet
-  ;; breaks undo
-  (setq yas-snippet-revival nil)
-  (define-key yas-minor-mode-map (kbd "<tab>") nil)
-  (define-key yas-minor-mode-map (kbd "TAB") nil)
-  ;; I wish there were a better way to disable doom's smart tab binding,
-  ;; but this works.
-  (map! :i [tab] nil))
-
-(map! ;; expand snippets with C-l instead
-      :gni "C-l" (cmds! (and (modulep! :editor snippets)
-                             (yas-maybe-expand-abbrev-key-filter 'yas-expand))
-                        #'yas-expand))
-;;; Misc
-
-;; TODO DOOM adds a function to `after-change-major-mode-hook' that tries to detect whitespace mismatches.
-;; It doesn't take editorconfig changes into account, so tabs always get highlighted. Need to change that.
-(setq whitespace-global-modes nil)
-
-(advice-add #'doom-highlight-non-default-indentation-h :override #'ignore)
-
-(after! magit
-  (setq git-commit-style-convention-checks
-        (remove 'overlong-summary-line git-commit-style-convention-checks)))
-
-(map! :leader
-      :prefix "t"
-      "w" #'whitespace-mode
-      "W" #'visual-line-mode)
-
-(setq show-paren-context-when-offscreen 'overlay)
-
-(add-to-list 'auto-mode-alist '("\\.pl\\'" . prolog-mode))
-
-;; consider these symbols to be parts of words in lisp modes
-(let ((word-characters (list ?- ?: ?? ?/ ?+))
-      (modes '(emacs-lisp-mode lisp-mode clojure-mode scheme-mode)))
-  (dolist (mode modes)
-    (let* ((mode-name (symbol-name mode))
-           (hook (intern (concat mode-name "-hook")))
-           (syntax-table-sym (intern (concat mode-name "-syntax-table"))))
-      (add-hook hook (lambda ()
-                       (dolist (char word-characters)
-                         (modify-syntax-entry char "w" (symbol-value syntax-table-sym))))))))
-
-;; Maximize window on startup
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
-
-(defhydra schmo/window-resize nil
-  "Window Resize"
-  ("h" #'evil-window-decrease-width "Decrease Width")
-  ("j" #'evil-window-increase-height "Increase Height")
-  ("k" #'evil-window-decrease-height "Decrease Height")
-  ("l" #'evil-window-increase-width "Increase Width")
-  ("=" #'balance-windows "Balance"))
-
-(defun schmo/restart-windows-parallels-network-device ()
-  "Restarts the Parallels network adapter over in the Windows VM.
-Sometimes upload speeds get borked and local dev is slow; restarting the network
-device helps"
-  (interactive)
-  ;; TODO: check if running on Windows and run command directly
-  (dlet ((prlctl-run-with-current-user nil))
-    (prlctl-exec-shell-command
-     (prlctl-find-vm-by-name-or-uuid "Windows 11")
-     "netsh interface set interface Ethernet disable && netsh interface set interface Ethernet enable"
-     t)))
-
-
-;;; CSS
-
-(defun schmo/insert-relative-units (val &optional arg)
-  "Inserts `val' relative to some base number for use with relative units in
-CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
-  (interactive (list (read-number "Value: ")
-                     current-prefix-arg))
-  (let ((base (float (if arg
-                         (read-number "Base: ")
-                       16))))
-    (when (<= base 0)
-      (error "Base must be greater than 0"))
-    (let ((res (schmo/print-float-with-max-places (/ val base) 4)))
-      ;; If in normal mode and the point visual covers a space, I want the
-      ;; relative units to be inserted at the next position.
-      ;; Typical CSS example:
-      ;; line-height:❚;
-      ;; should become
-      ;; line-height: 0.75❚ (where cursor covers the semicolon)
-      ;; But if I'm in insert mode, I still want this:
-      ;; line-height: |;
-      ;; to become
-      ;; line-height: 0.75|;
-      (when (and evil-normal-state-minor-mode
-                 (= 32 (char-after))
-                 (not (= (point) (point-at-eol))))
-        (goto-char (+ 1 (point))))
-      (insert (if (s-ends-with? ".0" res)
-                  (s-replace ".0" "" res)
-                res)))))
-
-;;; org
-(setq org-directory "~/org/")
-(add-to-list 'org-modules 'ol-info)
-
-(defun schmo/org-insert-week ()
-  (interactive)
-  (let ((monday-label (let ((date (calendar-current-date)))
-                        (cl-destructuring-bind (month day _year)
-                            (calendar-gregorian-from-absolute
-                             (1+ (- (calendar-absolute-from-gregorian date)
-                                    (calendar-day-of-week date))))
-                          (format "%02d/%02d" month day)))))
-    (newline)
-    (insert (concat "* " monday-label))
-    (dolist (day '("Mon" "Tue" "Wed" "Thu" "Fri"))
-      (newline)
-      (insert (concat "** " day))
-      (newline)
-      (insert "- "))))
-
-(defun schmo/parse-minutes-org (org-line)
-  (let* ((parts (thread-first org-line
-                              (split-string " ")
-                              (last)
-                              (car)
-                              (split-string ":")))
-         (hours-in-minutes (if (string-empty-p (car parts))
-                               0
-                             (floor (* 60 (string-to-number (car parts))))))
-         (minutes (if (or (null (cdr parts))
-                          (string-empty-p (cadr parts)))
-                      0
-                    (string-to-number (cadr parts)))))
-    (+ hours-in-minutes minutes)))
-
-(defun schmo/tally-region-org (start end)
-  (interactive "r")
-  (let ((time-in-mins (apply #'+ (mapcar 'schmo/parse-minutes-org
-                                         (split-string (buffer-substring-no-properties start end)
-                                                       "\n")))))
-    (deactivate-mark)
-    (goto-line (line-number-at-pos (if (> start end)
-                                       start
-                                     end)))
-    (open-line 1)
-    (newline)
-    (insert "- TOTAL: ")
-    (insert (schmo/minutes-to-hours-string time-in-mins))))
-
-(defun schmo/minutes-to-hours-string (time-in-mins)
-  (let ((res "")
-        (hours (/ time-in-mins 60))
-        (mins (% time-in-mins 60)))
-    (when (< 0 hours)
-      (setq res (number-to-string hours)))
-    (setq res (concat res ":" (s-pad-left 2 "0" (number-to-string mins))))
-    res))
-
-(defvar-local schmo/org-hours-overlays nil)
-
-(defun schmo/org-hours-clear-overlays ()
-  (dolist (o schmo/org-hours-overlays)
-    (delete-overlay o))
-  (setq schmo/org-hours-overlays nil))
-
-(defun schmo/org-element-text-content (element)
-  (if-let ((beg (org-element-property :contents-begin element))
-           (end (org-element-property :contents-end element)))
-      (buffer-substring-no-properties beg end)
-    ""))
-
-(defun schmo/org-hours-compute-and-apply-overlays ()
-  (schmo/org-hours-clear-overlays)
-  (let ((day-table (make-hash-table :test #'eq))
-        (week-table (make-hash-table :test #'eq)))
-
-    (org-element-map (org-element-parse-buffer) 'headline
-      (lambda (headline)
-        (let ((headline-level (org-element-property :level headline)))
-          (cond
-           ((eql headline-level 1)
-            (when (not (gethash headline week-table))
-              (setf (gethash headline week-table) 0)))
-
-           ((> headline-level 1)
-            (when (not (gethash headline day-table))
-              (setf (gethash headline day-table) 0))
-            (org-element-map headline 'plain-list
-              (lambda (l)
-                (org-element-map l 'item
-                  (lambda (item)
-                    (let ((item-mins (thread-last (schmo/org-element-text-content item)
-                                                  (string-trim)
-                                                  (schmo/parse-minutes-org))))
-                      (cl-incf (gethash headline day-table) item-mins)
-                      (when-let* ((week-headline (org-element-parent headline))
-                                  (headlinep (org-element-type-p week-headline 'headline)))
-                        (cl-incf (gethash week-headline week-table) item-mins))))))))))))
-
-    (cl-labels ((org-hours-add-heading-overlay (element minutes)
-                  (let* ((hours-text (schmo/minutes-to-hours-string minutes))
-                         (overlay-text (concat "  " hours-text " "))
-                         (heading-begin (org-element-begin element))
-                         (heading-line-end (save-excursion
-                                             (goto-char heading-begin)
-                                             (line-end-position)))
-                         (o (make-overlay heading-line-end
-                                          heading-line-end)))
-                    (put-text-property 1 (length overlay-text) 'face '(:background "#2a283e":foreground "#908caa") overlay-text)
-                    (overlay-put o 'after-string overlay-text)
-                    (add-to-list 'schmo/org-hours-overlays o))))
-
-      (maphash #'org-hours-add-heading-overlay day-table)
-      (maphash #'org-hours-add-heading-overlay week-table))))
-
-(defun schmo/org-hours-after-change-h (&rest args)
-  (unwind-protect
-      (schmo/org-hours-compute-and-apply-overlays)
-    nil))
-
-(define-minor-mode org-hours-minor-mode ()
-  :global t
-  (unless (derived-mode-p 'org-mode)
-    (error "Cannot use org-hours-minor-mode outside of org-mode"))
-  (if org-hours-minor-mode
-      (progn
-        (schmo/org-hours-after-change-h)
-        (add-hook 'after-change-functions 'schmo/org-hours-after-change-h nil t))
-    (remove-hook 'after-change-functions 'schmo/org-hours-after-change-h t)
-    (schmo/org-hours-clear-overlays)))
-
-(defun schmo/after-change-major-mode-enable-org-hours-minor-mode-h ()
-  (when (and (derived-mode-p 'org-mode)
-             (buffer-file-name)
-             (string= "hours.org" (file-name-nondirectory (buffer-file-name))))
-    (org-hours-minor-mode 1)))
-
-(add-hook 'after-change-major-mode-hook 'schmo/after-change-major-mode-enable-org-hours-minor-mode-h)
-
-;;; JSON utils
-
-(cl-defmacro schmo/define-json-region-format-command (name docstring &key js buffer-name (major-mode 'json-ts-mode))
-  (declare (indent defun))
-  (let* ((basedoc "Arguments:
-START:   region start or `point-min'.
-END:     region end or `point-max'.
-REPLACE: when called interactively with a universal argument or called
-         non-interactively with a non-nil value, replace the contents of the
-         region or buffer with the modified value. Otherwise, open a dedicated
-         buffer.")
-         (doc (if (stringp docstring)
-                  (format "%s\n\n%s" docstring basedoc)
-                basedoc)))
-    `(defun ,name (start end &optional replace)
-       ,doc
-       (interactive (if (region-active-p)
-                        (list (region-beginning) (region-end) current-prefix-arg)
-                      (list (point-min) (point-max) current-prefix-arg)))
-       (let ((command (schmo/format-node-command ,js))
-             (buffer-name ,buffer-name))
-         (if replace
-             (shell-command-on-region start end command nil t)
-           (shell-command-on-region start end command buffer-name)
-           (with-current-buffer buffer-name
-             (,major-mode)
-             (set-buffer-modified-p nil)
-             (setq buffer-undo-list nil))
-           (pop-to-buffer buffer-name))))))
-
-(schmo/define-json-region-format-command schmo/stringify-json
-  "Stringify JSON in region such that it can used as a string value in a JSON
-object."
-  :js "console.log(JSON.stringify(JSON.stringify(JSON.parse(<<region>>))))"
-  :buffer-name "*stringified json*"
-  :major-mode fundamental-mode)
-
-(schmo/define-json-region-format-command schmo/prettify-json
-  "Prettify JSON in region or buffer.
-Indented with tabs."
-  :js "console.log(JSON.stringify(JSON.parse(<<region>>), null, '\\t'))"
-  :buffer-name "*formatted json*")
-
-(schmo/define-json-region-format-command schmo/minify-json
-  "Minify JSON in region or buffer."
-  :js "console.log(JSON.stringify(JSON.parse(<<region>>)))"
-  :buffer-name "*minified json*")
-
-(defun schmo/edit-json-string-at-point ()
-  "Edit the string at point in a `json-mode' buffer and handle reformatting."
-  (interactive)
-  (call-interactively #'edit-string-at-point)
-  (schmo/prettify-json (point-min) (point-max) t)
-  (setq buffer-undo-list nil)
-  (set-buffer-modified-p nil)
-  (json-ts-mode)
-  (deactivate-mark)
-  (setq-local string-edit-mode-reformat-string-function
-              (lambda (_ new-json)
-                (with-temp-buffer
-                  (insert new-json)
-                  (schmo/minify-json (point-min) (point-max) t)
-                  (schmo/stringify-json (point-min) (point-max) t)
-                  (goto-char (point-min))
-                  (cl-destructuring-bind (start . end) (thing-at-point-bounds-of-string-at-point)
-                    (buffer-substring-no-properties (1+ start) (1- end)))))))
-
-
-;;; better-jumper
-
-(advice-add 'avy-action-goto :around #'doom-set-jump-maybe-a)
-
+;; TODO: check to see if the built-in settings are still broken in Emacs 30
 (defun schmo/reapply-csharp-ts-mode-font-lock-settings ()
   "Fixes csharp-ts-mode font lock with latest version of parser"
   (interactive)
@@ -1033,3 +904,15 @@ Indented with tabs."
 
 (after! csharp-mode
   (schmo/reapply-csharp-ts-mode-font-lock-settings))
+
+;;; gptel
+
+(after! gptel
+  (setq gptel-api-key nil
+        gptel-model 'default
+        gptel-backend (gptel-make-openai "llm-chat"
+                        :stream t
+                        :protocol "http"
+                        :host "localhost:8080/llamacpp"
+                        :request-params (list :reasoning_format "auto")
+                        :models '(default))))
