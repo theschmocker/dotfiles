@@ -35,7 +35,8 @@
       (funcall fn additional-face)))
   (funcall fn face))
 
-(setq doom-theme 'doom-rose-pine-moon)
+(setq kanagawa-themes-custom-colors '((bg-gutter "#181616")))
+(setq doom-theme 'kanagawa-dragon)
 
 ;; Maximize window on startup
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -419,11 +420,8 @@ want it on a key that's easier to hit"
 
 (msbuild-auto-project-mode 1)
 
-;; TODO DOOM adds a function to `after-change-major-mode-hook' that tries to detect whitespace mismatches.
-;; It doesn't take editorconfig changes into account, so tabs always get highlighted. Need to change that.
 (setq whitespace-global-modes nil)
-
-(advice-add #'doom-highlight-non-default-indentation-h :override #'ignore)
+(advice-add #'+whitespace-highlight-incorrect-indentation-h :override #'ignore)
 
 (after! magit
   (setq git-commit-style-convention-checks

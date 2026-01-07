@@ -72,3 +72,5 @@
 ;; change, I don't have to shut down the dev server process
 
 ;; for consideration: https://github.com/kiennq/treesit-langs
+
+(package! kanagawa-themes)
