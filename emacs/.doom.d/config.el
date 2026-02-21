@@ -35,12 +35,30 @@
       (funcall fn additional-face)))
   (funcall fn face))
 
-(setq kanagawa-themes-custom-colors '((bg-gutter "#181616")
+(setq kanagawa-themes-custom-colors '(;(bg-gutter "#181616")
                                       (vcs-added "#76946A")))
+(let* ((bg "#181616")
+       (hl-bg (doom-blend "#9e9b93" bg 0.25))
+       (hl-line-bg (doom-blend "#9e9b93" bg 0.15)))
+  (custom-set-faces!
+    ;; '(line-number :background "#181616")
+    ;; '(git-gutter:added :background "#76946A")
+    ;; '(git-gutter:modified :background "#DCA561")
+    `(highlight :foreground nil :background ,hl-bg :weight normal)
+    `(hl-line :foreground nil :background ,hl-line-bg :extend t)
+    '(lsp-face-highlight-read :underline nil :inherit highlight)))
+
 (setq doom-theme 'kanagawa-dragon)
 
 ;; Maximize window on startup
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+(defun schmo/frame-title-format ()
+  (if-let* ((ws-proj (persp-parameter '+workspace-project)))
+      (format "%s | Doom Emacs" (projectile-project-name ws-proj))
+    "Doom Emacs"))
+
+(setq frame-title-format '((:eval (schmo/frame-title-format))))
 
 ;;; Popups
 ;;;
@@ -86,7 +104,15 @@
 
 ;;; Normal mode / leader mappings
 
+(defun schmo/project-find-file (&optional in-buffer-project)
+  (interactive "P")
+  (if in-buffer-project
+      (call-interactively 'projectile-find-file)
+    (let ((projectile-project-root (persp-parameter '+workspace-project)))
+      (call-interactively 'projectile-find-file))))
+
 (map! :leader
+      :desc "Find file in project" "SPC" 'schmo/project-find-file
       ;; Swapped from defaults
       :desc "M-x" ";" 'execute-extended-command
       :desc "Eval expression" ":" (lambda (arg)
@@ -325,6 +351,16 @@ want it on a key that's easier to hit"
 (setq +corfu-want-ret-to-confirm 'minibuffer)
 (add-hook! 'corfu-mode-hook (setq-local completion-styles '(fussy orderless basic)))
 
+(defun schmo/cape-same-project-buffers ()
+  (cape--buffer-list
+   (lambda (buf)
+     (string= projectile-project-root
+              (with-current-buffer buf
+                projectile-project-root)))))
+
+(after! cape
+  (setq cape-dabbrev-buffer-function #'schmo/cape-same-project-buffers))
+
 ;;; Web Mode
 
 ;; TODO: do I still need these with vue-ts-mode?
@@ -360,6 +396,16 @@ want it on a key that's easier to hit"
 ;; "^\\(\\[vue-tsc\\] ?\\)? \\(.*?\\):\\([[:digit:]]+\\):\\([[:digit:]]+\\) - error"
 
 (add-hook 'web-mode-hook 'web-mode-language-triggers-mode)
+
+(defun schmo/svelte-web-mode-padding ()
+  ;; need to figure out what the actual conflict is
+  (run-with-timer 0.1 nil (lambda ()
+                            (when (string= web-mode-engine "svelte")
+                              (setq-local web-mode-part-padding 4)
+                              (setq-local web-mode-script-padding 4)
+                              (setq-local web-mode-style-padding 4)))))
+
+(add-hook 'web-mode-hook 'schmo/svelte-web-mode-padding)
 
 (after! web-mode
   ;; doom modifies web-mode's autopairs to avoid conflict with smart parens,
@@ -906,6 +952,13 @@ CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
 
 ;;; gptel
 
+(defun schmo/set-default-transient-display-locally ()
+  (setq-local transient-display-buffer-action
+              '(display-buffer-in-side-window
+                (side . bottom)
+                (dedicated . t)
+                (inhibit-same-window . t))))
+
 (after! gptel
   (setq gptel-api-key nil
         gptel-model 'default
@@ -914,4 +967,14 @@ CSS. If `arg' is non-nil, then prompts for a base. Base defaults to 16."
                         :protocol "http"
                         :host "localhost:8080/llamacpp"
                         :request-params (list :reasoning_format "auto")
-                        :models '(default))))
+                        :models '(default)))
+  (set-popup-rule!
+    (lambda (bname _action)
+      (and (null gptel-display-buffer-action)
+           (buffer-local-value 'gptel-mode (get-buffer bname))))
+    :select t
+    :size 0.4
+    :quit nil
+    :ttl nil)
+
+  (add-hook 'gptel-mode-hook 'schmo/set-default-transient-display-locally))
