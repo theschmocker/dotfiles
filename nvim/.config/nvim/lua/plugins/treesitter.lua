@@ -12,7 +12,7 @@ local data = require('data.treesitter-data')
 -- Vue/Svelte files.
 --
 local function map_treesitter_text_objects()
-	local select_textobject = require('nvim-treesitter.textobjects.select').select_textobject
+	local select_textobject = require('nvim-treesitter-textobjects.select').select_textobject
 	local mappings = {
 		['if'] = '@function.inner',
 		['af'] = '@function.outer',
@@ -49,6 +49,7 @@ end
 return {
 	{ -- Highlight, edit, and navigate code
 		'nvim-treesitter/nvim-treesitter',
+		branch = "master",
 		dependencies = {
 			'nvim-treesitter/nvim-treesitter-context',
 			'nvim-treesitter/nvim-treesitter-textobjects',
@@ -86,42 +87,42 @@ return {
 						node_decremental = "<bs>",
 					},
 				},
-				textobjects = {
-					select = {
-						enable = true,
+			})
+			require('nvim-treesitter-textobjects').setup({
+				select = {
+					enable = true,
 
-						-- Automatically jump forward to textobj, similar to targets.vim
-						lookahead = true,
+					-- Automatically jump forward to textobj, similar to targets.vim
+					lookahead = true,
 
-						keymaps = {
-							-- You can use the capture groups defined in textobjects.scm
-							-- ["af"] = "@function.outer",
-							-- ["if"] = "@function.inner",
-							-- ["ac"] = "@class.outer",
-							-- ["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
-							-- ["as"] = { query = "@local.scope", query_group = "locals", desc = "Select language scope" },
-						},
-						-- You can choose the select mode (default is charwise 'v')
-						--
-						-- Can also be a function which gets passed a table with the keys
-						-- * query_string: eg '@function.inner'
-						-- * method: eg 'v' or 'o'
-						-- and should return the mode ('v', 'V', or '<c-v>') or a table
-						-- mapping query_strings to modes.
-						-- selection_modes = {
-						-- 	['@function.outer'] = 'V', -- linewise
-						-- },
-						-- If you set this to `true` (default is `false`) then any textobject is
-						-- extended to include preceding or succeeding whitespace. Succeeding
-						-- whitespace has priority in order to act similarly to eg the built-in
-						-- `ap`.
-						--
-						-- Can also be a function which gets passed a table with the keys
-						-- * query_string: eg '@function.inner'
-						-- * selection_mode: eg 'v'
-						-- and should return true or false
-						-- include_surrounding_whitespace = true,
+					keymaps = {
+						-- You can use the capture groups defined in textobjects.scm
+						-- ["af"] = "@function.outer",
+						-- ["if"] = "@function.inner",
+						-- ["ac"] = "@class.outer",
+						-- ["ic"] = { query = "@class.inner", desc = "Select inner part of a class region" },
+						-- ["as"] = { query = "@local.scope", query_group = "locals", desc = "Select language scope" },
 					},
+					-- You can choose the select mode (default is charwise 'v')
+					--
+					-- Can also be a function which gets passed a table with the keys
+					-- * query_string: eg '@function.inner'
+					-- * method: eg 'v' or 'o'
+					-- and should return the mode ('v', 'V', or '<c-v>') or a table
+					-- mapping query_strings to modes.
+					-- selection_modes = {
+					-- 	['@function.outer'] = 'V', -- linewise
+					-- },
+					-- If you set this to `true` (default is `false`) then any textobject is
+					-- extended to include preceding or succeeding whitespace. Succeeding
+					-- whitespace has priority in order to act similarly to eg the built-in
+					-- `ap`.
+					--
+					-- Can also be a function which gets passed a table with the keys
+					-- * query_string: eg '@function.inner'
+					-- * selection_mode: eg 'v'
+					-- and should return true or false
+					-- include_surrounding_whitespace = true,
 				},
 			})
 			map_treesitter_text_objects()
