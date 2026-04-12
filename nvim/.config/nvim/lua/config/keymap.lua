@@ -104,7 +104,7 @@ leader_map({
 	prefix = "t",
 	mode = "n",
 	keys = {
-		['c'] = { '<cmd>TSContextToggle<cr>', desc = "TS Context" },
+		['c'] = { '<cmd>TSContext toggle<cr>', desc = "TS Context" },
 		['n'] = { '<cmd>tabn<cr>', desc = "Next Tab" },
 		['p'] = { '<cmd>tabp<cr>', desc = "Previous Tab" },
 		['N'] = { '<cmd>tabe<cr>', desc = "New Tab" },
