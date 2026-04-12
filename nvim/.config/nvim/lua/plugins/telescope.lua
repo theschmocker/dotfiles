@@ -14,7 +14,8 @@ return {
 					bottom_pane = {
 						width = 0.4,
 					}
-				}
+				},
+				file_sorter = require('telescope.sorters').get_fuzzy_file,
 			},
 			pickers = {
 				live_grep = {
@@ -22,7 +23,7 @@ return {
 						i = { ["<c-f>"] = require('telescope.actions').to_fuzzy_refine },
 					},
 				},
-			}
+			},
 		})
 
 		pcall(require('telescope').load_extension, 'ui-select')
@@ -32,6 +33,7 @@ return {
 			if not pcall(builtin.git_files, {
 				show_untracked = true,
 				use_git_root = false,
+				sorter = require('telescope.sorters').get_fuzzy_file(),
 			}) then
 				builtin.find_files()
 			end
