@@ -202,6 +202,9 @@ return {
 
 			local servers = {
 				ts_ls = ts_ls,
+				-- NOTE: known versions still working with Vue 2 project:
+				-- vue_ls v3.0.5
+				-- ts_ls v4.4.0
 				vue_ls = {},
 				lua_ls = {
 					-- cmd = { ... },
