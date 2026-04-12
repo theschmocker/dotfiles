@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -e
+
+INPUT_FILE="$1"
+INPUT_FILE_NO_EXT="${INPUT_FILE%.*}"
+APP_NAME="$2"
+
+if [ -z "$APP_NAME" ]; then
+	APP_NAME="$(basename "$INPUT_FILE_NO_EXT")"
+fi
+
+APP_DIR="$APP_NAME.app"
+
+if [ ! -f "$INPUT_FILE" ]; then
+	echo "File $INPUT_FILE does not exist or is not a file." >2
+	exit 1
+fi
+
+if [ -d "$APP_DIR" ]; then
+	echo "$APP_DIR already exists."
+	exit 1
+	# TODO
+	# Source - https://stackoverflow.com/a
+	# Posted by Dennis Williamson, modified by community. See post 'Timeline' for change history
+	# Retrieved 2025-12-18, License - CC BY-SA 4.0
+	read -p "App $APP_DIR already exists. Overwrite its contents with the new script? [y/N] " -n 1 -r
+	echo    # (optional) move to a new line
+	if [[ ! $REPLY =~ ^[Yy]$ ]]
+	then
+		[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1 # handle exits from shell or function but don't exit interactive shell
+	fi
+fi
+
+APP_CONTENTS_DIR="$APP_DIR/Contents/MacOS"
+APP_EXECUTABLE="$APP_CONTENTS_DIR/$APP_NAME"
+
+mkdir -p "$APP_CONTENTS_DIR"
+cp "$INPUT_FILE" "$APP_EXECUTABLE"
+chmod +x "$APP_EXECUTABLE"
+
+# Can add the following to the plist to make the app run without an icon in the dock:
+# <key>LSUIElement</key>
+# <true/>
+
+INFO_PLIST="$(cat <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleExecutable</key>
+  <string>$APP_NAME</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.theschmocker.$APP_NAME</string>
+</dict>
+</plist>
+EOF)"
+
+echo "$INFO_PLIST" > "$(dirname "$APP_CONTENTS_DIR")/Info.plist"
