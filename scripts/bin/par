@@ -1,0 +1,542 @@
+#!/usr/bin/env python3
+"""
+Podman Agent Runner
+"""
+
+import argparse
+import hashlib
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from dataclasses import dataclass
+from typing import Optional
+
+AGENT_COMMAND="pi"
+SCRIPT_PATH = Path(__file__)
+
+def main() -> None:
+    ensure_podman_available()
+
+    parser = argparse.ArgumentParser(
+        description="Podman container launcher for llm coding agents",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Remove and recreate container (keeps image)",
+    )
+    parser.add_argument(
+        "--rebuild",
+        action="store_true",
+        help="Rebuild image from Containerfile.dev, then recreate",
+    )
+
+    parser.add_argument(
+        "--shell",
+        action="store_true",
+        help="Start an interactive shell in the container",
+    )
+
+    args = parser.parse_args()
+
+    project_dir = os.getcwd()
+    project_name = slugify_path(project_dir, os.environ.get("HOME", str(Path.home())))
+
+    host_dirs = HostPaths.default()
+    host_dirs.create_if_necessary()
+
+    platform = get_os_platform()
+
+    config = Configuration(
+        project_dir=project_dir,
+        project_name=project_name,
+        host_paths=host_dirs,
+        platform=platform,
+        container=ContainerConfig(project_name, ContainerUser.resolve(platform))
+    )
+
+    # Handle macOS-specific setup
+    if platform == "macos" and not is_podman_machine_running():
+        print("Podman machine is not running.")
+        start_podman_machine()
+
+    force = args.force
+    rebuild = args.rebuild
+    if rebuild:
+        force = True
+
+    if force:
+        print("Removing container...")
+        remove_container(config.container.container_name)
+
+    # Attach to existing container or create new one
+    if container_exists(config.container.container_name):
+        check_for_changes(config.host_paths.checksums_path, config.host_paths.containerfile_path, SCRIPT_PATH)
+        if is_container_running(config.container.container_name):
+            print(f"Container '{config.container.container_name}' is running, attaching...")
+        else:
+            print(f"Container '{config.container.container_name}' exists but stopped, starting...")
+            start_container(config.container.container_name)
+    else:
+        if not os.path.isfile(config.host_paths.containerfile_path):
+            print("No Containerfile.dev found, generating default...")
+            generate_containerfile(config.host_paths.containerfile_path)
+
+        # Build image if missing
+        if rebuild or not image_exists(config.container.image_name):
+            build_image(config)
+
+        # Save checksums
+        save_checksums(config.host_paths.checksums_path, config.host_paths.containerfile_path, SCRIPT_PATH)
+
+        create_container(config)
+
+        start_container(config.container.container_name)
+        print("Started container, launching interactive shell...")
+
+    if args.shell:
+        run_interactive(config=config)
+    else:
+        start_agent(config=config, program=AGENT_COMMAND)
+
+@dataclass
+class Configuration:
+    project_dir: str
+    project_name: str
+    host_paths: HostPaths
+    platform: str
+    container: ContainerConfig
+
+class ContainerConfig:
+    project_name: str
+    user: ContainerUser
+
+    def __init__(self, project_name: str, container_user: ContainerUser) -> None:
+        self.project_name = project_name
+        self.user = container_user
+
+    @property
+    def image_name(self):
+        return f"agentsh-{self.project_name}"
+
+    @property
+    def container_name(self):
+        return self.project_name
+
+    @property
+    def container_home(self):
+        return f"/home/{self.user.user_name}"
+
+    @property
+    def workdir(self):
+        return f"/home/{self.user.user_name}/{self.project_name}"
+
+@dataclass
+class ContainerUser:
+    user_name: str
+    user_id: int
+    group_id: int
+
+    @staticmethod
+    def resolve(platform: str) -> ContainerUser:
+        default_name = "dev"
+        if platform == "linux":
+            return ContainerUser(
+                user_name=os.environ.get("USER", default_name),
+                user_id=os.getuid(),
+                group_id=os.getgid(),
+            )
+        else:
+            return ContainerUser(
+                user_name=default_name,
+                user_id=1000,
+                group_id=1000,
+            )
+
+class HostPaths:
+    base: Path
+    agent_home: Path
+    container_src: Path
+    home_mappings: list[HomeDirMapping]
+    _containerfile_path: Optional[str]
+
+    def __init__(
+        self,
+        *,
+        home: Path,
+        home_mappings: list[HomeDirMapping],
+        containerfile_path: Optional[str] = None,
+    ) -> None:
+        self.base = home / ".agent"
+        self.agent_home = self.base / "agent-home"
+        self.container_src = self.base / "container"
+        self.home_mappings = home_mappings
+        self._containerfile_path = containerfile_path
+
+    def create_if_necessary(self):
+        os.makedirs(self.base, exist_ok=True)
+        os.makedirs(self.agent_home, exist_ok=True)
+        os.makedirs(self.container_src, exist_ok=True)
+        for mapping in self.home_mappings:
+            os.makedirs(mapping.host(self.agent_home), exist_ok=True)
+
+    @property
+    def containerfile_path(self) -> Path:
+        if self._containerfile_path:
+            return Path(self._containerfile_path)
+
+        return self.container_src / "Containerfile.dev"
+
+    @property
+    def checksums_path(self) -> Path:
+        return self.agent_home / ".checksums"
+
+    @staticmethod
+    def default() -> HostPaths:
+        return HostPaths(
+            home=Path.home(),
+            home_mappings=[
+                HomeDirMapping("bash", ".bash_history_dir"),
+                HomeDirMapping("local", ".local"),
+                HomeDirMapping("cache", ".cache"),
+                HomeDirMapping(".config"),
+                HomeDirMapping("go"),
+                HomeDirMapping("cargo", ".cargo"),
+                HomeDirMapping("npm", ".npm"),
+            ],
+        )
+
+class HomeDirMapping():
+    host_name: str
+    container_name: str
+
+    # TODO: add readonly flag
+    def __init__(self, host_name: str, container_name: Optional[str] = None) -> None:
+        self.host_name = host_name
+        self.container_name = container_name or host_name
+
+    def host(self, agent_home: Path):
+        return str(agent_home / self.host_name)
+
+    def container(self, container_home: str):
+        return f"{container_home}/{self.container_name}"
+
+def ensure_podman_available():
+    if not check_podman():
+        print("Error: podman is not installed.")
+        sys.exit(1)
+
+def check_podman() -> bool:
+    return shutil.which("podman") is not None
+
+def get_os_platform() -> str:
+    return "macos" if os.uname().sysname == "Darwin" else "linux"
+
+def slugify_path(path: str, home: str) -> str:
+    if path.startswith(home):
+        slug = path[len(home) :]
+    else:
+        slug = os.path.basename(path)
+
+    slug = slug.replace("/", "-")
+    slug = slug.replace(".", "")
+    slug = re.sub(r"-+", "-", slug)
+    slug = slug.strip("-")
+    return slug
+
+def is_podman_machine_running() -> bool:
+    """Check if podman machine is running (macOS only)."""
+    try:
+        result = subprocess.run(
+            ["podman", "machine", "inspect"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return '"State": "running"' in result.stdout
+    except Exception:
+        return False
+
+
+def start_podman_machine() -> None:
+    """Start or initialize podman machine."""
+    try:
+        # Try to start existing machine
+        if subprocess.run(
+            ["podman", "machine", "inspect"],
+            capture_output=True,
+            check=False,
+        ).returncode == 0:
+            print("Starting podman machine...")
+            subprocess.run(["podman", "machine", "start"], check=True)
+        else:
+            print("No podman machine found. Initializing...")
+            subprocess.run(
+                ["podman", "machine", "init", "--cpus", "4", "--memory", "4096"],
+                check=True,
+            )
+            subprocess.run(["podman", "machine", "start"], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error starting podman machine: {e}")
+        sys.exit(1)
+
+
+def compute_sha256(filepath: Path) -> str:
+    """Compute SHA256 hash of a file."""
+    sha256 = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+
+# TODO: this was adapted from the original enter.sh script. rethink this and save_checksums
+def check_for_changes(checksums_file: Path, containerfile: Path, script_path: Path) -> tuple[bool, bool]:
+    """Check if containerfile or script has changed since container was created."""
+    if not os.path.isfile(checksums_file):
+        return False, False
+
+    try:
+        with open(checksums_file, "r") as f:
+            checksums = {}
+            for line in f:
+                if "=" in line:
+                    key, value = line.strip().split("=", 1)
+                    checksums[key] = value
+    except Exception:
+        return False, False
+
+    containerfile_changed = False
+    script_changed = False
+
+    if os.path.isfile(containerfile):
+        current_cf = compute_sha256(containerfile)
+        saved_cf = checksums.get("containerfile", "")
+        if saved_cf and current_cf != saved_cf:
+            containerfile_changed = True
+
+    current_script = compute_sha256(script_path)
+    saved_script = checksums.get("script", "")
+    if saved_script and current_script != saved_script:
+        script_changed = True
+
+    if containerfile_changed or script_changed:
+        print("")
+        print("=== Changes detected since container was created ===")
+        if containerfile_changed:
+            print("  Containerfile.dev has changed  -> run: par --rebuild")
+        else:
+            print("  par has changed          -> run: par --force")
+        print("=" * 51)
+        print("")
+
+    return containerfile_changed or script_changed, containerfile_changed
+
+
+def save_checksums(checksums_file: Path, containerfile: Path, script_path: Path) -> None:
+    """Save checksums of containerfile and script."""
+    with open(checksums_file, "w") as f:
+        if os.path.isfile(containerfile):
+            f.write(f"containerfile={compute_sha256(containerfile)}\n")
+        f.write(f"script={compute_sha256(script_path)}\n")
+
+
+# TODO create a base image
+CONTAINERFILE_TEMPLATE = """FROM fedora:43
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+ARG USER_NAME=dev
+
+
+RUN dnf install -y git curl wget make gcc gcc-c++ findutils tar gzip unzip \\
+	which procps-ng htop tmux bash-completion ripgrep && dnf clean all
+
+RUN groupadd -g $GROUP_ID $USER_NAME 2>/dev/null || true && \\
+	useradd -m -u $USER_ID -g $GROUP_ID -s /bin/bash $USER_NAME
+
+# ============================================================================
+
+RUN dnf install -y golang nodejs python3 zsh neovim rustup
+
+# ============================================================================
+
+USER $USER_NAME
+WORKDIR /home/$USER_NAME
+RUN npm config set prefix '~/.npm-global'
+RUN echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
+
+# ============================================================================
+
+RUN npm install -g @mariozechner/pi-coding-agent@0.67.68
+RUN npm install -g @vue/language-server typescript-language-server typescript pyright
+
+# ============================================================================
+
+CMD ["bash"]
+"""
+
+def generate_containerfile(containerfile_path: Path) -> None:
+    with open(containerfile_path, "w") as f:
+        f.write(CONTAINERFILE_TEMPLATE)
+
+def container_exists(container_name: str) -> bool:
+    result = subprocess.run(
+        ["podman", "container", "exists", container_name],
+        capture_output=True,
+        check=False,
+    )
+    return result.returncode == 0
+
+
+def image_exists(image_name: str) -> bool:
+    result = subprocess.run(
+        ["podman", "image", "exists", image_name],
+        capture_output=True,
+        check=False,
+    )
+    return result.returncode == 0
+
+
+def is_container_running(container_name: str) -> bool:
+    result = subprocess.run(
+        ["podman", "inspect", "--format", "{{.State.Running}}", container_name],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return result.stdout.strip() == "true"
+
+
+def should_cleanup_container(container_name: str) -> bool:
+    """Check if only 'sleep infinity' is running in the container.
+    
+    Returns True if only sleep infinity is running, meaning no user session,
+    so the container should be cleaned up on exit.
+    """
+    try:
+        # Get process list from podman ps
+        result = subprocess.run(
+            ["podman", "ps", "-a", "-q", "-f", f"name={container_name}"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        container_id = result.stdout.strip()
+        if not container_id:
+            return False
+
+        # Get process list inside container
+        result = subprocess.run(
+            ["podman", "exec", container_id, "ps", "-eo", "pid,ppid,command"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            return False
+
+        lines = result.stdout.strip().split("\n")
+        if len(lines) < 2:  # Only header or empty
+            return True
+
+        # Count non-sleep-infinity processes (skip header)
+        process_count = 0
+        for line in lines[1:]:
+            parts = line.split()
+            if len(parts) >= 3:
+                command = " ".join(parts[2:])
+                # Check if this is NOT sleep infinity
+                if command != "sleep infinity":
+                    process_count += 1
+
+        # Only cleanup if sleep infinity is the only process
+        return process_count == 0
+
+    except Exception:
+        return False
+
+
+def start_agent(*, config: Configuration, program: str = "/bin/bash"):
+    run_interactive(config=config, program=program)
+
+    # if should_cleanup_container(config.container.container_name):
+    #     print(f"No other processes running, removing container '{config.container.container_name}'...")
+    #     remove_container(config.container.container_name)
+
+def create_container(config: Configuration):
+    platform_args = []
+    if config.platform == "linux":
+        platform_args.extend(["--userns=keep-id", "--security-opt", "label=disable"])
+
+    volume_args: list[str] = [
+        # current project directory
+        "-v", f"{config.project_dir}:{config.container.container_home}/{config.project_name}",
+        # pi directory
+        "-v", f"{Path.home() / '.pi'}:{config.container.container_home}/.pi",
+    ]
+    for mapping in config.host_paths.home_mappings:
+        host = mapping.host(config.host_paths.agent_home)
+        container = mapping.container(config.container.container_home)
+        volume_args.extend(["-v", f"{host}:{container}"])
+
+    print("Creating container...")
+    create_args = [
+        "--name", config.container.container_name,
+        "--hostname", config.container.container_name,
+        "--security-opt", "no-new-privileges",
+        *platform_args,
+        "--cap-drop=all",
+        "--read-only",
+        "--tmpfs", "/tmp",
+        "--tmpfs", "/var/tmp",
+        *volume_args,
+        "-e", f"HISTFILE={config.container.container_home}/.bash_history_dir/.bash_history",
+        "-w", config.container.workdir,
+        config.container.image_name,
+        "sleep", "infinity",
+    ]
+
+    subprocess.run(["podman", "create"] + create_args, check=True)
+
+def start_container(container_name: str):
+    print("Starting container...")
+    subprocess.run(["podman", "start", container_name], check=True)
+    subprocess.run(
+        ["podman", "wait", "--condition", "running", container_name],
+        stdout=subprocess.DEVNULL,
+        check=True,
+    )
+
+def run_interactive(*, config: Configuration, program: str = "/bin/bash"):
+    print(' '.join(["podman", "exec", "-it", "-w", config.container.workdir, config.container.container_name, program]))
+    subprocess.run(
+        ["podman", "exec", "-it", "-w", config.container.workdir, config.container.container_name, "/bin/bash", "-ic", program],
+        check=True,
+    )
+
+def remove_container(container_name: str):
+    subprocess.run(["podman", "container", "kill", container_name], check=False)
+    subprocess.run(["podman", "rm", "-f", container_name], check=False)
+
+def build_image(config: Configuration):
+    print(f"Building image '{config.container.image_name}'...")
+    subprocess.run(
+        [
+            "podman",
+            "build",
+            f"--build-arg", f"USER_ID={config.container.user.user_id}",
+            f"--build-arg", f"GROUP_ID={config.container.user.group_id}",
+            f"--build-arg", f"USER_NAME={config.container.user.user_name}",
+            "-t", config.container.image_name,
+            "-f", config.host_paths.containerfile_path,
+            config.host_paths.container_src,
+        ],
+        check=True,
+    )
+
+if __name__ == "__main__":
+    main()

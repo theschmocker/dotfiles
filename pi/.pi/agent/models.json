@@ -1,0 +1,17 @@
+{
+	"providers": {
+		"llama-cpp": {
+			"baseUrl": "http://host.containers.internal:8080/llamacpp/v1",
+			"api": "openai-completions",
+			"apiKey": "none",
+			"headers": {
+				"x-generation-settings-preset-id": "model-default"
+			},
+			"models": [
+				{
+					"id": "current-model"
+				}
+			]
+		}
+	}
+}
