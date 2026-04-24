@@ -1,5 +1,17 @@
 local M = {}
 
+---@class LeaderMapKeyMapping
+---@field [1] string|function The action or key sequence
+---@field desc? string Description
+
+---@class LeaderMapOpts
+---@field prefix string The prefix after <leader>
+---@field name? string The name of the group
+---@field mode? string|table Mode(s) for the keymaps
+---@field buffer? number Buffer number
+---@field keys? { [string]: LeaderMapKeyMapping } The keymaps for this group
+
+--- @param opts LeaderMapOpts
 M.leader_map = function (opts)
 	local prefix = string.format("<leader>%s", opts.prefix)
 
@@ -24,8 +36,6 @@ M.leader_map = function (opts)
 		end
 
 		for key, mapping in pairs(opts.keys) do
-			local remap = mapping[1]
-			
 			mapping = vim.tbl_extend("error", {}, mapping)
 			table.insert(mapping, 1, string.format("%s%s", prefix, key))
 			table.insert(keymap, mapping)
