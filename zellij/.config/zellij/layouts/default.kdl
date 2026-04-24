@@ -1,30 +1,18 @@
 layout {
-    tab name="nvim" focus=true hide_floating_panes=true {
+	default_tab_template {
         pane size=1 borderless=true {
             plugin location="zellij:tab-bar"
         }
-        pane focus=true {}
+		children
         pane size=1 borderless=true {
             plugin location="zellij:status-bar"
         }
+	}
+    tab name="nvim" focus=true hide_floating_panes=true {
+        pane focus=true {}
     }
     tab name="term" hide_floating_panes=true {
-        pane size=1 borderless=true {
-            plugin location="zellij:tab-bar"
-        }
         pane
-        pane size=1 borderless=true {
-            plugin location="zellij:status-bar"
-        }
-    }
-    new_tab_template {
-        pane size=1 borderless=true {
-            plugin location="zellij:tab-bar"
-        }
-        pane
-        pane size=1 borderless=true {
-            plugin location="zellij:status-bar"
-        }
     }
     swap_tiled_layout name="vertical" {
         tab max_panes=5 {
