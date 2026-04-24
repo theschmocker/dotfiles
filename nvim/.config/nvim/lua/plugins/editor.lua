@@ -1,17 +1,16 @@
 return {
 	{
-		'hadronized/hop.nvim',
+		'https://codeberg.org/andyg/leap.nvim',
+		commit = 'b960d5038c',
 		config = function ()
-			local hop = require('hop')
-			hop.setup({
-				keys = "asdfhjkl",
-			})
+			vim.keymap.set({ 'n', 'x', 'o' }, 's', '<Plug>(leap-anywhere)')
 
-			vim.keymap.set('', 's', function ()
-				 hop.hint_char2({
-					multi_windows = true
-				})
-			end)
+			-- Disable autojumping to the first match
+			require('leap').opts.safe_labels = ''
+
+			-- keep my own settings
+			require('leap').opts.vim_opts['wo.scrolloff'] = nil
+			require('leap').opts.vim_opts['wo.sidescrolloff'] = nil
 		end
 	},
 	{
