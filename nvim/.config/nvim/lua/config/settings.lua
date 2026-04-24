@@ -45,13 +45,12 @@ vim.filetype.add({
 	filename = {
 		Podfile = "ruby",
 		Fastfile = "ruby",
-	}
-})
-
-vim.filetype.add({
+		['.watchmanconfig'] = 'json',
+	},
 	extension = {
+		podspec = "ruby",
 		mdx = "markdown",
-	}
+	},
 })
 
 vim.diagnostic.config({
