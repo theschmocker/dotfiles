@@ -3,6 +3,8 @@
 Podman Agent Runner
 """
 
+# Required for old version of python on macOS
+from __future__ import annotations
 import argparse
 import hashlib
 import os
@@ -14,8 +16,9 @@ from pathlib import Path
 from dataclasses import dataclass
 from typing import Optional
 
-AGENT_COMMAND="pi"
 SCRIPT_PATH = Path(__file__)
+AGENT_COMMAND="pi"
+PI_VERSION = "0.69.0"
 
 def main() -> None:
     ensure_podman_available()
@@ -246,7 +249,7 @@ def slugify_path(path: str, home: str) -> str:
     slug = slug.replace(".", "")
     slug = re.sub(r"-+", "-", slug)
     slug = slug.strip("-")
-    return slug
+    return slug.lower()
 
 def is_podman_machine_running() -> bool:
     """Check if podman machine is running (macOS only)."""
@@ -346,7 +349,7 @@ def save_checksums(checksums_file: Path, containerfile: Path, script_path: Path)
 
 
 # TODO create a base image
-CONTAINERFILE_TEMPLATE = """FROM fedora:43
+CONTAINERFILE_TEMPLATE = f"""FROM fedora:43
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 ARG USER_NAME=dev
@@ -371,7 +374,7 @@ RUN echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
 
 # ============================================================================
 
-RUN npm install -g @mariozechner/pi-coding-agent@0.67.68
+RUN npm install -g @mariozechner/pi-coding-agent@{PI_VERSION}
 RUN npm install -g @vue/language-server typescript-language-server typescript pyright
 
 # ============================================================================
@@ -495,6 +498,7 @@ def create_container(config: Configuration):
         "--tmpfs", "/var/tmp",
         *volume_args,
         "-e", f"HISTFILE={config.container.container_home}/.bash_history_dir/.bash_history",
+        "-e", "EDITOR=nvim",
         "-w", config.container.workdir,
         config.container.image_name,
         "sleep", "infinity",
