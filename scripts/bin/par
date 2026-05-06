@@ -59,7 +59,15 @@ def main() -> None:
         project_name=project_name,
         host_paths=host_dirs,
         platform=platform,
-        container=ContainerConfig(project_name, ContainerUser.resolve(platform))
+        container=ContainerConfig(
+            project_name=project_name,
+            user=ContainerUser.resolve(platform),
+            host_dirs=host_dirs,
+            packages=PackageConfig(
+                system=DEFAULT_SYSTEM_PACKAGES,
+                npm=DEFAULT_NPM_PACKAGES
+            )
+        )
     )
 
     # Handle macOS-specific setup
@@ -78,23 +86,22 @@ def main() -> None:
 
     # Attach to existing container or create new one
     if container_exists(config.container.container_name):
-        check_for_changes(config.host_paths.checksums_path, config.host_paths.containerfile_path, SCRIPT_PATH)
+        check_for_changes(config)
         if is_container_running(config.container.container_name):
             print(f"Container '{config.container.container_name}' is running, attaching...")
         else:
             print(f"Container '{config.container.container_name}' exists but stopped, starting...")
             start_container(config.container.container_name)
     else:
-        if not os.path.isfile(config.host_paths.containerfile_path):
+        if not config.container.containerfile.exists():
             print("No Containerfile.dev found, generating default...")
-            generate_containerfile(config.host_paths.containerfile_path)
+            config.container.containerfile.write()
 
         # Build image if missing
         if rebuild or not image_exists(config.container.image_name):
             build_image(config)
 
-        # Save checksums
-        save_checksums(config.host_paths.checksums_path, config.host_paths.containerfile_path, SCRIPT_PATH)
+        save_checksums(config.host_paths.checksums_path)
 
         create_container(config)
 
@@ -114,13 +121,63 @@ class Configuration:
     platform: str
     container: ContainerConfig
 
+@dataclass
+class PackageConfig():
+    system: SystemPackages
+    npm: dict[str, list[str]]
+
+@dataclass
+class SystemPackages():
+    core: list[str]
+    extra: list[str]
+
+DEFAULT_SYSTEM_PACKAGES = SystemPackages(
+    core=[
+        "git",
+        "curl",
+        "wget",
+        "make",
+        "gcc",
+        "gcc-c++",
+        "findutils",
+        "tar",
+        "gzip",
+        "unzip",
+        "which",
+        "procps-ng",
+        "htop",
+        "tmux",
+        "bash-completion",
+        "ripgrep",
+    ],
+    extra=[
+        "golang",
+        "nodejs",
+        "python3",
+        "zsh",
+        "neovim",
+        "rustup",
+    ],
+)
+
+DEFAULT_NPM_PACKAGES: dict[str, list[str]] = {
+    "base": [
+        "@vue/language-server",
+        "typescript-language-server",
+        "typescript",
+        "pyright",
+    ],
+    "agent": [
+        f"@mariozechner/pi-coding-agent@{PI_VERSION}",
+    ]
+}
+
+@dataclass
 class ContainerConfig:
     project_name: str
     user: ContainerUser
-
-    def __init__(self, project_name: str, container_user: ContainerUser) -> None:
-        self.project_name = project_name
-        self.user = container_user
+    host_dirs: HostPaths
+    packages: PackageConfig
 
     @property
     def image_name(self):
@@ -137,6 +194,14 @@ class ContainerConfig:
     @property
     def workdir(self):
         return f"/home/{self.user.user_name}/{self.project_name}"
+
+    @property
+    def container_src(self):
+        return self.host_dirs.container_src / self.project_name
+
+    @property
+    def containerfile(self):
+        return Containerfile(config=self)
 
 @dataclass
 class ContainerUser:
@@ -159,6 +224,86 @@ class ContainerUser:
                 user_id=1000,
                 group_id=1000,
             )
+
+@dataclass
+class Containerfile():
+    config: ContainerConfig
+
+    @property
+    def path(self) -> Path:
+        return self.config.container_src / "Containerfile"
+
+    def exists(self) -> bool:
+        return self.path.exists()
+
+    def is_outdated(self) -> bool:
+        if not self.exists():
+            return True
+        existing = self.path.read_text()
+        return existing != self.render()
+
+    def write(self):
+        os.makedirs(self.config.container_src, exist_ok=True)
+        with open(self.path, "w") as f:
+            print(self.render())
+            f.write(self.render())
+
+    def render(self) -> str:
+        # TODO create a base image
+        return f"""FROM fedora:43
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+ARG USER_NAME=dev
+
+RUN groupadd -g $GROUP_ID $USER_NAME 2>/dev/null || true && \\
+	useradd -m -u $USER_ID -g $GROUP_ID -s /bin/bash $USER_NAME
+
+# ============================================================================
+
+{self._render_core_package_install()}
+
+{self._render_extra_package_install()}
+
+RUN dnf clean all
+
+# ============================================================================
+
+USER $USER_NAME
+WORKDIR /home/$USER_NAME
+RUN npm config set prefix '~/.npm-global'
+RUN echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
+
+# ============================================================================
+
+{self._render_npm_package_install()}
+
+# ============================================================================
+
+CMD ["bash"]
+"""
+    def _render_core_package_install(self) -> str:
+        return self._render_system_package_install(self.config.packages.system.core)
+
+    def _render_extra_package_install(self) -> str:
+        return self._render_system_package_install(self.config.packages.system.extra)
+
+    def _render_npm_package_install(self) -> str:
+        res: list[str] = []
+        for name, packages in self.config.packages.npm.items():
+            if len(packages) == 0:
+                continue
+            res.extend([
+                f"# {name}",
+                f"RUN npm install -g {' '.join(packages)}"
+            ])
+        return '\n'.join(res)
+
+    @staticmethod
+    def _render_system_package_install(packages: list[str]) -> str:
+        if len(packages) == 0:
+            return ""
+        return "RUN dnf install -y " + ' '.join(packages)
+
 
 class HostPaths:
     base: Path
@@ -186,13 +331,6 @@ class HostPaths:
         os.makedirs(self.container_src, exist_ok=True)
         for mapping in self.home_mappings:
             os.makedirs(mapping.host(self.agent_home), exist_ok=True)
-
-    @property
-    def containerfile_path(self) -> Path:
-        if self._containerfile_path:
-            return Path(self._containerfile_path)
-
-        return self.container_src / "Containerfile.dev"
 
     @property
     def checksums_path(self) -> Path:
@@ -298,35 +436,26 @@ def compute_sha256(filepath: Path) -> str:
 
 
 # TODO: this was adapted from the original enter.sh script. rethink this and save_checksums
-def check_for_changes(checksums_file: Path, containerfile: Path, script_path: Path) -> tuple[bool, bool]:
+def check_for_changes(config: Configuration):
     """Check if containerfile or script has changed since container was created."""
-    if not os.path.isfile(checksums_file):
-        return False, False
-
-    try:
-        with open(checksums_file, "r") as f:
-            checksums = {}
-            for line in f:
-                if "=" in line:
-                    key, value = line.strip().split("=", 1)
-                    checksums[key] = value
-    except Exception:
-        return False, False
-
-    containerfile_changed = False
     script_changed = False
+    if config.host_paths.checksums_path.exists():
+        try:
+            with open(config.host_paths.checksums_path, "r") as f:
+                checksums = {}
+                for line in f:
+                    if "=" in line:
+                        key, value = line.strip().split("=", 1)
+                        checksums[key] = value
+                current_script = compute_sha256(SCRIPT_PATH)
+                saved_script = checksums.get("script", "")
+                if saved_script and current_script != saved_script:
+                    script_changed = True
 
-    if os.path.isfile(containerfile):
-        current_cf = compute_sha256(containerfile)
-        saved_cf = checksums.get("containerfile", "")
-        if saved_cf and current_cf != saved_cf:
-            containerfile_changed = True
+        except Exception:
+            pass
 
-    current_script = compute_sha256(script_path)
-    saved_script = checksums.get("script", "")
-    if saved_script and current_script != saved_script:
-        script_changed = True
-
+    containerfile_changed = config.container.containerfile.exists() and config.container.containerfile.is_outdated()
     if containerfile_changed or script_changed:
         print("")
         print("=== Changes detected since container was created ===")
@@ -337,54 +466,11 @@ def check_for_changes(checksums_file: Path, containerfile: Path, script_path: Pa
         print("=" * 51)
         print("")
 
-    return containerfile_changed or script_changed, containerfile_changed
 
-
-def save_checksums(checksums_file: Path, containerfile: Path, script_path: Path) -> None:
+def save_checksums(checksums_file: Path) -> None:
     """Save checksums of containerfile and script."""
     with open(checksums_file, "w") as f:
-        if os.path.isfile(containerfile):
-            f.write(f"containerfile={compute_sha256(containerfile)}\n")
-        f.write(f"script={compute_sha256(script_path)}\n")
-
-
-# TODO create a base image
-CONTAINERFILE_TEMPLATE = f"""FROM fedora:43
-ARG USER_ID=1000
-ARG GROUP_ID=1000
-ARG USER_NAME=dev
-
-
-RUN dnf install -y git curl wget make gcc gcc-c++ findutils tar gzip unzip \\
-	which procps-ng htop tmux bash-completion ripgrep && dnf clean all
-
-RUN groupadd -g $GROUP_ID $USER_NAME 2>/dev/null || true && \\
-	useradd -m -u $USER_ID -g $GROUP_ID -s /bin/bash $USER_NAME
-
-# ============================================================================
-
-RUN dnf install -y golang nodejs python3 zsh neovim rustup
-
-# ============================================================================
-
-USER $USER_NAME
-WORKDIR /home/$USER_NAME
-RUN npm config set prefix '~/.npm-global'
-RUN echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
-
-# ============================================================================
-
-RUN npm install -g @mariozechner/pi-coding-agent@{PI_VERSION}
-RUN npm install -g @vue/language-server typescript-language-server typescript pyright
-
-# ============================================================================
-
-CMD ["bash"]
-"""
-
-def generate_containerfile(containerfile_path: Path) -> None:
-    with open(containerfile_path, "w") as f:
-        f.write(CONTAINERFILE_TEMPLATE)
+        f.write(f"script={compute_sha256(SCRIPT_PATH)}\n")
 
 def container_exists(container_name: str) -> bool:
     result = subprocess.run(
@@ -536,8 +622,8 @@ def build_image(config: Configuration):
             f"--build-arg", f"GROUP_ID={config.container.user.group_id}",
             f"--build-arg", f"USER_NAME={config.container.user.user_name}",
             "-t", config.container.image_name,
-            "-f", config.host_paths.containerfile_path,
-            config.host_paths.container_src,
+            "-f", config.container.containerfile.path,
+            config.container.container_src,
         ],
         check=True,
     )
