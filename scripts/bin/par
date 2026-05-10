@@ -3,6 +3,11 @@
 Podman Agent Runner
 """
 
+# TODO: base image
+# TODO: .par.json
+# - `packages`: additional packages, keys for system or npm
+# - `volumes`: kv of host -> container mappings, added to base volume mappings; host relative paths resolved from .par.json directory
+
 # Required for old version of python on macOS
 from __future__ import annotations
 import argparse
@@ -249,7 +254,6 @@ class Containerfile():
             f.write(self.render())
 
     def render(self) -> str:
-        # TODO create a base image
         return f"""FROM fedora:43
 ARG USER_ID=1000
 ARG GROUP_ID=1000
@@ -628,5 +632,20 @@ def build_image(config: Configuration):
         check=True,
     )
 
+def find_file_upward(file_or_dir_name: str, from_dir: Optional[str] = None) -> Optional[Path]:
+    """Searches for a file/directory with the given name, starting at from_dir (or the working directory), and walking upward until found, or at fs root."""
+    dir = Path(from_dir) if from_dir else Path.cwd()
+
+    root = Path('/')
+    # I don't care that this won't search at the root
+    while dir != root:
+        maybe_target = dir / file_or_dir_name
+        if maybe_target.exists():
+            return maybe_target
+        dir = dir.parent
+
+    return None
+
 if __name__ == "__main__":
+    # print(find_file_upward(".git"))
     main()
