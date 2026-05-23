@@ -1,5 +1,50 @@
 local data = require('data.treesitter-data')
 
+local lang_set = {}
+for _, lang in ipairs(data.ensure_installed) do
+	lang_set[lang] = true
+end
+
+local no_indent = {
+	ruby = true,
+	python = true,
+	zsh = true,
+}
+
+vim.api.nvim_create_autocmd('FileType', {
+	callback = function (event)
+		local ok, nvim_treesitter = pcall(require, 'nvim-treesitter')
+
+		if not ok then return end
+
+		local parsers = require('nvim-treesitter.parsers')
+
+		local ft = vim.bo[event.buf].ft
+		local lang = vim.treesitter.language.get_lang(ft)
+
+		if not parsers[lang] or not lang_set[lang] or not nvim_treesitter.install then
+			return
+		end
+
+		nvim_treesitter.install({ lang }):await(function (err)
+			if err then
+				vim.notifiy('Treesitter install error for ft: ' .. ft .. ' err: ' .. err)
+				return
+			end
+
+			vim.schedule(function ()
+				vim.treesitter.start(event.buf)
+			end)
+
+			if not no_indent[lang] then
+				vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+				vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+			end
+		end)
+
+	end
+})
+
 -- TODO: CSS text objects
 -- is: inside selector. something like .|some-class|
 -- as: around selector. something like |.some-class|
@@ -49,7 +94,7 @@ end
 return {
 	{ -- Highlight, edit, and navigate code
 		'nvim-treesitter/nvim-treesitter',
-		branch = "master",
+		branch = "main",
 		dependencies = {
 			'nvim-treesitter/nvim-treesitter-context',
 			'nvim-treesitter/nvim-treesitter-textobjects',
@@ -57,37 +102,38 @@ return {
 		build = ':TSUpdate',
 		-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
 		config = function ()
-			local treesitter = require('nvim-treesitter.configs')
+			local treesitter = require('nvim-treesitter')
+			treesitter.install(data.ensure_installed)
 
-			---@diagnostic disable-next-line: missing-fields
-			treesitter.setup({
-				ensure_installed = data.ensure_installed,
-				-- Autoinstall languages that are not installed
-				auto_install = true,
-				highlight = {
-					enable = true,
-					-- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-					--  If you are experiencing weird indenting issues, add the language to
-					--  the list of additional_vim_regex_highlighting and disabled languages for indent.
-					additional_vim_regex_highlighting = { 'ruby' },
-				},
-				indent = {
-					enable = true,
-					disable = {
-						'ruby',
-						'python',
-					}
-				},
-				incremental_selection = {
-					enable = true,
-					keymaps = {
-						init_selection = "<C-space>",
-						node_incremental = "<C-space>",
-						scope_incremental = false,
-						node_decremental = "<bs>",
-					},
-				},
-			})
+			-- ---@diagnostic disable-next-line: missing-fields
+			-- treesitter.setup({
+			-- 	ensure_installed = data.ensure_installed,
+			-- 	-- Autoinstall languages that are not installed
+			-- 	auto_install = true,
+			-- 	highlight = {
+			-- 		enable = true,
+			-- 		-- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
+			-- 		--  If you are experiencing weird indenting issues, add the language to
+			-- 		--  the list of additional_vim_regex_highlighting and disabled languages for indent.
+			-- 		additional_vim_regex_highlighting = { 'ruby' },
+			-- 	},
+			-- 	indent = {
+			-- 		enable = true,
+			-- 		disable = {
+			-- 			'ruby',
+			-- 			'python',
+			-- 		}
+			-- 	},
+			-- 	incremental_selection = {
+			-- 		enable = true,
+			-- 		keymaps = {
+			-- 			init_selection = "<C-space>",
+			-- 			node_incremental = "<C-space>",
+			-- 			scope_incremental = false,
+			-- 			node_decremental = "<bs>",
+			-- 		},
+			-- 	},
+			-- })
 			require('nvim-treesitter-textobjects').setup({
 				select = {
 					enable = true,
