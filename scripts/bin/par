@@ -23,7 +23,7 @@ from typing import Optional
 
 SCRIPT_PATH = Path(__file__)
 AGENT_COMMAND="pi"
-PI_VERSION = "0.69.0"
+PI_VERSION = "0.75.4"
 
 def main() -> None:
     ensure_podman_available()
@@ -178,7 +178,7 @@ DEFAULT_NPM_PACKAGES: dict[str, list[str]] = {
         "pyright",
     ],
     "agent": [
-        f"@mariozechner/pi-coding-agent@{PI_VERSION}",
+        f"@earendil-works/pi-coding-agent@{PI_VERSION}",
     ]
 }
 
@@ -594,6 +594,7 @@ def create_container(config: Configuration):
         *volume_args,
         "-e", f"HISTFILE={config.container.container_home}/.bash_history_dir/.bash_history",
         "-e", "EDITOR=nvim",
+        "-e", "PI_OFFLINE=1",
         "-w", config.container.workdir,
         config.container.image_name,
         "sleep", "infinity",

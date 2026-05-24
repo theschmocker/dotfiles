@@ -5,8 +5,8 @@ import type {
 	EditToolCallEvent,
 	WriteToolCallEvent,
 	ExtensionContext,
-} from "@mariozechner/pi-coding-agent";
-import { matchesKey, Key, truncateToWidth } from "@mariozechner/pi-tui";
+} from "@earendil-works/pi-coding-agent";
+import { matchesKey, Key, truncateToWidth } from "@earendil-works/pi-tui";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as os from "node:os";
