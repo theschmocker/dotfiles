@@ -274,7 +274,7 @@ RUN dnf clean all
 
 USER $USER_NAME
 WORKDIR /home/$USER_NAME
-RUN npm config set prefix '~/.npm-global'
+RUN npm config set prefix '~/.npm-global' && npm config set ignore-scripts true
 RUN echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
 
 # ============================================================================
