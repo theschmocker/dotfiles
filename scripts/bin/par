@@ -89,6 +89,10 @@ def main() -> None:
         print("Removing container...")
         remove_container(config.container.container_name)
 
+    if rebuild and config.container.containerfile.exists():
+        print("Removing generated Containerfile...")
+        config.container.containerfile.path.unlink()
+
     # Attach to existing container or create new one
     if container_exists(config.container.container_name):
         check_for_changes(config)
