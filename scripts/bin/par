@@ -3,13 +3,13 @@
 Podman Agent Runner
 """
 
-# TODO: base image
 # TODO: .par.json
 # - `packages`: additional packages, keys for system or npm
 # - `volumes`: kv of host -> container mappings, added to base volume mappings; host relative paths resolved from .par.json directory
+# Need to handle changes to .par.json. If only volumes change, then it might be useful just to start a new container.
 
-# Required for old version of python on macOS
-from __future__ import annotations
+
+from __future__ import annotations # Required for old version of python on macOS
 import argparse
 import hashlib
 import os
@@ -166,6 +166,7 @@ DEFAULT_SYSTEM_PACKAGES = SystemPackages(
         "zsh",
         "neovim",
         "rustup",
+        "python3-pillow",
     ],
 )
 
