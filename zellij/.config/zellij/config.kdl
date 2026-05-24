@@ -5,7 +5,6 @@
 keybinds clear-defaults=true {
     locked {
         bind "Ctrl space" { SwitchToMode "normal"; }
-        bind "Ctrl t" { SwitchToMode "tab"; }
     }
     pane {
         bind "left" { MoveFocus "left"; }
