@@ -3,9 +3,10 @@ local M = {}
 ---@class LeaderMapKeyMapping
 ---@field [1] string|function The action or key sequence
 ---@field desc? string Description
+---@field mode? string|table Mode(s) for the mapping
 
 ---@class LeaderMapOpts
----@field prefix string The prefix after <leader>
+---@field prefix? string The prefix after <leader>. Omit to bind at top-level.
 ---@field name? string The name of the group
 ---@field mode? string|table Mode(s) for the keymaps
 ---@field buffer? number Buffer number
@@ -13,7 +14,7 @@ local M = {}
 
 --- @param opts LeaderMapOpts
 M.leader_map = function (opts)
-	local prefix = string.format("<leader>%s", opts.prefix)
+	local prefix = string.format("<leader>%s", opts.prefix or '')
 
 	local tbl = {}
 

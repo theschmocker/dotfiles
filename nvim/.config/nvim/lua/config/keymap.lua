@@ -11,20 +11,47 @@ vim.keymap.set('t', 'jk', '<C-\\><C-n>')
 
 vim.keymap.set('n', 'gh', 'K')
 
-vim.keymap.set({'v', 'n'}, '<leader>;', function() require('telescope.builtin').commands() end, {
-	desc = "M-x", -- ;)
-})
-
 -- don't yank visual selection on paste
 vim.keymap.set('v', 'p', 'P')
 
-vim.keymap.set({'v', 'n'}, '<leader>.', function()
-	require('telescope.builtin').find_files({
-		cwd = require('telescope.utils').buffer_dir(),
-		no_ignore = true,
-	})
-end, {
-	desc = "Find file (relative)",
+-- Top-level leader mappings
+leader_map({
+	keys = {
+		['<leader>'] = {
+			function ()
+				local builtin = require("telescope.builtin")
+				if not pcall(builtin.git_files, {
+					show_untracked = true,
+					use_git_root = false,
+					sorter = require('telescope.sorters').get_fuzzy_file(),
+				}) then
+					builtin.find_files()
+				end
+			end,
+			desc = "Find File",
+		},
+		[';'] = {
+			function() require('telescope.builtin').commands() end,
+			desc = "M-x",
+			mode = { 'n', 'v' },
+		},
+		['/'] = {
+			function ()
+				require("telescope.builtin").live_grep({ additional_args = { "--hidden" } })
+			end,
+			desc = "Search Project",
+		},
+		['.'] = {
+			function()
+				require('telescope.builtin').find_files({
+					cwd = require('telescope.utils').buffer_dir(),
+					no_ignore = true,
+				})
+			end,
+			desc = "Find file (relative)",
+		},
+	},
+	mode = 'n',
 })
 
 leader_map({
@@ -75,7 +102,8 @@ leader_map({
 	prefix = "o",
 	mode = "n",
 	keys = {
-		['-'] = { '<cmd>Oil<cr>', desc = "Current Dir" },
+		['-'] = { '<cmd>Oil<cr>', desc = "Current directory of file" },
+		['~'] = { '<cmd>Oil ~<cr>', desc = "Home directory" },
 	},
 })
 

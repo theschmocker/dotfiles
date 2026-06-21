@@ -27,17 +27,5 @@ return {
 		})
 
 		pcall(require('telescope').load_extension, 'ui-select')
-
-		local builtin = require("telescope.builtin")
-		vim.keymap.set("n", "<leader><leader>", function ()
-			if not pcall(builtin.git_files, {
-				show_untracked = true,
-				use_git_root = false,
-				sorter = require('telescope.sorters').get_fuzzy_file(),
-			}) then
-				builtin.find_files()
-			end
-		end, { desc = "Find File" })
-		vim.keymap.set("n", "<leader>/", builtin.live_grep, { desc = "Search Project" })
 	end
 }
