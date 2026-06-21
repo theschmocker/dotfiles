@@ -11,7 +11,7 @@ export ZSH="$HOME/.oh-my-zsh"
 
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 ZSH_THEME="af-magic"
-#
+
 zstyle ':omz:update' frequency 30
 plugins=(
   git
@@ -97,3 +97,21 @@ if [[ -f $HOME/.env.zsh ]]; then
   source $HOME/.env.zsh
 fi
 
+if uname -s | grep -q "Linux"; then
+    alias open="xdg-open"
+    alias pbpaste="wl-paste"
+    alias pbcopy="wl-copy"
+fi
+
+ztab() {
+	if [ -z "$ZELLIJ" ]; then
+		echo "Must be inside of a zellij session"
+		return 1
+	fi
+
+	if [ -z "$1" ]; then
+		zellij action new-tab
+	else
+		zellij action new-tab --name "$1"
+	fi
+}
