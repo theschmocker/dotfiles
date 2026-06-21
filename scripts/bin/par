@@ -595,6 +595,7 @@ def create_container(config: Configuration):
         "-e", f"HISTFILE={config.container.container_home}/.bash_history_dir/.bash_history",
         "-e", "EDITOR=nvim",
         "-e", "PI_OFFLINE=1",
+        "-e", "COLORTERM=truecolor",
         "-w", config.container.workdir,
         config.container.image_name,
         "sleep", "infinity",
