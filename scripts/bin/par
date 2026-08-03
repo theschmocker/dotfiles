@@ -163,10 +163,13 @@ DEFAULT_SYSTEM_PACKAGES = SystemPackages(
         "golang",
         "nodejs",
         "python3",
+        "python3-pillow",
         "zsh",
         "neovim",
         "rustup",
-        "python3-pillow",
+        "ImageMagick",
+        "sqlite",
+        "jq",
     ],
 )
 
@@ -597,6 +600,7 @@ def create_container(config: Configuration):
         "-e", "PI_OFFLINE=1",
         "-e", "COLORTERM=truecolor",
         "-w", config.container.workdir,
+        # "--network=pasta:--map-gw,-T,8080",
         config.container.image_name,
         "sleep", "infinity",
     ]
@@ -613,7 +617,16 @@ def start_container(container_name: str):
     )
 
 def run_interactive(*, config: Configuration, program: str = "/bin/bash"):
-    print(' '.join(["podman", "exec", "-it", "-w", config.container.workdir, config.container.container_name, program]))
+    print(' '.join([
+        "podman",
+        "exec",
+        "-it",
+        # "--network=pasta:--map-gw,-T,8080",
+        "-w",
+        config.container.workdir,
+        config.container.container_name,
+        program
+    ]))
     subprocess.run(
         ["podman", "exec", "-it", "-w", config.container.workdir, config.container.container_name, "/bin/bash", "-ic", program],
         check=True,
