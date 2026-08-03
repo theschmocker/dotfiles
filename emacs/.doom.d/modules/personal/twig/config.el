@@ -15,7 +15,7 @@
 (after! yasnippet
   (+twig/snippets-initialize))
 
-(set-yas-minor-mode! 'twig-minor-mode)
+; (set-yas-minor-mode! 'twig-minor-mode)
 
 (defun +twig/sp-point-before-closing-bracket-p (_id action context)
   (sp-point-before-same-p "}" action context))
