@@ -78,6 +78,8 @@ export FZF_DEFAULT_COMMAND='ag --hidden --ignore .git -g ""'
 
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
+export MANPAGER="bat -l man -p"
+
 nvc () {
 	local config_path="$DOTFILES_PATH/nvim/.config/nvim"
 	nvim "$config_path" -c "cd $config_path"
@@ -114,4 +116,8 @@ ztab() {
 	else
 		zellij action new-tab --name "$1"
 	fi
+}
+
+cdnv() {
+	(cd "$1" && nvim)
 }

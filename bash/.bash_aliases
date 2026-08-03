@@ -15,8 +15,8 @@ alias ga='git add'
 alias gc='git commit'
 
 # some ls aliases
-alias ll='ls -alF'
-alias lsa='ls -A'
+alias ll='ls -lha'
+alias lsa='ls -lhA'
 alias l='ls -CF'
 
 # blain mobile app
