@@ -32,6 +32,14 @@ vim.api.nvim_create_autocmd('FileType', {
 				return
 			end
 
+			-- fixes an issue where running comment line (normal: gcc) for the first time in some file types
+			-- causes an error to be thrown.
+			-- for some reason, an empty nofile buffer is created command
+			-- and then is gone by the time this runs
+			if not vim.api.nvim_buf_is_loaded(event.buf) then
+				return
+			end
+
 			vim.schedule(function ()
 				vim.treesitter.start(event.buf)
 			end)
