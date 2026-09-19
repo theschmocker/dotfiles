@@ -23,7 +23,7 @@ from typing import Optional
 
 SCRIPT_PATH = Path(__file__)
 AGENT_COMMAND="pi"
-PI_VERSION = "0.75.4"
+PI_VERSION = "0.83.0"
 
 def main() -> None:
     ensure_podman_available()

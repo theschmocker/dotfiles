@@ -1,8 +1,9 @@
 {
   "defaultProvider": "llama-cpp",
   "defaultModel": "qwen35b",
-  "lastChangelogVersion": "0.75.4",
+  "lastChangelogVersion": "0.83.0",
   "theme": "dark",
   "enableInstallTelemetry": false,
-  "doubleEscapeAction": "tree"
+  "doubleEscapeAction": "tree",
+  "hideThinkingBlock": false
 }
