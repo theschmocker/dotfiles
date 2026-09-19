@@ -149,6 +149,15 @@ keybinds clear-defaults=true {
             SwitchToMode "locked"
         }
     }
+	normal {
+		bind "Ctrl space" {
+            LaunchOrFocusPlugin "session-manager" {
+                floating true
+                move_to_focused_tab true
+            }
+            SwitchToMode "locked"
+		}
+	}
     shared_among "normal" "locked" {
         bind "Alt left" { MoveFocusOrTab "left"; }
         bind "Alt down" { MoveFocus "down"; }
@@ -238,7 +247,9 @@ keybinds clear-defaults=true {
 // changing these requires a restart to take effect
 plugins {
     about location="zellij:about"
-    compact-bar location="zellij:compact-bar"
+    compact-bar location="zellij:compact-bar" {
+		tooltip "F1"
+	}
     configuration location="zellij:configuration"
     filepicker location="zellij:strider" {
         cwd "/"
@@ -325,7 +336,7 @@ default_mode "locked"
 // (Requires restart)
 // Default: false
 // 
-// mirror_session true
+mirror_session true
  
 // Choose what to do when zellij receives SIGTERM, SIGINT, SIGQUIT or SIGHUP
 // eg. when terminal window with an active zellij session is closed
@@ -400,7 +411,7 @@ copy_on_select false
 //   - true (default)
 //   - false
 // 
-// session_serialization false
+session_serialization false
  
 // Whether pane viewports are serialized along with the session, default is false
 // Options:
