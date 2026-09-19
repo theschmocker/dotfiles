@@ -1,3 +1,6 @@
+-- TODO: try to make the code_action binding range the full line
+-- vim.lsp.buf.code_action()
+
 return {
 	{
 		-- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
@@ -235,6 +238,7 @@ return {
 								buildScripts = {
 									enable = true,
 								},
+								features = "all",
 							},
 							procMacro = {
 								enable = true

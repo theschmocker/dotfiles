@@ -12,7 +12,7 @@ vim.keymap.set('t', 'jk', '<C-\\><C-n>')
 vim.keymap.set('n', 'gh', 'K')
 
 -- don't yank visual selection on paste
-vim.keymap.set('v', 'p', 'P')
+vim.keymap.set('x', 'p', 'P')
 
 -- Top-level leader mappings
 leader_map({

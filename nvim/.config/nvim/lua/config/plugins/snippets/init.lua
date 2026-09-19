@@ -262,3 +262,39 @@ ls.add_snippets('cs', {
 			{ i(1) }
 	))
 })
+
+local testfn_snippet_text = [[#[test]
+fn {test_fn}() {{
+	{body}
+}}]]
+
+local testmod_snippet_text = [[#[cfg(test)]
+mod test {{
+	#[test]
+	fn {test_fn}() {{
+		{body}
+	}}
+}}]]
+
+ls.add_snippets('rust', {
+	s(
+		{ trig = "testmod", desc = "test module" },
+		fmt(
+			testmod_snippet_text,
+			{
+				test_fn = i(1),
+				body = i(2),
+			}
+		)
+	),
+	s(
+		{ trig = "testfn", desc = "test function" },
+		fmt(
+			testfn_snippet_text,
+			{
+				test_fn = i(1),
+				body = i(2),
+			}
+		)
+	)
+})
