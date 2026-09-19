@@ -121,3 +121,7 @@ ztab() {
 cdnv() {
 	(cd "$1" && nvim)
 }
+
+if command -v cowsay &> /dev/null; then
+	cowsay "Hello from Computer"
+fi
